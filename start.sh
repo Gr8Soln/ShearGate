@@ -85,17 +85,45 @@ fi
 
 
 
-# Start server
+# Start backend server
 echo ""
-echo "🚀 Starting FastAPI server..."
+echo "🚀 Starting applications..."
 echo -e "${GREEN}======================================"
-echo "   API will be available at:"
+echo "   Backend API will be available at:"
 echo "   📍 http://localhost:8000"
 echo "   📚 Documentation: http://localhost:8000/docs"
-echo "======================================"
-echo -e "${NC}"
-echo "Press Ctrl+C to stop the server"
 echo ""
 
-# Run uvicorn
-uvicorn app.main:app --reload --port 8000
+# Start frontend in background if directory exists
+if [ -d "ui" ]; then
+    echo "🎨 Starting Frontend application..."
+    echo "   📍 http://localhost:5173"
+    cd ui
+    npm install > /dev/null
+    npm run dev -- --host &
+    FRONTEND_PID=$!
+    cd ..
+else
+    echo -e "${YELLOW}   ⚠️  UI folder not found. Skipping frontend startup.${NC}"
+fi
+
+echo "======================================"
+echo -e "${NC}"
+echo "Press Ctrl+C to stop the servers"
+echo ""
+
+# Define cleanup function for graceful exit
+cleanup() {
+    echo ""
+    echo -e "${YELLOW}Shutting down servers...${NC}"
+    if [ ! -z "$FRONTEND_PID" ]; then
+        kill $FRONTEND_PID 2>/dev/null
+    fi
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
+
+# Run uvicorn (blocks the script until interrupted)
+uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
+

@@ -16,11 +16,13 @@ FastAPI backend for BS 5950 block shear analysis with AI-powered question parsin
 ## 📋 Features
 
 ### ✅ Authentication
+
 - User registration & login
 - JWT token-based auth
 - Password hashing with bcrypt
 
 ### ✅ Block Shear Calculations
+
 - Full BS 5950-1:2000 compliance
 - Two failure modes (shear yielding + tension rupture)
 - Step-by-step calculation generation
@@ -28,11 +30,13 @@ FastAPI backend for BS 5950 block shear analysis with AI-powered question parsin
 - Bolt grade support (4.6, 8.8)
 
 ### ✅ AI-Powered Input Parsing
+
 - **Text questions** - Extract parameters from natural language
 - **Image questions** - OCR and diagram analysis
 - Powered by Claude AI (Anthropic)
 
 ### ✅ BS 5950 Clause Database
+
 - Full clause text storage
 - Search functionality
 - Cross-references
@@ -63,6 +67,7 @@ pip install -r requirements.txt
 ### 2. Database Setup
 
 **PostgreSQL:**
+
 ```bash
 # Create database
 psql -U postgres
@@ -71,6 +76,7 @@ CREATE DATABASE blockshear;
 ```
 
 **MongoDB:**
+
 ```bash
 # Start MongoDB
 mongod
@@ -90,6 +96,7 @@ nano .env
 ```
 
 **Required variables:**
+
 ```env
 # MongoDB
 MONGODB_URL=mongodb://localhost:27017
@@ -179,6 +186,7 @@ GET    /health                  # Health check
 ### Using cURL
 
 **Register User:**
+
 ```bash
 curl -X POST "http://localhost:8000/api/auth/register" \
   -H "Content-Type: application/json" \
@@ -190,6 +198,7 @@ curl -X POST "http://localhost:8000/api/auth/register" \
 ```
 
 **Login:**
+
 ```bash
 curl -X POST "http://localhost:8000/api/auth/login" \
   -H "Content-Type: application/json" \
@@ -200,6 +209,7 @@ curl -X POST "http://localhost:8000/api/auth/login" \
 ```
 
 **Create Calculation:**
+
 ```bash
 curl -X POST "http://localhost:8000/api/calculate" \
   -H "Content-Type: application/json" \
@@ -222,6 +232,7 @@ curl -X POST "http://localhost:8000/api/calculate" \
 ```
 
 **Parse Text Question:**
+
 ```bash
 curl -X POST "http://localhost:8000/api/parse-text" \
   -H "Content-Type: application/json" \
@@ -235,34 +246,28 @@ curl -X POST "http://localhost:8000/api/parse-text" \
 ## 🔧 Project Structure
 
 ```
-blockshear-backend/
-├── app/
+blockshear/
+├── app/                       # FastAPI Backend
 │   ├── core/
-│   │   └── config.py              # Settings & config
 │   ├── database/
-│   │   ├── mongodb.py             # MongoDB connection
-│   │   └── postgresql.py          # PostgreSQL connection
 │   ├── models/
-│   │   ├── user.py                # User SQLAlchemy model
-│   │   └── clause.py              # Clause SQLAlchemy model
 │   ├── schemas/
-│   │   ├── user.py                # User Pydantic schemas
-│   │   ├── calculation.py         # Calculation schemas
-│   │   └── clause.py              # Clause schemas
 │   ├── services/
-│   │   ├── calculator.py          # BS 5950 calculation engine
-│   │   └── ai_parser.py           # Claude AI integration
 │   ├── routers/
-│   │   ├── auth.py                # Authentication endpoints
-│   │   ├── calculations.py        # Calculation endpoints
-│   │   └── clauses.py             # Clause endpoints
 │   ├── utils/
-│   │   └── security.py            # JWT & password hashing
-│   └── main.py                    # FastAPI application
-├── seed_db.py                     # Database seeding script
-├── requirements.txt               # Python dependencies
-├── .env.example                   # Environment template
-└── README.md                      # This file
+│   └── main.py
+├── ui/                        # React + Vite Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── App.tsx
+│   ├── package.json
+│   └── vite.config.ts
+├── docker-compose.yml         # Full-stack orchestration
+├── Dockerfile                 # Backend image
+├── ui/Dockerfile              # Frontend image
+├── start.sh                   # Dev launch script
+└── README.md
 ```
 
 ---
@@ -287,11 +292,13 @@ Pbs = min(Pbs1, Pbs2)
 ```
 
 **Material Properties:**
+
 - S235: py=235 N/mm², fu=360 N/mm²
 - S275: py=275 N/mm², fu=430 N/mm²
 - S355: py=355 N/mm², fu=510 N/mm²
 
 **Bolt Grades:**
+
 - 4.6: ps=160 N/mm², pt=195 N/mm²
 - 8.8: ps=375 N/mm², pt=450 N/mm²
 
@@ -300,6 +307,7 @@ Pbs = min(Pbs1, Pbs2)
 Located in `app/services/ai_parser.py`
 
 **Capabilities:**
+
 - Extract bolt specifications (grade, diameter, count)
 - Identify material properties
 - Parse geometric dimensions
@@ -307,12 +315,14 @@ Located in `app/services/ai_parser.py`
 - Fill missing values with sensible defaults
 
 **Example Input:**
+
 ```
-"4 M20 Grade 8.8 bolts, S275 10mm plate, 
+"4 M20 Grade 8.8 bolts, S275 10mm plate,
 pitch 70mm, edge 50mm, gauge 60mm, load 320kN"
 ```
 
 **Extracted Output:**
+
 ```json
 {
   "bolt_grade": "8.8",
@@ -465,6 +475,7 @@ CREATE TABLE clauses (
 ### Database Connection Issues
 
 **PostgreSQL:**
+
 ```bash
 # Check if running
 pg_isready
@@ -474,6 +485,7 @@ sudo service postgresql restart
 ```
 
 **MongoDB:**
+
 ```bash
 # Check status
 mongosh --eval "db.adminCommand('ping')"
@@ -496,6 +508,7 @@ curl https://api.anthropic.com/v1/messages \
 ### CORS Issues
 
 Add your frontend URL to `CORS_ORIGINS` in `.env`:
+
 ```env
 CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://yourapp.com
 ```
@@ -518,6 +531,7 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://yourapp.com
 ```
 
 Then run:
+
 ```bash
 python seed_db.py
 ```
@@ -525,6 +539,7 @@ python seed_db.py
 ### Extending Calculator
 
 Edit `app/services/calculator.py` to add:
+
 - New failure modes
 - Additional checks
 - Different connection types
@@ -532,6 +547,7 @@ Edit `app/services/calculator.py` to add:
 ### Custom AI Prompts
 
 Edit `app/services/ai_parser.py` to customize:
+
 - Extraction prompts
 - Default values
 - Validation logic

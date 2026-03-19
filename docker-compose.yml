@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -54,6 +54,22 @@ services:
     volumes:
       - ./app:/app/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # React Frontend UI
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: blockshear-ui
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://api:8000
+    depends_on:
+      - api
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
 
 volumes:
   postgres_data:
