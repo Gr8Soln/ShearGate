@@ -70,7 +70,7 @@
   }
 
   .btn-ghost {
-    @apply text-[#8890a0] px-4 py-2 rounded-lg font-medium border border-transparent
+    @apply inline-flex items-center gap-2 text-[#8890a0] px-4 py-2 rounded-lg font-medium border border-transparent
            hover:bg-[#1e2229] hover:text-[#e8eaf0] hover:border-[#272b35] transition-all duration-150;
   }
 

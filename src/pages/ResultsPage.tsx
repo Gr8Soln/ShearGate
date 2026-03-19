@@ -70,16 +70,16 @@ const ResultsPage: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Link to="/analyze" className="btn-ghost">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 " />
             Back to Analyze
           </Link>
           <div className="flex gap-2 no-print">
             <button className="btn-ghost">
-              <Printer className="w-4 h-4 mr-2" />
+              <Printer className="w-4 h-4 " />
               Print
             </button>
             <button className="btn-ghost">
-              <Download className="w-4 h-4 mr-2" />
+              <Download className="w-4 h-4 " />
               Export PDF
             </button>
           </div>

@@ -111,47 +111,44 @@ const AnalyzePage: React.FC = () => {
             {/* Input Method Cards */}
             <button
               onClick={() => setInputMode("manual")}
-              className={`p-6 rounded-xl border transition-all ${
+              className={`p-5 rounded-xl border transition-all flex items-center gap-4 text-left ${
                 inputMode === "manual"
                   ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
               }`}
             >
               <Calculator
-                className={`w-8 h-8 mb-3 ${inputMode === "manual" ? "text-amber-400" : "text-white/40"}`}
+                className={`w-6 h-6 shrink-0 ${inputMode === "manual" ? "text-amber-400" : "text-white/40"}`}
               />
-              <h3 className="font-semibold text-white mb-1">Manual Input</h3>
-              <p className="text-sm text-white/50">Enter parameters directly</p>
+              <div><h3 className="font-semibold text-white mb-0">Manual Input</h3><p className="text-sm text-white/50">Enter parameters directly</p></div>
             </button>
 
             <button
               onClick={() => setInputMode("text")}
-              className={`p-6 rounded-xl border transition-all ${
+              className={`p-5 rounded-xl border transition-all flex items-center gap-4 text-left ${
                 inputMode === "text"
                   ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
               }`}
             >
               <FileText
-                className={`w-8 h-8 mb-3 ${inputMode === "text" ? "text-amber-400" : "text-white/40"}`}
+                className={`w-6 h-6 shrink-0 ${inputMode === "text" ? "text-amber-400" : "text-white/40"}`}
               />
-              <h3 className="font-semibold text-white mb-1">Text Question</h3>
-              <p className="text-sm text-white/50">AI extracts parameters</p>
+              <div><h3 className="font-semibold text-white mb-0">Text Question</h3><p className="text-sm text-white/50">AI extracts parameters</p></div>
             </button>
 
             <button
               onClick={() => setInputMode("image")}
-              className={`p-6 rounded-xl border transition-all ${
+              className={`p-5 rounded-xl border transition-all flex items-center gap-4 text-left ${
                 inputMode === "image"
                   ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
               }`}
             >
               <ImageIcon
-                className={`w-8 h-8 mb-3 ${inputMode === "image" ? "text-amber-400" : "text-white/40"}`}
+                className={`w-6 h-6 shrink-0 ${inputMode === "image" ? "text-amber-400" : "text-white/40"}`}
               />
-              <h3 className="font-semibold text-white mb-1">Image Upload</h3>
-              <p className="text-sm text-white/50">Upload question image</p>
+              <div><h3 className="font-semibold text-white mb-0">Image Upload</h3><p className="text-sm text-white/50">Upload question image</p></div>
             </button>
           </div>
         </div>
