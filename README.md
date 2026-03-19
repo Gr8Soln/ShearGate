@@ -5,7 +5,6 @@ FastAPI backend for BS 5950 block shear analysis with AI-powered question parsin
 ## 🚀 Tech Stack
 
 - **FastAPI** - Modern Python web framework
-- **MongoDB** - User calculations & history
 - **PostgreSQL** - Users & BS 5950 clauses
 - **Claude AI** - Question parsing (text & image)
 - **JWT** - Authentication
@@ -48,7 +47,6 @@ FastAPI backend for BS 5950 block shear analysis with AI-powered question parsin
 ### Prerequisites
 
 - Python 3.10+
-- MongoDB 6.0+
 - PostgreSQL 14+
 - Anthropic API key
 
@@ -75,14 +73,11 @@ CREATE DATABASE blockshear;
 \q
 ```
 
-**MongoDB:**
 
 ```bash
-# Start MongoDB
 mongod
 
 # Or with Docker:
-docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 
 ### 3. Environment Configuration
@@ -98,8 +93,6 @@ nano .env
 **Required variables:**
 
 ```env
-# MongoDB
-MONGODB_URL=mongodb://localhost:27017
 
 # PostgreSQL
 POSTGRES_URL=postgresql://postgres:password@localhost:5432/blockshear
@@ -378,7 +371,6 @@ railway login
 railway init
 
 # Add environment variables
-railway variables set MONGODB_URL=mongodb+srv://...
 railway variables set POSTGRES_URL=postgresql://...
 railway variables set ANTHROPIC_API_KEY=sk-...
 railway variables set SECRET_KEY=$(openssl rand -hex 32)
@@ -401,7 +393,6 @@ docker build -t blockshear-api .
 
 # Run container
 docker run -d -p 8000:8000 \
-  -e MONGODB_URL=mongodb://... \
   -e POSTGRES_URL=postgresql://... \
   -e ANTHROPIC_API_KEY=sk-... \
   blockshear-api
@@ -411,7 +402,6 @@ docker run -d -p 8000:8000 \
 
 ## 📊 Database Schemas
 
-### MongoDB - Calculations
 
 ```javascript
 {
@@ -484,7 +474,6 @@ pg_isready
 sudo service postgresql restart
 ```
 
-**MongoDB:**
 
 ```bash
 # Check status

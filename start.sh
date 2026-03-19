@@ -56,7 +56,6 @@ if [ ! -f ".env" ]; then
     echo "Creating .env from template..."
     cp .env.example .env
     echo -e "${YELLOW}⚠️  Please edit .env file with your configuration${NC}"
-    echo -e "${YELLOW}   Especially: ANTHROPIC_API_KEY, MONGODB_URL, POSTGRES_URL${NC}"
     echo ""
     read -p "Press Enter to continue after editing .env..."
 else
@@ -75,13 +74,6 @@ else
     echo -e "${YELLOW}   ⚠️  PostgreSQL client not found (install postgresql-client)${NC}"
 fi
 
-# Check MongoDB
-echo "   Checking MongoDB..."
-if command -v mongosh &> /dev/null || command -v mongo &> /dev/null; then
-    echo -e "${GREEN}   ✅ MongoDB client found${NC}"
-else
-    echo -e "${YELLOW}   ⚠️  MongoDB client not found${NC}"
-fi
 
 
 
