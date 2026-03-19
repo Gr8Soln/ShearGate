@@ -134,7 +134,8 @@ const HistoryPage: React.FC = () => {
                           value: (
                             <span
                               className={
-                                calc.result.utilizationRatio < 1
+                                calc.result.utilizationRatio &&
+                                parseFloat(calc.result.utilizationRatio) < 1
                                   ? "text-green-400"
                                   : "text-red-500"
                               }

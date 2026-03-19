@@ -56,15 +56,17 @@
 @layer components {
   /* Engineering-focused button styles */
   .btn-primary {
-    @apply bg-[#e8a020] text-[#0d0f12] px-6 py-3 rounded-[10px] font-syne font-bold 
+    @apply bg-[#e8a020] text-[#0d0f12] px-6 py-3 rounded-[10px] font-bold 
            hover:bg-[#f0b030] hover:-translate-y-[1px] shadow-[0_4px_16px_rgba(232,160,32,0.25)] transition-all duration-200
            border border-[#e8a020] disabled:opacity-50 disabled:cursor-not-allowed;
+    font-family: "Syne", sans-serif;
   }
 
   .btn-secondary {
-    @apply bg-transparent text-[#e8eaf0] px-6 py-3 rounded-[10px] font-syne font-bold border border-[#363d4a]
+    @apply bg-transparent text-[#e8eaf0] px-6 py-3 rounded-[10px] font-bold border border-[#363d4a]
            hover:bg-[#1e2229] hover:border-[#8890a0] hover:-translate-y-[1px] transition-all duration-200
            disabled:opacity-50 disabled:cursor-not-allowed;
+    font-family: "Syne", sans-serif;
   }
 
   .btn-ghost {

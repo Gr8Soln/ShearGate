@@ -1,7 +1,7 @@
 import type {
   Calculation,
-  ConnectionInputs,
   CalculationResult,
+  ConnectionInputs,
 } from "../types";
 
 // Mock calculation results for demonstration
@@ -22,15 +22,16 @@ export const mockCalculations: Calculation[] = [
       plateThickness: 10,
       gauge: 60,
       connectionType: "bearing",
+      appliedLoad: 320.0,
     },
     result: {
       blockShearOccurs: false,
-      blockShearCapacity: 425.5,
-      appliedLoad: 320.0,
-      utilizationRatio: 0.75,
+      blockShearCapacity: "425.5",
+      appliedLoad: "320.0",
+      utilizationRatio: "0.75",
       verdict: "SAFE - Block shear will not occur",
-      mode1Capacity: 425.5,
-      mode2Capacity: 458.2,
+      mode1Capacity: "425.5",
+      mode2Capacity: "458.2",
     },
     steps: [
       {
