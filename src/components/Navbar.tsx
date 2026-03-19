@@ -24,61 +24,75 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#0A0A0F]/80 backdrop-blur-xl border-b border-white/10 px-8 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-[#0d0f12]/92 backdrop-blur-md border-b border-[#272b35] px-8 py-0 h-[60px] flex items-center">
+      <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 hover:translate-y-[-2px] transition-all duration-200 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">BS</span>
+        <Link
+          to="/"
+          className="flex items-center gap-2 hover:opacity-90 transition-all duration-200 group group select-none"
+        >
+          <div className="w-8 h-8 flex items-center justify-center text-[#e8a020]">
+            <span className="font-bold text-2xl leading-none">BS</span>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:via-pink-400 group-hover:to-cyan-400 group-hover:bg-clip-text group-hover:text-transparent transition-all">Block Shear Analyzer</h1>
-            <p className="text-xs text-gray-400">BS 5950 Design Tool</p>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-[#e8eaf0] tracking-wide">
+              Block Shear
+            </h1>
+            <span className="font-mono text-[0.65rem] text-[#e8a020] bg-[rgba(232,160,32,0.12)] border border-[#9a6b15] px-1.5 py-[1px] rounded-[3px] tracking-wider uppercase inline-block self-start mt-0.5">
+              Analyzer
+            </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 hover:translate-y-[-2px] ${
-                isActive(link.path)
-                  ? "bg-white/10 text-white shadow-lg shadow-purple-500/10"
-                  : "text-gray-300 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              {link.icon && <link.icon className="w-4 h-4" />}
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Auth Section */}
+        {/* Desktop Navigation & Auth */}
         <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm transition-all duration-200 ${
+                  isActive(link.path)
+                    ? "bg-[#e8a020]/10 text-[#e8a020] border border-[#9a6b15]"
+                    : "text-[#8890a0] hover:text-[#e8eaf0] hover:bg-[#1e2229] border border-transparent"
+                }`}
+              >
+                {link.icon && <link.icon className="w-4 h-4" />}
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="w-[1px] h-6 bg-[#272b35] mx-1"></div>
+
           {isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm">
-                <User className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-white">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#13161b] rounded-md border border-[#272b35]">
+                <User className="w-4 h-4 text-[#e8a020]" />
+                <span className="text-sm font-medium text-[#e8eaf0]">
                   Student User
                 </span>
               </div>
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 hover:translate-y-[-2px]"
+                className="flex items-center gap-2 px-3 py-1.5 text-[#8890a0] hover:text-[#e8eaf0] hover:bg-[#1e2229] border border-transparent rounded-md transition-all duration-200"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="text-sm font-medium">Logout</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-4">
-              <Link to="/login" className="text-gray-300 hover:text-white transition-colors duration-200 hover:translate-y-[-2px]">
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="px-3 py-1.5 text-sm font-medium text-[#8890a0] hover:text-[#e8eaf0] transition-colors duration-200"
+              >
                 Login
               </Link>
-              <Link to="/signup" className="px-6 py-2 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-full text-white font-medium hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-200 hover:translate-y-[-2px] hover:scale-105">
+              <Link
+                to="/signup"
+                className="px-4 py-1.5 bg-[#e8a020] text-[#0d0f12] text-sm font-bold rounded-md hover:bg-[#f0b030] transition-all duration-200 hover:-translate-y-[1px] shadow-[0_4px_16px_rgba(232,160,32,0.25)] border border-[#e8a020]"
+              >
                 Sign Up
               </Link>
             </div>

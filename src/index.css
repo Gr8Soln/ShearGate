@@ -1,14 +1,55 @@
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: #0d0f12;
+    --bg-card: #13161b;
+    --bg-input: #1a1d24;
+    --bg-hover: #1e2229;
+    --border: #272b35;
+    --border-hi: #363d4a;
+    --amber: #e8a020;
+    --amber-dim: #9a6b15;
+    --amber-glow: rgba(232, 160, 32, 0.12);
+    --blue-accent: #4f9cf9;
+    --green: #3ecf8e;
+    --red: #f04444;
+    --text: #e8eaf0;
+    --text-sub: #8890a0;
+    --text-dim: #555d6b;
+    --grid: #22262f;
+  }
+
   body {
-    @apply bg-[#0A0A0F] text-white antialiased;
+    @apply bg-[#0d0f12] text-[#e8eaf0] antialiased;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
   }
 
   * {
-    @apply border-white/10;
+    @apply border-[#272b35];
   }
 }
 

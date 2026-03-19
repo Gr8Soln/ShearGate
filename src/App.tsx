@@ -28,7 +28,7 @@ function App() {
           <div className="absolute top-1/4 -left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-transparent rounded-full blur-3xl animate-pulse-slow" />
           <div className="absolute -top-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-bl from-blue-500/20 via-cyan-500/20 to-transparent rounded-full blur-3xl animate-pulse-slow-delayed" />
           <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] bg-gradient-to-tr from-indigo-500/20 via-purple-500/20 to-transparent rounded-full blur-3xl animate-pulse-slow" />
-          
+
           {/* Grid overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
         </div>

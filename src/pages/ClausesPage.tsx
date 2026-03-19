@@ -1,4 +1,4 @@
-import { BookOpen, Search } from "lucide-react";
+import { FileText, Search } from "lucide-react";
 import React, { useState } from "react";
 import ClauseCard from "../components/ClauseCard";
 import { bs5950Clauses, searchClauses } from "../data/clauses";
@@ -8,6 +8,9 @@ const ClausesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredClauses, setFilteredClauses] = useState<BS5950Clause[]>(
     Object.values(bs5950Clauses),
+  );
+  const [selectedClause, setSelectedClause] = useState<BS5950Clause | null>(
+    Object.values(bs5950Clauses)[0],
   );
 
   const handleSearch = (query: string): void => {
@@ -21,80 +24,93 @@ const ClausesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-transparent py-8 px-4">
+      <div className="max-w-[1200px] mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
-              <BookOpen className="w-7 h-7 text-cyan-400" />
-            </div>
-            <h1 className="text-4xl font-bold text-white">BS 5950 Clauses</h1>
+        <div className="mb-8 border-b border-[#272b35] pb-6">
+          <div className="inline-flex items-center gap-3 mb-2">
+            <span className="font-mono text-[0.65rem] tracking-[0.12em] uppercase text-[#e8a020] border border-[#9a6b15] bg-[rgba(232,160,32,0.12)] px-2.5 py-[3px] rounded-[3px]">
+              Reference
+            </span>
           </div>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+          <h1 className="font-syne text-3xl font-bold text-[#e8eaf0] mb-2">
+            BS 5950 Clauses
+          </h1>
+          <p className="text-sm text-[#8890a0] max-w-2xl">
             Browse and search design clauses related to bolted connections and
             block shear failure
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="card p-6 mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search clauses... (e.g., 'block shear', 'bolt spacing', 'tension')"
-              className="input-field pl-12 bg-white/5 border-white/10 text-white placeholder-white/30 focus:border-cyan-400 focus:ring-cyan-400/20"
-            />
-          </div>
-          <p className="text-sm text-white/50 mt-3">
-            {filteredClauses.length} clause
-            {filteredClauses.length !== 1 ? "s" : ""} found
-          </p>
-        </div>
-
-        {/* Clauses List */}
-        <div className="space-y-6">
-          {filteredClauses.length > 0 ? (
-            filteredClauses.map((clause, idx) => (
-              <div key={idx} className="animate-fade-in">
-                <ClauseCard clause={clause} compact={true} />
+        {/* 2-Column Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-8 items-start">
+          {/* Left Column - List */}
+          <div className="flex flex-col gap-4">
+            {/* Search Bar */}
+            <div className="bg-[#13161b] border border-[#272b35] rounded-lg p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555d6b]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Search clauses..."
+                  className="w-full bg-[#1a1d24] border border-[#272b35] rounded-md text-[#e8eaf0] font-mono text-xs p-2 pl-9 outline-none focus:border-[#9a6b15] transition-colors"
+                />
               </div>
-            ))
-          ) : (
-            <div className="card p-12 text-center border-white/10">
-              <p className="text-white/60 mb-2">
-                No clauses found matching "{searchQuery}"
+              <p className="text-xs text-[#555d6b] mt-2 font-mono">
+                {filteredClauses.length} results
               </p>
-              <p className="text-sm text-white/40">
-                Try different keywords or browse all clauses
-              </p>
-              <button
-                onClick={() => handleSearch("")}
-                className="btn-primary mt-4 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-              >
-                Show All Clauses
-              </button>
             </div>
-          )}
-        </div>
 
-        {/* Info Footer */}
-        <div className="card-elevated p-6 mt-12 bg-gradient-to-br from-white/10 to-transparent border-white/20">
-          <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-cyan-400" />
-            About BS 5950
-          </h3>
-          <p className="text-white/70 leading-relaxed">
-            BS 5950-1:2000 is the British Standard for structural use of
-            steelwork in building. This application implements design provisions
-            for bolted connections, including checks for block shear failure,
-            bolt spacing, edge distances, and capacity calculations. All
-            calculations and clause references are based on the current
-            standard.
-          </p>
+            {/* Buttons */}
+            <div className="bg-[#13161b] border border-[#272b35] rounded-lg p-2 max-h-[600px] overflow-y-auto custom-scrollbar">
+              {filteredClauses.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {filteredClauses.map((clause, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedClause(clause)}
+                      className={`text-left px-3 py-2.5 rounded-md text-sm transition-all flex flex-col gap-1 border border-transparent ${
+                        selectedClause?.id === clause.id
+                          ? "bg-[rgba(232,160,32,0.07)] border-[rgba(232,160,32,0.2)] text-[#e8a020]"
+                          : "text-[#8890a0] hover:bg-[#1e2229] hover:text-[#e8eaf0] hover:border-[#363d4a]"
+                      }`}
+                    >
+                      <span className="font-mono text-xs opacity-70">
+                        Clause {clause.number}
+                      </span>
+                      <span className="font-semibold">{clause.title}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-6 text-center">
+                  <p className="text-[#8890a0] text-sm mb-2">No matches</p>
+                  <button
+                    onClick={() => handleSearch("")}
+                    className="text-[#e8a020] text-xs hover:underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Details */}
+          <div className="bg-[#13161b] border border-[#272b35] rounded-xl p-6 min-h-[400px]">
+            {selectedClause ? (
+              <div className="animate-fade-in">
+                <ClauseCard clause={selectedClause} compact={false} />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-[#555d6b] gap-3">
+                <FileText className="w-10 h-10 opacity-50" />
+                <p>Select a clause to view details</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

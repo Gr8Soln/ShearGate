@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  BookOpen,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -208,89 +209,108 @@ const ResultsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Calculation Steps */}
-        <div className="card p-6 mb-8 border-white/10">
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Calculation Steps
-          </h2>
-          <div className="space-y-3">
-            {steps.map((step) => (
-              <div
-                key={step.step}
-                className="border border-white/10 rounded-lg overflow-hidden bg-white/5"
-              >
-                <button
-                  onClick={() => toggleStep(step.step)}
-                  className="w-full p-4 hover:bg-white/10 transition-colors flex items-center justify-between"
+        {/* Calculation Steps and Clause Details Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 mb-8 items-start">
+          {/* Left Column: Flow of steps */}
+          <div>
+            <h2 className="text-xl font-syne font-bold text-[#e8eaf0] mb-4">
+              Calculation Steps
+            </h2>
+            <div className="space-y-3">
+              {steps.map((step) => (
+                <div
+                  key={step.step}
+                  className="bg-[#13161b] border border-[#272b35] rounded-lg overflow-hidden"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-[0_0_10px_rgba(168,85,247,0.4)]">
-                      {step.step}
-                    </div>
-                    <h3 className="font-semibold text-white/90 text-left">
-                      {step.title}
-                    </h3>
-                  </div>
-                  {expandedSteps.includes(step.step) ? (
-                    <ChevronUp className="w-5 h-5 text-white/60" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-white/60" />
-                  )}
-                </button>
-
-                {expandedSteps.includes(step.step) && (
-                  <div className="p-6 bg-[#0A0A0F]/80 animate-fade-in border-t border-white/10">
-                    <div className="mb-4">
-                      <p className="text-white/80 whitespace-pre-line leading-relaxed">
-                        {step.content}
-                      </p>
-                    </div>
-
-                    {step.formulas && step.formulas.length > 0 && (
-                      <div className="space-y-2 mb-4">
-                        {step.formulas.map((formula, idx) => (
-                          <div
-                            key={idx}
-                            className="font-mono text-sm bg-black/60 text-cyan-300 px-4 py-3 rounded-md border border-cyan-500/20 shadow-inner"
-                          >
-                            {formula}
-                          </div>
-                        ))}
+                  <button
+                    onClick={() => {
+                      toggleStep(step.step);
+                      if (step.clause) handleClauseClick(step.clause);
+                    }}
+                    className={`w-full p-4 hover:bg-[rgba(39,43,53,0.5)] transition-colors flex items-center justify-between ${expandedSteps.includes(step.step) ? "bg-[rgba(232,160,32,0.07)] border-l-2 border-l-[#e8a020]" : ""}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 bg-[rgba(232,160,32,0.12)] border border-[#9a6b15] rounded-full flex items-center justify-center text-[#e8a020] font-bold text-sm">
+                        {step.step}
                       </div>
+                      <h3 className="font-semibold text-[#e8eaf0] text-left text-sm">
+                        {step.title}
+                      </h3>
+                    </div>
+                    {expandedSteps.includes(step.step) ? (
+                      <ChevronUp className="w-5 h-5 text-[#8890a0]" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-[#8890a0]" />
                     )}
+                  </button>
 
-                    {step.clause && (
-                      <button
-                        onClick={() => handleClauseClick(step.clause)}
-                        className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 hover:underline font-medium mt-2"
-                      >
-                        📖 BS 5950 Clause {step.clause}
-                      </button>
-                    )}
-                  </div>
-                )}
+                  {expandedSteps.includes(step.step) && (
+                    <div className="p-5 bg-[#0d0f12] animate-fade-in border-t border-[#272b35]">
+                      <div className="mb-4">
+                        <p className="text-[#e8eaf0] text-sm whitespace-pre-line leading-relaxed font-mono">
+                          {step.content}
+                        </p>
+                      </div>
+
+                      {step.formulas && step.formulas.length > 0 && (
+                        <div className="space-y-2 mb-4">
+                          {step.formulas.map((formula, idx) => (
+                            <div
+                              key={idx}
+                              className="font-mono text-xs bg-[rgba(62,207,142,0.05)] text-[#3ecf8e] p-3 rounded-md border border-[rgba(62,207,142,0.2)]"
+                            >
+                              {formula}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {step.clause && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleClauseClick(step.clause);
+                          }}
+                          className="inline-flex items-center gap-2 text-xs text-[#4f9cf9] hover:text-[#e8eaf0] transition-colors font-medium mt-2 bg-[rgba(79,156,249,0.1)] px-2.5 py-1.5 rounded-md border border-[rgba(79,156,249,0.3)]"
+                        >
+                          📖 View Clause {step.clause}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column: Clause Detail */}
+          <div className="sticky top-[100px]">
+            <h2 className="text-xl font-syne font-bold text-[#e8eaf0] mb-4">
+              Referenced Clause
+            </h2>
+            {selectedClause ? (
+              <div className="animate-slide-up bg-[#13161b] rounded-xl p-1 border border-[#272b35]">
+                <div className="flex justify-end p-2 pb-0">
+                  <button
+                    onClick={() => setSelectedClause(null)}
+                    className="text-xs text-[#8890a0] hover:text-[#e8eaf0]"
+                  >
+                    Close
+                  </button>
+                </div>
+                <ClauseCard clause={selectedClause} compact={false} />
               </div>
-            ))}
+            ) : (
+              <div className="bg-[#13161b] border border-[#272b35] border-dashed rounded-xl h-[300px] flex flex-col items-center justify-center text-[#555d6b] p-6 text-center">
+                <BookOpen className="w-10 h-10 mb-3 opacity-50" />
+                <p className="text-sm">
+                  Click on "View Clause" in any calculation step to display the
+                  relevant BS 5950 provisions here.
+                </p>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Selected Clause Detail */}
-        {selectedClause && (
-          <div className="mb-8 animate-slide-up">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl font-bold text-white">
-                Referenced Clause
-              </h2>
-              <button
-                onClick={() => setSelectedClause(null)}
-                className="btn-ghost text-sm"
-              >
-                Close
-              </button>
-            </div>
-            <ClauseCard clause={selectedClause} />
-          </div>
-        )}
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center no-print">

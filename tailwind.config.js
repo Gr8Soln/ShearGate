@@ -27,6 +27,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "Consolas", "monospace"],
+        syne: ["Syne", "sans-serif"],
       },
       boxShadow: {
         engineering:
