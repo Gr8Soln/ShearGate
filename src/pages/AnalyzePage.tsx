@@ -103,7 +103,7 @@ const AnalyzePage: React.FC = () => {
         {/* Input Mode Selector */}
         <div className="card p-6 mb-8">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-cyan-400" />
+            <Sparkles className="w-5 h-5 text-amber-400" />
             <h2 className="text-xl font-bold text-white">Input Method</h2>
           </div>
 
@@ -113,12 +113,12 @@ const AnalyzePage: React.FC = () => {
               onClick={() => setInputMode("manual")}
               className={`p-6 rounded-xl border transition-all ${
                 inputMode === "manual"
-                  ? "border-cyan-400 bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                  ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
               }`}
             >
               <Calculator
-                className={`w-8 h-8 mb-3 ${inputMode === "manual" ? "text-cyan-400" : "text-white/40"}`}
+                className={`w-8 h-8 mb-3 ${inputMode === "manual" ? "text-amber-400" : "text-white/40"}`}
               />
               <h3 className="font-semibold text-white mb-1">Manual Input</h3>
               <p className="text-sm text-white/50">Enter parameters directly</p>
@@ -128,12 +128,12 @@ const AnalyzePage: React.FC = () => {
               onClick={() => setInputMode("text")}
               className={`p-6 rounded-xl border transition-all ${
                 inputMode === "text"
-                  ? "border-cyan-400 bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                  ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
               }`}
             >
               <FileText
-                className={`w-8 h-8 mb-3 ${inputMode === "text" ? "text-cyan-400" : "text-white/40"}`}
+                className={`w-8 h-8 mb-3 ${inputMode === "text" ? "text-amber-400" : "text-white/40"}`}
               />
               <h3 className="font-semibold text-white mb-1">Text Question</h3>
               <p className="text-sm text-white/50">AI extracts parameters</p>
@@ -143,12 +143,12 @@ const AnalyzePage: React.FC = () => {
               onClick={() => setInputMode("image")}
               className={`p-6 rounded-xl border transition-all ${
                 inputMode === "image"
-                  ? "border-cyan-400 bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                  ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
               }`}
             >
               <ImageIcon
-                className={`w-8 h-8 mb-3 ${inputMode === "image" ? "text-cyan-400" : "text-white/40"}`}
+                className={`w-8 h-8 mb-3 ${inputMode === "image" ? "text-amber-400" : "text-white/40"}`}
               />
               <h3 className="font-semibold text-white mb-1">Image Upload</h3>
               <p className="text-sm text-white/50">Upload question image</p>
@@ -166,12 +166,12 @@ const AnalyzePage: React.FC = () => {
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
               placeholder="Example: A double angle connection with 4 x M20 Grade 8.8 bolts..."
-              className="input-field min-h-[150px] resize-y bg-white/5 border-white/10 text-white placeholder-white/30 focus:border-cyan-400 focus:ring-cyan-400/20"
+              className="input-field min-h-[150px] resize-y bg-white/5 border-white/10 text-white placeholder-white/30 focus:border-amber-400 focus:ring-amber-400/20"
             />
             <button
               onClick={handleAIExtraction}
               disabled={!questionText || isProcessing}
-              className="btn-primary mt-4 w-full md:w-auto shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+              className="btn-primary mt-4 w-full md:w-auto shadow-[0_0_15px_rgba(245,158,11,0.4)]"
             >
               {isProcessing ? (
                 <>
@@ -194,7 +194,7 @@ const AnalyzePage: React.FC = () => {
             <label className="block mb-3 font-semibold text-white">
               Upload Question Image
             </label>
-            <div className="border-2 border-dashed border-white/20 rounded-xl p-12 text-center hover:border-cyan-400 hover:bg-white/5 transition-all">
+            <div className="border-2 border-dashed border-white/20 rounded-xl p-12 text-center hover:border-amber-400 hover:bg-white/5 transition-all">
               <input
                 type="file"
                 accept="image/*"
@@ -223,7 +223,7 @@ const AnalyzePage: React.FC = () => {
               <button
                 onClick={handleAIExtraction}
                 disabled={isProcessing}
-                className="btn-primary mt-4 w-full md:w-auto shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                className="btn-primary mt-4 w-full md:w-auto shadow-[0_0_15px_rgba(245,158,11,0.4)]"
               >
                 {isProcessing ? (
                   <>
@@ -264,7 +264,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("boltGrade", e.target.value)
                     }
-                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-amber-400"
                   >
                     <option value="4.6">Grade 4.6</option>
                     <option value="8.8">Grade 8.8</option>
@@ -281,7 +281,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("boltDiameter", e.target.value)
                     }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
 
@@ -295,7 +295,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("numberOfBolts", e.target.value)
                     }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
 
@@ -308,7 +308,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("connectionType", e.target.value)
                     }
-                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-amber-400"
                   >
                     <option value="bearing">Bearing Type</option>
                     <option value="slip-resistant">Slip-Resistant</option>
@@ -331,7 +331,7 @@ const AnalyzePage: React.FC = () => {
                     type="number"
                     value={inputs.pitch}
                     onChange={(e) => handleInputChange("pitch", e.target.value)}
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
 
@@ -345,7 +345,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("edgeDistance", e.target.value)
                     }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
 
@@ -357,7 +357,7 @@ const AnalyzePage: React.FC = () => {
                     type="number"
                     value={inputs.gauge}
                     onChange={(e) => handleInputChange("gauge", e.target.value)}
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
 
@@ -371,7 +371,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("plateThickness", e.target.value)
                     }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
               </div>
@@ -387,7 +387,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("plateMaterial", e.target.value)
                     }
-                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-amber-400"
                   >
                     <option value="S275">S275</option>
                     <option value="S355">S355</option>
@@ -405,7 +405,7 @@ const AnalyzePage: React.FC = () => {
                     onChange={(e) =>
                       handleInputChange("appliedLoad", e.target.value)
                     }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-cyan-400"
+                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
                   />
                 </div>
               </div>
@@ -415,7 +415,7 @@ const AnalyzePage: React.FC = () => {
             <button
               onClick={handleCalculate}
               disabled={isProcessing}
-              className="btn-primary w-full mt-8 py-4 text-lg font-bold flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+              className="btn-primary w-full mt-8 py-4 text-lg font-bold flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
             >
               {isProcessing ? (
                 <>

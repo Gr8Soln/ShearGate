@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
       <section className="relative text-white py-20 px-4">
         <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="inline-block mb-6">
-            <span className="badge bg-white/5 text-purple-300 border-white/20 backdrop-blur-md px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+            <span className="badge bg-white/5 text-amber-300 border-white/20 backdrop-blur-md px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(232,160,32,0.2)]">
               CVE505 | Design of Steel Structures
             </span>
           </div>
@@ -74,7 +74,7 @@ const HomePage: React.FC = () => {
           <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
             Block Shear Analysis
             <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.4)]">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-amber-400 to-amber-400 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
               Made Simple
             </span>
           </h1>
@@ -88,7 +88,7 @@ const HomePage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               to="/analyze"
-              className="btn-primary hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] text-lg px-8 py-4 flex items-center gap-2"
+              className="btn-primary hover:shadow-[0_0_20px_rgba(232,160,32,0.5)] text-lg px-8 py-4 flex items-center gap-2"
             >
               Start Analysis
               <Calculator className="w-5 h-5" />
@@ -103,21 +103,21 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-6 mt-20 max-w-3xl mx-auto bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-xl shadow-2xl shadow-purple-900/20">
+          <div className="grid grid-cols-3 gap-6 mt-20 max-w-3xl mx-auto bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-xl shadow-2xl shadow-amber-900/20">
             <div className="text-center">
-              <div className="text-4xl font-bold text-cyan-400 mb-2 drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
+              <div className="text-4xl font-bold text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
                 100%
               </div>
               <div className="text-sm text-white/60">BS 5950 Compliant</div>
             </div>
             <div className="text-center border-l border-r border-white/10">
-              <div className="text-4xl font-bold text-pink-400 mb-2 drop-shadow-[0_0_10px_rgba(236,72,153,0.4)]">
+              <div className="text-4xl font-bold text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
                 AI
               </div>
               <div className="text-sm text-white/60">Powered Analysis</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-purple-400 mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.4)]">
+              <div className="text-4xl font-bold text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
                 ∞
               </div>
               <div className="text-sm text-white/60">Free Calculations</div>
@@ -130,7 +130,7 @@ const HomePage: React.FC = () => {
       <section className="py-24 px-4 bg-black/40 backdrop-blur-sm border-y border-white/5 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-cyan-300">
+            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-300">
               Everything You Need
             </h2>
             <p className="text-lg text-white/60 max-w-2xl mx-auto">
@@ -143,13 +143,13 @@ const HomePage: React.FC = () => {
             {features.map((feature, idx) => (
               <div
                 key={idx}
-                className="card p-6 bg-white/[0.03] hover:bg-white/[0.08] backdrop-blur-xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 group"
+                className="card p-6 bg-white/[0.03] hover:bg-white/[0.08] backdrop-blur-xl border border-white/10 hover:border-amber-500/30 transition-all duration-300 group"
               >
                 <div
-                  className={`w-14 h-14 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all`}
+                  className={`w-14 h-14 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(232,160,32,0.3)] transition-all`}
                 >
                   <feature.icon
-                    className={`w-7 h-7 text-white/80 group-hover:text-cyan-400`}
+                    className={`w-7 h-7 text-white/80 group-hover:text-amber-400`}
                   />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
@@ -168,7 +168,7 @@ const HomePage: React.FC = () => {
       <section className="py-24 px-4 bg-transparent relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-300 mb-4">
+            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-300 mb-4">
               Comprehensive Coverage
             </h2>
             <p className="text-lg text-white/60">
@@ -176,14 +176,14 @@ const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="card-elevated p-8 bg-black/40 border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.1)]">
+          <div className="card-elevated p-8 bg-black/40 border-white/10 shadow-[0_0_50px_rgba(232,160,32,0.1)]">
             <div className="grid md:grid-cols-2 gap-4">
               {connectionTypes.map((type, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg hover:border-cyan-500/30 transition-colors"
+                  className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg hover:border-amber-500/30 transition-colors"
                 >
-                  <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]" />
+                  <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 drop-shadow-[0_0_5px_rgba(232,160,32,0.5)]" />
                   <span className="text-white/80 font-medium">{type}</span>
                 </div>
               ))}
@@ -195,7 +195,7 @@ const HomePage: React.FC = () => {
       {/* CTA Section */}
       <section className="py-24 px-4 bg-black/60 relative z-10 border-t border-white/10">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="card-elevated p-12 bg-gradient-to-b from-purple-900/20 to-transparent border border-white/10 shadow-[0_0_30px_rgba(236,72,153,0.15)] backdrop-blur-md">
+          <div className="card-elevated p-12 bg-gradient-to-b from-amber-900/20 to-transparent border border-white/10 shadow-[0_0_30px_rgba(232,160,32,0.15)] backdrop-blur-md">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
               Ready to Analyze Your First Connection?
             </h2>
@@ -206,7 +206,7 @@ const HomePage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/signup"
-                className="btn-primary flex justify-center items-center text-lg px-8 py-4 shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                className="btn-primary flex justify-center items-center text-lg px-8 py-4 shadow-[0_0_20px_rgba(232,160,32,0.4)]"
               >
                 Create Free Account
               </Link>

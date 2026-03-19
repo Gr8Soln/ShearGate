@@ -1,4 +1,13 @@
-import { Book, History, Home, LogOut, Menu, User, X } from "lucide-react";
+import {
+  Activity,
+  Book,
+  History,
+  Home,
+  LogOut,
+  Menu,
+  User,
+  X,
+} from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -15,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
 
   const navLinks = [
     { path: "/", label: "Home", icon: Home },
-    { path: "/analyze", label: "Analyze", icon: null },
+    { path: "/analyze", label: "Analyze", icon: Activity },
     { path: "/clauses", label: "BS 5950 Clauses", icon: Book },
   ];
 
@@ -135,7 +144,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
             {isAuthenticated ? (
               <>
                 <div className="flex items-center gap-2 px-4 py-3 bg-white/5 rounded-xl mb-2 border border-white/10">
-                  <User className="w-4 h-4 text-purple-400" />
+                  <User className="w-4 h-4 text-amber-400" />
                   <span className="text-sm font-medium text-white">
                     Student User
                   </span>
@@ -163,7 +172,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                 <Link
                   to="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-xl text-white font-semibold text-center hover:shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-[1.02]"
+                  className="block w-full px-6 py-3 bg-gradient-to-r from-amber-500 via-amber-500 to-amber-500 rounded-xl text-white font-semibold text-center hover:shadow-lg hover:shadow-amber-500/50 transition-all hover:scale-[1.02]"
                 >
                   Sign Up
                 </Link>

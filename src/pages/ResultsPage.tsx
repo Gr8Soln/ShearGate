@@ -208,7 +208,7 @@ const ResultsPage: React.FC = () => {
         {/* Calculation Steps and Clause Details Layout */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 mb-8 items-start">
           {/* Left Column: Flow of steps */}
-          <div className="sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar pr-2">
+          <div className="md:sticky md:top-[80px] md:max-h-[calc(100vh-100px)] md:overflow-y-auto custom-scrollbar pr-2">
             <h2 className="text-xl font-syne font-bold text-[#e8eaf0] mb-4">
               Calculation Steps
             </h2>
@@ -280,7 +280,7 @@ const ResultsPage: React.FC = () => {
           </div>
 
           {/* Right Column: Clause Detail */}
-          <div className="sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar pr-2">
+          <div className="md:sticky md:top-[80px] md:max-h-[calc(100vh-100px)] md:overflow-y-auto custom-scrollbar pr-2">
             <h2 className="text-xl font-syne font-bold text-[#e8eaf0] mb-4">
               Referenced Clause
             </h2>

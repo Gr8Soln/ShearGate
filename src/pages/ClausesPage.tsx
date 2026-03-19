@@ -46,7 +46,7 @@ const ClausesPage: React.FC = () => {
         {/* 2-Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-8 items-start">
           {/* Left Column - List */}
-          <div className="flex flex-col gap-4 sticky top-[80px] max-h-[calc(100vh-100px)]">
+          <div className="flex flex-col gap-4 md:sticky md:top-[80px] md:max-h-[calc(100vh-100px)]">
             {/* Search Bar */}
             <div className="bg-[#13161b] border border-[#272b35] rounded-lg p-4 shrink-0">
               <div className="relative">
@@ -100,7 +100,7 @@ const ClausesPage: React.FC = () => {
           </div>
 
           {/* Right Column - Details */}
-          <div className="bg-[#13161b] border border-[#272b35] rounded-xl p-6 min-h-[400px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar">
+          <div className="bg-[#13161b] border border-[#272b35] rounded-xl p-6 min-h-[400px] md:sticky md:top-[80px] md:max-h-[calc(100vh-100px)] md:overflow-y-auto custom-scrollbar">
             {selectedClause ? (
               <div className="animate-fade-in">
                 <ClauseCard clause={selectedClause} compact={false} />
