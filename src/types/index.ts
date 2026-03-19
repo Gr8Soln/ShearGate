@@ -1,16 +1,16 @@
 // Type definitions for the Block Shear Analyzer
 
 export interface ConnectionInputs {
-  boltGrade: '4.6' | '8.8';
+  boltGrade: "4.6" | "8.8";
   boltDiameter: number;
   numberOfBolts: number;
   pitch: number;
   edgeDistance: number;
   endDistance: number;
-  plateMaterial: 'S275' | 'S355' | 'S235';
+  plateMaterial: "S275" | "S355" | "S235";
   plateThickness: number;
   gauge: number;
-  connectionType: 'bearing' | 'slip-resistant' | 'tension';
+  connectionType: "bearing" | "slip-resistant" | "tension";
   appliedLoad: number;
 }
 

@@ -35,17 +35,13 @@ const ResultsPage: React.FC = () => {
   const displayResult = result || mockCalc.result;
   const steps = mockCalc.steps;
 
-  const [expandedSteps, setExpandedSteps] = useState<number[]>([]);
+  const [expandedStep, setExpandedStep] = useState<number | null>(1);
   const [selectedClause, setSelectedClause] = useState<BS5950Clause | null>(
     null,
   );
 
   const toggleStep = (stepNumber: number): void => {
-    setExpandedSteps((prev) =>
-      prev.includes(stepNumber)
-        ? prev.filter((s) => s !== stepNumber)
-        : [...prev, stepNumber],
-    );
+    setExpandedStep((prev) => (prev === stepNumber ? null : stepNumber));
   };
 
   const handleClauseClick = (clauseNumber: string): void => {
@@ -146,7 +142,7 @@ const ResultsPage: React.FC = () => {
                   </p>
                   <p
                     className={`text-2xl font-bold ${
-                      displayResult.utilizationRatio < 1
+                      Number(displayResult.utilizationRatio) < 1
                         ? "text-green-400"
                         : "text-red-500"
                     }`}
@@ -212,7 +208,7 @@ const ResultsPage: React.FC = () => {
         {/* Calculation Steps and Clause Details Layout */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 mb-8 items-start">
           {/* Left Column: Flow of steps */}
-          <div>
+          <div className="sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar pr-2">
             <h2 className="text-xl font-syne font-bold text-[#e8eaf0] mb-4">
               Calculation Steps
             </h2>
@@ -227,7 +223,7 @@ const ResultsPage: React.FC = () => {
                       toggleStep(step.step);
                       if (step.clause) handleClauseClick(step.clause);
                     }}
-                    className={`w-full p-4 hover:bg-[rgba(39,43,53,0.5)] transition-colors flex items-center justify-between ${expandedSteps.includes(step.step) ? "bg-[rgba(232,160,32,0.07)] border-l-2 border-l-[#e8a020]" : ""}`}
+                    className={`w-full p-4 hover:bg-[rgba(39,43,53,0.5)] transition-colors flex items-center justify-between ${expandedStep === step.step ? "bg-[rgba(232,160,32,0.07)] border-l-2 border-l-[#e8a020]" : ""}`}
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-8 h-8 bg-[rgba(232,160,32,0.12)] border border-[#9a6b15] rounded-full flex items-center justify-center text-[#e8a020] font-bold text-sm">
@@ -237,14 +233,14 @@ const ResultsPage: React.FC = () => {
                         {step.title}
                       </h3>
                     </div>
-                    {expandedSteps.includes(step.step) ? (
+                    {expandedStep === step.step ? (
                       <ChevronUp className="w-5 h-5 text-[#8890a0]" />
                     ) : (
                       <ChevronDown className="w-5 h-5 text-[#8890a0]" />
                     )}
                   </button>
 
-                  {expandedSteps.includes(step.step) && (
+                  {expandedStep === step.step && (
                     <div className="p-5 bg-[#0d0f12] animate-fade-in border-t border-[#272b35]">
                       <div className="mb-4">
                         <p className="text-[#e8eaf0] text-sm whitespace-pre-line leading-relaxed font-mono">
@@ -284,7 +280,7 @@ const ResultsPage: React.FC = () => {
           </div>
 
           {/* Right Column: Clause Detail */}
-          <div className="sticky top-[100px]">
+          <div className="sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar pr-2">
             <h2 className="text-xl font-syne font-bold text-[#e8eaf0] mb-4">
               Referenced Clause
             </h2>

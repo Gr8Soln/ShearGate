@@ -1,4 +1,4 @@
-import type { BS5950Clause, ClauseDictionary } from '../types';
+import type { BS5950Clause, ClauseDictionary } from "../types";
 
 // Mock BS 5950 clauses database
 export const bs5950Clauses: ClauseDictionary = {
@@ -23,9 +23,9 @@ As = shear area (typically 0.6 times tensile stress area)
 Ks = slip factor (typically 1.0 for clean mill scale)
 μ = slip factor (typically 0.45)
 Po = minimum bolt tension`,
-    references: ["Table 32", "Table 33", "Table 34", "Table 35"]
+    references: ["Table 32", "Table 33", "Table 34", "Table 35"],
   },
-  
+
   "6.2.4": {
     number: "6.2.4",
     title: "Block shear",
@@ -46,9 +46,9 @@ Atn = net area subject to tension (net area deducting bolt holes)
 
 The applied force should not exceed the block shear capacity.`,
     equation: "Pbs = min(0.6py*Av + py*At, fu*Av + 0.5fu*Atn)",
-    references: ["Clause 3.4.3", "Table 9"]
+    references: ["Clause 3.4.3", "Table 9"],
   },
-  
+
   "6.3.2": {
     number: "6.3.2",
     title: "Spacing and edge distances",
@@ -71,9 +71,9 @@ Minimum edge distance:
 where:
 d = nominal bolt diameter
 t = thickness of thinner outer ply`,
-    references: ["Table 28"]
+    references: ["Table 28"],
   },
-  
+
   "3.4.3": {
     number: "3.4.3",
     title: "Net area",
@@ -94,9 +94,9 @@ t = thickness of material
 For staggered bolt holes, the net area may be increased by s²t/(4g) for each stagger, where:
 s = staggered pitch
 g = gauge (perpendicular spacing)`,
-    references: ["Clause 4.6"]
+    references: ["Clause 4.6"],
   },
-  
+
   "4.6": {
     number: "4.6",
     title: "Tension members",
@@ -120,12 +120,13 @@ where:
 Ke = efficiency factor (typically 1.0 for bolted connections through all elements)
 An = net area`,
     equation: "Pt = min(py*Ag, Ae*py, 0.9*fu*Ae)",
-    references: ["Table 9", "Clause 3.4.3"]
+    references: ["Table 9", "Clause 3.4.3"],
   },
 
-  "Table32": {
+  Table32: {
     number: "Table 32",
-    title: "Shear strength ps and tension strength pt for Grade 4.6 and Grade 8.8 bolts",
+    title:
+      "Shear strength ps and tension strength pt for Grade 4.6 and Grade 8.8 bolts",
     section: "Tables",
     content: `Design strength values for ordinary bolts in N/mm²:
 
@@ -138,8 +139,8 @@ Grade 8.8 bolts:
 • Tension strength (pt): 450 N/mm²
 
 These values apply to bolts in bearing-type connections with standard clearance holes.`,
-    references: ["Clause 6.2"]
-  }
+    references: ["Clause 6.2"],
+  },
 };
 
 // Helper function to get clause details

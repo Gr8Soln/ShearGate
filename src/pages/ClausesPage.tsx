@@ -1,5 +1,6 @@
 import { FileText, Search } from "lucide-react";
 import React, { useState } from "react";
+
 import ClauseCard from "../components/ClauseCard";
 import { bs5950Clauses, searchClauses } from "../data/clauses";
 import type { BS5950Clause } from "../types";
@@ -45,9 +46,9 @@ const ClausesPage: React.FC = () => {
         {/* 2-Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-8 items-start">
           {/* Left Column - List */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 sticky top-[80px] max-h-[calc(100vh-100px)]">
             {/* Search Bar */}
-            <div className="bg-[#13161b] border border-[#272b35] rounded-lg p-4">
+            <div className="bg-[#13161b] border border-[#272b35] rounded-lg p-4 shrink-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555d6b]" />
                 <input
@@ -72,7 +73,7 @@ const ClausesPage: React.FC = () => {
                       key={idx}
                       onClick={() => setSelectedClause(clause)}
                       className={`text-left px-3 py-2.5 rounded-md text-sm transition-all flex flex-col gap-1 border border-transparent ${
-                        selectedClause?.id === clause.id
+                        selectedClause?.number === clause.number
                           ? "bg-[rgba(232,160,32,0.07)] border-[rgba(232,160,32,0.2)] text-[#e8a020]"
                           : "text-[#8890a0] hover:bg-[#1e2229] hover:text-[#e8eaf0] hover:border-[#363d4a]"
                       }`}
@@ -99,7 +100,7 @@ const ClausesPage: React.FC = () => {
           </div>
 
           {/* Right Column - Details */}
-          <div className="bg-[#13161b] border border-[#272b35] rounded-xl p-6 min-h-[400px]">
+          <div className="bg-[#13161b] border border-[#272b35] rounded-xl p-6 min-h-[400px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar">
             {selectedClause ? (
               <div className="animate-fade-in">
                 <ClauseCard clause={selectedClause} compact={false} />

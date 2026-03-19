@@ -56,68 +56,67 @@
 @layer components {
   /* Engineering-focused button styles */
   .btn-primary {
-    @apply bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 text-white px-6 py-3 rounded-lg font-medium 
-           hover:opacity-90 active:scale-[0.98] transition-all duration-150
-           shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[#e8a020] text-[#0d0f12] px-6 py-3 rounded-[10px] font-syne font-bold 
+           hover:bg-[#f0b030] hover:-translate-y-[1px] shadow-[0_4px_16px_rgba(232,160,32,0.25)] transition-all duration-200
+           border border-[#e8a020] disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-white/5 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-medium border border-white/20
-           hover:border-white/40 hover:bg-white/10 active:scale-[0.98] transition-all duration-150
-           shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-transparent text-[#e8eaf0] px-6 py-3 rounded-[10px] font-syne font-bold border border-[#363d4a]
+           hover:bg-[#1e2229] hover:border-[#8890a0] hover:-translate-y-[1px] transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-ghost {
-    @apply text-white/70 px-4 py-2 rounded-lg font-medium
-           hover:bg-white/10 hover:text-white active:scale-[0.98] transition-all duration-150;
+    @apply text-[#8890a0] px-4 py-2 rounded-lg font-medium border border-transparent
+           hover:bg-[#1e2229] hover:text-[#e8eaf0] hover:border-[#272b35] transition-all duration-150;
   }
 
   /* Card components */
   .card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-sm hover:border-white/20 hover:shadow-purple-500/10 transition-all duration-200 rounded-xl relative overflow-hidden;
+    @apply bg-[#13161b] border border-[#272b35] hover:border-[#363d4a] transition-all duration-150 rounded-[6px] relative overflow-hidden;
   }
 
   .card-elevated {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg hover:shadow-cyan-500/20 transition-all duration-200 rounded-xl;
+    @apply bg-[#13161b] border border-[#272b35] shadow-[0_2px_16px_rgba(0,0,0,0.4)] transition-all duration-200 rounded-[10px];
   }
 
   /* Input fields */
   .input-field {
-    @apply w-full px-4 py-3 bg-white border-2 border-steel-300 rounded-lg
-           focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 
-           outline-none transition-all duration-150
-           placeholder:text-steel-400;
+    @apply w-full px-[0.65rem] py-[0.45rem] bg-[#1a1d24] border border-[#272b35] rounded-[6px] text-[#e8eaf0] font-mono text-[0.82rem]
+           focus:border-[#9a6b15] outline-none transition-all duration-150
+           placeholder:text-[#555d6b];
   }
 
   /* Technical badges */
   .badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-1.5 font-mono text-[0.65rem] tracking-[0.12em] uppercase px-[10px] py-[3px] rounded-[3px];
   }
 
   .badge-blue {
-    @apply bg-blue-50 text-blue-700 border border-blue-200;
+    @apply text-[#4f9cf9] bg-[rgba(79,156,249,0.1)] border border-[rgba(79,156,249,0.3)];
   }
 
   .badge-green {
-    @apply bg-green-50 text-green-700 border border-green-200;
+    @apply text-[#3ecf8e] bg-[rgba(62,207,142,0.12)] border border-[rgba(62,207,142,0.2)];
   }
 
   .badge-orange {
-    @apply bg-orange-50 text-orange-700 border border-orange-200;
+    @apply text-[#e8a020] bg-[rgba(232,160,32,0.12)] border border-[#9a6b15];
   }
 
   .badge-red {
-    @apply bg-red-50 text-red-700 border border-red-200;
+    @apply text-[#f04444] bg-[rgba(240,68,68,0.12)] border border-[rgba(240,68,68,0.2)];
   }
 
   /* Code/Formula display */
   .formula {
-    @apply font-mono text-sm bg-steel-900 text-steel-50 px-3 py-2 rounded-md border border-steel-700;
+    @apply font-mono text-sm bg-[#1a1d24] text-[#3ecf8e] px-3 py-2 rounded-md border border-[#272b35];
   }
 
   /* Gradient backgrounds for headers */
   .gradient-engineering {
-    @apply bg-gradient-to-br from-steel-800 via-steel-700 to-steel-900;
+    @apply bg-gradient-to-br from-[#1e2229] via-[#13161b] to-[#0d0f12];
   }
 
   /* Animation utilities */
@@ -159,15 +158,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-steel-100;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-steel-400 rounded-full;
+  @apply bg-[#272b35] rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-steel-500;
+  @apply bg-[#363d4a];
 }
 
 /* Print styles for solutions */
