@@ -1,9 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import time
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import Settings
-from app.routers import clauses
+from app.routers import auth, clauses, calculate, parse, sessions
 
 # Initialize settings
 settings = Settings()
@@ -25,6 +26,10 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth.router)
+app.include_router(parse.router)
+app.include_router(calculate.router)
+app.include_router(sessions.router)
 app.include_router(clauses.router)
 
 @app.get("/")
