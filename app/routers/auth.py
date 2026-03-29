@@ -1,122 +1,104 @@
-from typing import Annotated, Any, Dict
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.db import get_db
 from app.models.domain import User
-from app.schemas.user import Token, UserCreate, UserLogin, UserResponse
-from app.services.auth import (create_access_token, create_refresh_token,
-                               decode_token, get_password_hash, verify_password)
+from app.schemas.user import GoogleAuthRequest, TokenResponse, UserResponse
+from app.services.auth import create_access_token, create_refresh_token, get_current_user, decode_token
+from app.services.oauth import verify_google_token
+from app.utils.response import success_response, failure_response
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["auth"]
-)
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: AsyncSession = Depends(get_db)) -> User:
-    """Dependency to get the current authenticated user from JWT."""
-    payload = decode_token(token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    user_id = payload.get("user_id")
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+@router.post("/google", response_model=Dict[str, Any])
+async def google_auth(
+    auth_req: GoogleAuthRequest, 
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Authenticate with Google ID token.
+    Finds or creates the user and returns JWT tokens.
+    """
+    profile = verify_google_token(auth_req.credential)
     
-    result = await db.execute(select(User).filter(User.id == user_id))
-    user = result.scalars().first()
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-    return user
-
-@router.post("/signup", response_model=Token)
-async def signup(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
-    """Register a new user."""
-    # Check if user already exists
-    result = await db.execute(select(User).filter(User.email == user_data.email))
-    if result.scalars().first():
-        raise HTTPException(status_code=400, detail="Email already registered")
+    # Check if user exists
+    result = await db.execute(select(User).where(User.google_id == profile["google_id"]))
+    user = result.scalar_one_or_none()
     
-    hashed_password = get_password_hash(user_data.password)
-    db_user = User(
-        name=user_data.name,
-        email=user_data.email,
-        password_hash=hashed_password
+    if not user:
+        # Create new user
+        user = User(
+            email=profile["email"],
+            name=profile["name"],
+            google_id=profile["google_id"],
+            avatar_url=profile["picture"]
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+    
+    # Generate tokens
+    user_id_str = str(user.id)
+    access_token = create_access_token(user_id_str)
+    refresh_token = create_refresh_token(user_id_str)
+    
+    return success_response(
+        data={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user": UserResponse.model_validate(user)
+        },
+        message="Successfully authenticated with Google"
     )
-    db.add(db_user)
-    await db.commit()
-    await db.refresh(db_user)
-    
-    access_token = create_access_token(data={"user_id": str(db_user.id)})
-    refresh_token = create_refresh_token(data={"user_id": str(db_user.id)})
-    
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "user": db_user
-    }
 
-@router.post("/login", response_model=Token)
-async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
-    """Authenticate user and return tokens."""
-    result = await db.execute(select(User).filter(User.email == user_data.email))
-    db_user = result.scalars().first()
+@router.post("/refresh", response_model=Dict[str, Any])
+async def refresh_token(request: Request, db: AsyncSession = Depends(get_db)):
+    """Refresh the access token using a refresh token."""
+    body = await request.json()
+    refresh_token = body.get("refresh_token")
     
-    if not db_user or not verify_password(user_data.password, db_user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    access_token = create_access_token(data={"user_id": str(db_user.id)})
-    refresh_token = create_refresh_token(data={"user_id": str(db_user.id)})
-    
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "user": db_user
-    }
-
-@router.post("/refresh", response_model=Token)
-async def refresh_auth(refresh_data: Dict[str, str], db: AsyncSession = Depends(get_db)):
-    """Refresh authentication token."""
-    refresh_token = refresh_data.get("refresh_token")
     if not refresh_token:
-        raise HTTPException(status_code=400, detail="Refresh token required")
-    
+        failure_response("Refresh token required", status.HTTP_400_BAD_REQUEST)
+        
     payload = decode_token(refresh_token)
-    if not payload:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+    if not payload or payload.get("kind") != "refresh":
+        failure_response("Invalid or expired refresh token", status.HTTP_401_UNAUTHORIZED)
+        
+    user_id = payload.get("sub")
+    # Verify user still exists
+    result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
+    user = result.scalar_one_or_none()
     
-    user_id = payload.get("user_id")
-    result = await db.execute(select(User).filter(User.id == user_id))
-    db_user = result.scalars().first()
+    if not user:
+        failure_response("User not found", status.HTTP_404_NOT_FOUND)
+        
+    new_access = create_access_token(user_id)
+    new_refresh = create_refresh_token(user_id)
     
-    if not db_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-    
-    access_token = create_access_token(data={"user_id": str(db_user.id)})
-    new_refresh_token = create_refresh_token(data={"user_id": str(db_user.id)})
-    
-    return {
-        "access_token": access_token,
-        "refresh_token": new_refresh_token,
-        "user": db_user
-    }
+    return success_response(
+        data={
+            "access_token": new_access,
+            "refresh_token": new_refresh,
+            "token_type": "bearer"
+        },
+        message="Token refreshed successfully"
+    )
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me", response_model=Dict[str, Any])
 async def get_me(current_user: User = Depends(get_current_user)):
-    """Get current authenticated user."""
-    return current_user
+    """Get the current authenticated user profile."""
+    return success_response(
+        data=UserResponse.model_validate(current_user),
+        message="User profile retrieved"
+    )
+
+@router.post("/logout", response_model=Dict[str, Any])
+async def logout():
+    """Stateless logout."""
+    return success_response(message="Logged out successfully")
+
+# Imports needed for the router logic
+import uuid
+from typing import Any, Dict

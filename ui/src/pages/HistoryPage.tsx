@@ -1,202 +1,160 @@
-import {
-  Calendar,
-  CheckCircle2,
-  History as HistoryIcon,
-  Trash2,
-  XCircle,
-} from "lucide-react";
 import React from "react";
-import { Link } from "react-router-dom";
-import { mockCalculations } from "../data/mockData";
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  Calculator, 
+  Trash2, 
+  Calendar, 
+  Clock, 
+  ChevronRight, 
+  Search, 
+  Filter,
+  Inbox,
+  Loader2,
+  MoreVertical,
+  ExternalLink
+} from "lucide-react";
+import { sessionApi } from "../api/client";
+import { useAuth } from "../contexts/AuthContext";
 
 const HistoryPage: React.FC = () => {
-  const calculations = mockCalculations;
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
 
-  const formatDate = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  const { data: sessions, isLoading, error } = useQuery({
+    queryKey: ["sessions"],
+    queryFn: () => sessionApi.list(),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => sessionApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+    },
+  });
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this session?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", { 
+      day: "2-digit", 
+      month: "short", 
+      year: "numeric" 
     });
   };
 
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString("en-GB", { 
+      hour: "2-digit", 
+      minute: "2-digit" 
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="animate-spin text-indigo-500 mx-auto" size={40} />
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Retrieving session history</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-transparent py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/10 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-              <HistoryIcon className="w-7 h-7 text-purple-400" />
-            </div>
-            <h1 className="text-4xl font-bold text-white">
-              Calculation History
-            </h1>
+    <div className="min-h-screen pt-24 pb-20 px-4 max-w-5xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="space-y-4">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider">
+            <Clock size={14} />
+            <span>Audit Trail</span>
           </div>
-          <p className="text-lg text-white/70">
-            View and manage your previous block shear analyses
+          <h1 className="text-5xl font-black text-white tracking-tight">History</h1>
+          <p className="text-slate-500 text-lg max-w-xl">
+            Access your recent engineering sessions and AI-explained connection analyses.
           </p>
         </div>
+        
+        <Link 
+          to="/analyze" 
+          className="px-6 py-3 rounded-2xl bg-[#e8a020] hover:bg-[#f59e0b] text-[#0f172a] font-bold flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <Calculator size={20} />
+          <span>New Analysis</span>
+        </Link>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="card p-6 border-white/10">
-            <p className="text-sm text-white/50 mb-2">Total Calculations</p>
-            <p className="text-3xl font-bold text-white">
-              {calculations.length}
-            </p>
-          </div>
-          <div className="card p-6 border-white/10">
-            <p className="text-sm text-white/50 mb-2">Safe Connections</p>
-            <p className="text-3xl font-bold text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]">
-              {calculations.filter((c) => !c.result.blockShearOccurs).length}
-            </p>
-          </div>
-          <div className="card p-6 border-white/10">
-            <p className="text-sm text-white/50 mb-2">Failed Connections</p>
-            <p className="text-3xl font-bold text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
-              {calculations.filter((c) => c.result.blockShearOccurs).length}
-            </p>
-          </div>
-        </div>
-
-        {/* Calculations List */}
-        <div className="space-y-4">
-          {calculations.map((calc) => {
-            const isSafe = !calc.result.blockShearOccurs;
-
-            return (
-              <div
-                key={calc.id}
-                className="card p-6 border-white/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] transition-all"
-              >
-                <div className="flex items-start gap-4">
-                  {/* Status Icon */}
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      isSafe
-                        ? "bg-green-500/20 shadow-[0_0_10px_rgba(74,222,128,0.2)]"
-                        : "bg-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
-                    }`}
-                  >
-                    {isSafe ? (
-                      <CheckCircle2 className="w-6 h-6 text-green-400" />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-red-500" />
-                    )}
+      {sessions && sessions.length > 0 ? (
+        <div className="grid gap-4">
+          {sessions.map((session: any) => (
+            <div 
+              key={session.id}
+              onClick={() => navigate(`/results/${session.id}`)}
+              className="group relative bg-slate-900 border border-slate-800 hover:border-indigo-500/50 p-6 rounded-[2.5rem] transition-all cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/5"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center space-x-6">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-colors">
+                    <Calculator size={28} />
                   </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold text-white mb-1">
-                          {calc.questionText || "Manual Input Calculation"}
-                        </h3>
-                        <div className="flex items-center gap-3 text-sm text-white/50">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            {formatDate(calc.timestamp)}
-                          </span>
-                          <span
-                            className={`badge ${
-                              isSafe
-                                ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                                : "bg-red-500/10 text-red-400 border border-red-500/20"
-                            }`}
-                          >
-                            {isSafe ? "SAFE" : "UNSAFE"}
-                          </span>
-                        </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-400 transition-colors">
+                      {session.title || "Untitled Session"}
+                    </h3>
+                    <div className="flex items-center space-x-4 text-sm text-slate-500">
+                      <div className="flex items-center space-x-1.5">
+                        <Calendar size={14} />
+                        <span>{formatDate(session.created_at)}</span>
                       </div>
-
-                      <button className="btn-ghost text-white/40 hover:text-red-400">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center space-x-1.5">
+                        <Clock size={14} />
+                        <span>{formatTime(session.created_at)}</span>
+                      </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      {[
-                        {
-                          label: "Capacity",
-                          value: `${calc.result.blockShearCapacity} kN`,
-                        },
-                        {
-                          label: "Applied",
-                          value: `${calc.result.appliedLoad} kN`,
-                        },
-                        {
-                          label: "Utilization",
-                          value: (
-                            <span
-                              className={
-                                calc.result.utilizationRatio &&
-                                parseFloat(calc.result.utilizationRatio) < 1
-                                  ? "text-green-400"
-                                  : "text-red-500"
-                              }
-                            >
-                              {calc.result.utilizationRatio}
-                            </span>
-                          ),
-                        },
-                        {
-                          label: "Bolts",
-                          value: `${calc.inputs.numberOfBolts} × M${calc.inputs.boltDiameter}`,
-                        },
-                      ].map((stat, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-white/5 p-3 rounded-lg border border-white/5"
-                        >
-                          <p className="text-xs text-white/40 mb-1">
-                            {stat.label}
-                          </p>
-                          <p className="font-semibold text-white/90">
-                            {stat.value}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Button */}
-                    <Link
-                      to="/results"
-                      state={{ inputs: calc.inputs, result: calc.result }}
-                      className="btn-secondary text-sm inline-block"
-                    >
-                      View Full Report
-                    </Link>
+                <div className="flex items-center space-x-3">
+                  <button 
+                    onClick={(e) => handleDelete(e, session.id)}
+                    className="p-3 rounded-xl bg-slate-800/50 text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                  <div className="p-3 rounded-xl bg-slate-800 text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                    <ChevronRight size={20} />
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-
-        {/* Empty State (when no calculations) */}
-        {calculations.length === 0 && (
-          <div className="card p-12 text-center border-white/10">
-            <HistoryIcon className="w-16 h-16 text-white/20 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              No calculations yet
-            </h3>
-            <p className="text-white/50 mb-6">
-              Start analyzing bolted connections to see them here
-            </p>
-            <Link
-              to="/analyze"
-              className="btn-primary shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-            >
-              Start First Analysis
-            </Link>
+      ) : (
+        <div className="py-24 text-center border-2 border-dashed border-slate-800 rounded-[3rem]">
+          <div className="w-20 h-20 bg-slate-900 rounded-3xl mx-auto flex items-center justify-center text-slate-700 mb-6">
+            <Inbox size={40} />
           </div>
-        )}
-      </div>
+          <h2 className="text-2xl font-bold text-white mb-2">No history yet</h2>
+          <p className="text-slate-500 mb-8 max-w-sm mx-auto">Perform your first analysis to see your engineering history here.</p>
+          <Link 
+            to="/analyze" 
+            className="inline-flex items-center space-x-2 text-indigo-400 font-bold hover:text-indigo-300"
+          >
+            <span>Start an analysis</span>
+            <ExternalLink size={18} />
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Calculator,
   FileText,
@@ -5,21 +7,30 @@ import {
   Loader2,
   Sparkles,
   Upload,
+  ArrowRight,
+  AlertCircle
 } from "lucide-react";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { mockAIParse, mockCalculate } from "../data/mockData";
+import { extractApi, sessionApi } from "../api/client";
+import { calculateBlockShear } from "../utils/calculations";
 import type { ConnectionInputs } from "../types";
+import { useAuth } from "../contexts/AuthContext";
 
 type InputMode = "manual" | "text" | "image";
 
 const AnalyzePage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  
   const [inputMode, setInputMode] = useState<InputMode>("manual");
   const [questionText, setQuestionText] = useState<string>("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingStep, setProcessingStep] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  
+  // Current active session ID
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [inputs, setInputs] = useState<ConnectionInputs>({
     boltGrade: "8.8",
@@ -35,402 +46,304 @@ const AnalyzePage: React.FC = () => {
     appliedLoad: 320,
   });
 
-  const handleInputChange = (
-    field: keyof ConnectionInputs,
-    value: string | number,
-  ): void => {
-    setInputs((prev) => ({
+  // Handle manual input changes
+  const handleInputChange = (field: keyof ConnectionInputs, value: any) => {
+    setInputs(prev => ({
       ...prev,
-      [field]:
-        typeof value === "string" && !isNaN(Number(value))
-          ? parseFloat(value)
-          : value,
+      [field]: typeof value === 'string' && !isNaN(Number(value)) ? parseFloat(value) : value
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = e.target.files?.[0];
+    if (uploadedFile) setFile(uploadedFile);
+  };
+
+  const ensureSession = async () => {
+    if (sessionId) return sessionId;
+    try {
+      const newSession = await sessionApi.create(`Analysis: ${new Date().toLocaleDateString()}`);
+      setSessionId(newSession.id);
+      return newSession.id;
+    } catch (err) {
+      console.error("Failed to create session", err);
+      return null;
     }
   };
 
-  const handleAIExtraction = async (): Promise<void> => {
+  const handleAIExtraction = async () => {
     setIsProcessing(true);
-    setProcessingStep("Reading question...");
+    setError(null);
+    setProcessingStep("Contacting Gemini AI...");
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setProcessingStep("Extracting parameters...");
+    try {
+      const sid = await ensureSession();
+      setProcessingStep("Extracting parameters...");
+      
+      let extractedData;
+      if (inputMode === "text") {
+        extractedData = await extractApi.extractText(questionText, sid || undefined);
+      } else if (file) {
+        extractedData = await extractApi.extractFile(file, sid || undefined);
+      }
 
-    const extracted = await mockAIParse(questionText);
-
-    setProcessingStep("Parameters extracted!");
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    setInputs(extracted);
-    setInputMode("manual");
-    setIsProcessing(false);
+      if (extractedData) {
+        setInputs(prev => ({ ...prev, ...extractedData.input_parsed }));
+        setInputMode("manual");
+        setProcessingStep("Extraction complete!");
+        setTimeout(() => setIsProcessing(false), 800);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "AI Extraction failed. Please try manual entry.");
+      setIsProcessing(false);
+    }
   };
 
-  const handleCalculate = async (): Promise<void> => {
+  const handleCalculate = async () => {
     setIsProcessing(true);
-    setProcessingStep("Running block shear analysis...");
+    setProcessingStep("Finalizing analysis...");
 
-    const result = await mockCalculate(inputs);
-
-    setProcessingStep("Complete!");
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Navigate to results page with data
-    navigate("/results", { state: { inputs, result } });
-    setIsProcessing(false);
+    try {
+      const sid = await ensureSession();
+      // Calculate on frontend (Source of Truth)
+      const result = calculateBlockShear(inputs);
+      
+      // Navigate to results page
+      // We pass the result and inputs in state for immediate display, 
+      // but also the sessionId for history/AI interaction.
+      navigate(`/results/${sid || "temporary"}`, { 
+        state: { 
+          inputs, 
+          result,
+          fromExtraction: inputMode !== "manual"
+        } 
+      });
+    } catch (err) {
+      console.error("Calculation failed", err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-transparent py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Block Shear Analysis
-          </h1>
-          <p className="text-lg text-white/70">
-            Enter connection parameters manually or let AI extract them from
-            your question
-          </p>
+    <div className="min-h-screen pt-24 pb-20 px-4 max-w-6xl mx-auto">
+      {/* Page Header */}
+      <div className="text-center mb-16 space-y-4">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#e8a020]/10 border border-[#e8a020]/20 text-[#e8a020] text-xs font-bold uppercase tracking-wider">
+          <Sparkles size={14} />
+          <span>AI-Powered Engineering</span>
+        </div>
+        <h1 className="text-5xl font-extrabold text-white tracking-tight">
+          New Analysis
+        </h1>
+        <p className="text-slate-400 text-lg max-w-2xl mx-auto line-clamp-2">
+          Start a block shear analysis by entering parameters or uploading your 
+          connection design question.
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Input Method Selector (Left Col on Desktop) */}
+        <div className="lg:col-span-4 space-y-4">
+          <InputMethodCard
+            mode="manual"
+            active={inputMode === "manual"}
+            icon={<Calculator className={inputMode === 'manual' ? 'text-[#e8a020]' : 'text-slate-500'} size={24} />}
+            title="Manual Entry"
+            description="Enter detailed parameters"
+            onClick={() => setInputMode("manual")}
+          />
+          <InputMethodCard
+            mode="text"
+            active={inputMode === "text"}
+            icon={<FileText className={inputMode === 'text' ? 'text-[#e8a020]' : 'text-slate-500'} size={24} />}
+            title="Text Description"
+            description="Paste problem text"
+            onClick={() => setInputMode("text")}
+          />
+          <InputMethodCard
+            mode="image"
+            active={inputMode === "image"}
+            icon={<ImageIcon className={inputMode === 'image' ? 'text-[#e8a020]' : 'text-slate-500'} size={24} />}
+            title="Image/PDF Scan"
+            description="Upload design sketches"
+            onClick={() => setInputMode("image")}
+          />
         </div>
 
-        {/* Input Mode Selector */}
-        <div className="card p-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <h2 className="text-xl font-bold text-white">Input Method</h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {/* Input Method Cards */}
-            <button
-              onClick={() => setInputMode("manual")}
-              className={`p-5 rounded-xl border transition-all flex items-center gap-4 text-left ${
-                inputMode === "manual"
-                  ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                  : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
-              }`}
-            >
-              <Calculator
-                className={`w-6 h-6 shrink-0 ${inputMode === "manual" ? "text-amber-400" : "text-white/40"}`}
-              />
-              <div><h3 className="font-semibold text-white mb-0">Manual Input</h3><p className="text-sm text-white/50">Enter parameters directly</p></div>
-            </button>
-
-            <button
-              onClick={() => setInputMode("text")}
-              className={`p-5 rounded-xl border transition-all flex items-center gap-4 text-left ${
-                inputMode === "text"
-                  ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                  : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
-              }`}
-            >
-              <FileText
-                className={`w-6 h-6 shrink-0 ${inputMode === "text" ? "text-amber-400" : "text-white/40"}`}
-              />
-              <div><h3 className="font-semibold text-white mb-0">Text Question</h3><p className="text-sm text-white/50">AI extracts parameters</p></div>
-            </button>
-
-            <button
-              onClick={() => setInputMode("image")}
-              className={`p-5 rounded-xl border transition-all flex items-center gap-4 text-left ${
-                inputMode === "image"
-                  ? "border-amber-400 bg-amber-400/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                  : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
-              }`}
-            >
-              <ImageIcon
-                className={`w-6 h-6 shrink-0 ${inputMode === "image" ? "text-amber-400" : "text-white/40"}`}
-              />
-              <div><h3 className="font-semibold text-white mb-0">Image Upload</h3><p className="text-sm text-white/50">Upload question image</p></div>
-            </button>
-          </div>
-        </div>
-
-        {/* Text Question Input */}
-        {inputMode === "text" && (
-          <div className="card p-6 mb-8 animate-fade-in">
-            <label className="block mb-3 font-semibold text-white">
-              Paste Your Question
-            </label>
-            <textarea
-              value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              placeholder="Example: A double angle connection with 4 x M20 Grade 8.8 bolts..."
-              className="input-field min-h-[150px] resize-y bg-white/5 border-white/10 text-white placeholder-white/30 focus:border-amber-400 focus:ring-amber-400/20"
-            />
-            <button
-              onClick={handleAIExtraction}
-              disabled={!questionText || isProcessing}
-              className="btn-primary mt-4 w-full md:w-auto shadow-[0_0_15px_rgba(245,158,11,0.4)]"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  {processingStep}
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Extract Parameters with AI
-                </>
-              )}
-            </button>
-          </div>
-        )}
-
-        {/* Image Upload Input */}
-        {inputMode === "image" && (
-          <div className="card p-6 mb-8 animate-fade-in">
-            <label className="block mb-3 font-semibold text-white">
-              Upload Question Image
-            </label>
-            <div className="border-2 border-dashed border-white/20 rounded-xl p-12 text-center hover:border-amber-400 hover:bg-white/5 transition-all">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                id="image-upload"
-              />
-              <label htmlFor="image-upload" className="cursor-pointer">
-                <Upload className="w-12 h-12 text-white/40 mx-auto mb-4" />
-                <p className="text-white/70 mb-2">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-sm text-white/40">
-                  PNG, JPG, or PDF up to 10MB
-                </p>
-              </label>
-              {imageFile && (
-                <div className="mt-4 p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                  <p className="text-green-400 font-medium">
-                    ✓ {imageFile.name}
-                  </p>
-                </div>
-              )}
+        {/* Main Workspace (Right Col on Desktop) */}
+        <div className="lg:col-span-8 flex flex-col space-y-6">
+          {error && (
+            <div className="p-4 bg-red-400/10 border border-red-400/20 rounded-2xl flex items-center space-x-3 text-red-400 animate-in fade-in slide-in-from-top-2">
+              <AlertCircle size={20} />
+              <p className="text-sm font-medium">{error}</p>
             </div>
-            {imageFile && (
+          )}
+
+          {/* AI Text Mode */}
+          {inputMode === "text" && (
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl animate-in fade-in slide-in-from-right-4">
+              <h2 className="text-xl font-bold text-white mb-4">Paste Your Question</h2>
+              <textarea
+                value={questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+                placeholder="Example: A bearing type connection with 4 x M20 Grade 8.8 bolts on S275 plate of 12mm thickness. Edge distance is 50mm, pitch 70mm..."
+                className="w-full h-48 bg-slate-950 border border-slate-800 rounded-2xl p-4 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#e8a020] transition-colors"
+              />
               <button
                 onClick={handleAIExtraction}
-                disabled={isProcessing}
-                className="btn-primary mt-4 w-full md:w-auto shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+                disabled={!questionText || isProcessing}
+                className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8a020] to-[#f59e0b] text-[#0f172a] font-bold text-lg flex items-center justify-center space-x-2 shadow-lg shadow-[#e8a020]/10 hover:shadow-[#e8a020]/20 transition-all active:scale-[0.98] disabled:opacity-50"
               >
                 {isProcessing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    {processingStep}
-                  </>
+                  <><Loader2 className="animate-spin" size={20} /><span>{processingStep}</span></>
                 ) : (
-                  <>
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Extract Parameters from Image
-                  </>
+                  <><Sparkles size={20} /><span>Extract with Gemini AI</span></>
                 )}
               </button>
-            )}
-          </div>
-        )}
-
-        {/* Form Section Redesign */}
-        {inputMode === "manual" && (
-          <div className="card p-8 mb-8 animate-fade-in bg-white/5 border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-6">
-              Connection Parameters
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Bolt Properties */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-white/90 text-lg mb-4 pb-2 border-b border-white/10">
-                  Bolt Properties
-                </h3>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Bolt Grade
-                  </label>
-                  <select
-                    value={inputs.boltGrade}
-                    onChange={(e) =>
-                      handleInputChange("boltGrade", e.target.value)
-                    }
-                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-amber-400"
-                  >
-                    <option value="4.6">Grade 4.6</option>
-                    <option value="8.8">Grade 8.8</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Bolt Diameter (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.boltDiameter}
-                    onChange={(e) =>
-                      handleInputChange("boltDiameter", e.target.value)
-                    }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Number of Bolts
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.numberOfBolts}
-                    onChange={(e) =>
-                      handleInputChange("numberOfBolts", e.target.value)
-                    }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Connection Type
-                  </label>
-                  <select
-                    value={inputs.connectionType}
-                    onChange={(e) =>
-                      handleInputChange("connectionType", e.target.value)
-                    }
-                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-amber-400"
-                  >
-                    <option value="bearing">Bearing Type</option>
-                    <option value="slip-resistant">Slip-Resistant</option>
-                    <option value="tension">Tension</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Geometric Properties */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-white/90 text-lg mb-4 pb-2 border-b border-white/10">
-                  Geometric Properties
-                </h3>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Pitch (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.pitch}
-                    onChange={(e) => handleInputChange("pitch", e.target.value)}
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Edge Distance (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.edgeDistance}
-                    onChange={(e) =>
-                      handleInputChange("edgeDistance", e.target.value)
-                    }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Gauge (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.gauge}
-                    onChange={(e) => handleInputChange("gauge", e.target.value)}
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Plate Thickness (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.plateThickness}
-                    onChange={(e) =>
-                      handleInputChange("plateThickness", e.target.value)
-                    }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-              </div>
-
-              {/* Material & Loading */}
-              <div className="md:col-span-2 grid md:grid-cols-2 gap-6 pt-4 border-t border-white/10">
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Plate Material
-                  </label>
-                  <select
-                    value={inputs.plateMaterial}
-                    onChange={(e) =>
-                      handleInputChange("plateMaterial", e.target.value)
-                    }
-                    className="input-field bg-[#0A0A0F] border-white/20 text-white focus:border-amber-400"
-                  >
-                    <option value="S275">S275</option>
-                    <option value="S355">S355</option>
-                    <option value="S235">S235</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Applied Load (kN)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.appliedLoad}
-                    onChange={(e) =>
-                      handleInputChange("appliedLoad", e.target.value)
-                    }
-                    className="input-field bg-white/5 border-white/20 text-white focus:border-amber-400"
-                  />
-                </div>
-              </div>
             </div>
+          )}
 
-            {/* Calculate Button */}
-            <button
-              onClick={handleCalculate}
-              disabled={isProcessing}
-              className="btn-primary w-full mt-8 py-4 text-lg font-bold flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                  {processingStep}
-                </>
-              ) : (
-                <>
-                  <Calculator className="w-6 h-6" />
-                  Calculate Block Shear Capacity
-                </>
-              )}
-            </button>
-          </div>
-        )}
+          {/* AI Image Mode */}
+          {inputMode === "image" && (
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl animate-in fade-in slide-in-from-right-4">
+              <h2 className="text-xl font-bold text-white mb-4">Upload Design Question</h2>
+              <div className="border-2 border-dashed border-slate-800 rounded-[2rem] p-12 text-center hover:border-[#e8a020]/50 transition-colors group">
+                <input type="file" id="file-upload" className="hidden" onChange={handleFileUpload} accept="image/*,.pdf" />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Upload className="mx-auto mb-4 text-slate-600 group-hover:text-[#e8a020] transition-colors" size={48} />
+                  <p className="text-slate-400 mb-1 group-hover:text-slate-200">
+                    {file ? file.name : "Select an image or PDF file"}
+                  </p>
+                  <p className="text-xs text-slate-600">Max size 20MB</p>
+                </label>
+              </div>
+              <button
+                onClick={handleAIExtraction}
+                disabled={!file || isProcessing}
+                className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8a020] to-[#f59e0b] text-[#0f172a] font-bold text-lg flex items-center justify-center space-x-2 disabled:opacity-50"
+              >
+                {isProcessing ? (
+                  <><Loader2 className="animate-spin" size={20} /><span>{processingStep}</span></>
+                ) : (
+                  <><Sparkles size={20} /><span>Extract from File</span></>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Manual Entry Form */}
+          {inputMode === "manual" && (
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl animate-in fade-in slide-in-from-bottom-4">
+              <form className="space-y-10" onSubmit={e => { e.preventDefault(); handleCalculate(); }}>
+                <div className="grid md:grid-cols-2 gap-10">
+                  {/* Bolt Specs */}
+                  <div className="space-y-6">
+                    <SectionTitle title="Bolt Specifications" />
+                    <div className="space-y-4">
+                      <FormSelect label="Bolt Grade" value={inputs.boltGrade || "8.8"} options={["4.6", "8.8"]} onChange={v => handleInputChange("boltGrade", v)} />
+                      <FormField label="Bolt Diameter (d)" unit="mm" value={inputs.boltDiameter || 0} onChange={v => handleInputChange("boltDiameter", v)} />
+                      <FormField label="Number of Bolts" unit="qty" value={inputs.numberOfBolts || 0} onChange={v => handleInputChange("numberOfBolts", v)} />
+                      <FormSelect label="Connection Type" value={inputs.connectionType || "bearing"} options={["bearing", "slip-resistant"]} onChange={v => handleInputChange("connectionType", v)} />
+                    </div>
+                  </div>
+
+                  {/* Geometric Config */}
+                  <div className="space-y-6">
+                    <SectionTitle title="Connection Geometry" />
+                    <div className="space-y-4">
+                      <FormField label="Bolt Pitch (p)" unit="mm" value={inputs.pitch || 0} onChange={v => handleInputChange("pitch", v)} />
+                      <FormField label="Gauge Spacing (g)" unit="mm" value={inputs.gauge || 0} onChange={v => handleInputChange("gauge", v)} />
+                      <FormField label="Edge Distance (e1/e2)" unit="mm" value={inputs.edgeDistance || 0} onChange={v => handleInputChange("edgeDistance", v)} />
+                      <FormField label="End Distance" unit="mm" value={inputs.endDistance || 0} onChange={v => handleInputChange("endDistance", v)} />
+                    </div>
+                  </div>
+
+                  {/* Plate Config */}
+                  <div className="space-y-6 md:col-span-2">
+                    <SectionTitle title="Material & Loading" />
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <FormSelect label="Steel Grade" value={inputs.plateMaterial || "S275"} options={["S275", "S355"]} onChange={v => handleInputChange("plateMaterial", v)} />
+                      <FormField label="Plate Thickness (t)" unit="mm" value={inputs.plateThickness || 0} onChange={v => handleInputChange("plateThickness", v)} />
+                      <div className="md:col-span-2">
+                        <FormField label="Applied Load (Pknd)" unit="kN" value={inputs.appliedLoad || 0} onChange={v => handleInputChange("appliedLoad", v)} highlight />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="w-full py-5 rounded-[2rem] bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xl flex items-center justify-center space-x-3 shadow-xl transition-all hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <Calculator size={24} />
+                  <span>Analyze Connection</span>
+                  <ArrowRight size={20} />
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+
+// --- Child Components ---
+
+const InputMethodCard: React.FC<{ mode: string, active: boolean, icon: React.ReactNode, title: string, description: string, onClick: () => void }> = ({ active, icon, title, description, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center space-x-4 p-5 rounded-[2rem] border transition-all duration-300 text-left ${
+      active 
+        ? "bg-[#e8a020]/10 border-[#e8a020] shadow-lg shadow-[#e8a020]/5 translate-x-1" 
+        : "bg-slate-900 shadow-xl border-slate-800 hover:border-[#e8a020]/30 hover:bg-slate-800/50"
+    }`}
+  >
+    <div className={`p-4 rounded-2xl ${active ? "bg-[#e8a020]/10" : "bg-slate-800"} transition-colors`}>
+      {icon}
+    </div>
+    <div>
+      <h3 className={`font-bold transition-colors ${active ? "text-[#e8a020]" : "text-slate-200"}`}>{title}</h3>
+      <p className="text-xs text-slate-500">{description}</p>
+    </div>
+  </button>
+);
+
+const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
+  <div className="flex items-center space-x-3 mb-4">
+    <div className="w-1.5 h-6 bg-[#e8a020] rounded-full" />
+    <h3 className="text-lg font-bold text-white/90">{title}</h3>
+  </div>
+);
+
+const FormField: React.FC<{ label: string, unit: string, value: any, onChange: (v: string) => void, highlight?: boolean }> = ({ label, unit, value, onChange, highlight }) => (
+  <div className={highlight ? "bg-[#e8a020]/5 p-4 rounded-2xl border border-[#e8a020]/10" : ""}>
+    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
+    <div className="relative group">
+      <input
+        type="number"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className={`w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 font-mono transition-colors focus:outline-none focus:border-[#e8a020]/50 ${highlight ? "text-[#e8a020] border-[#e8a020]/20" : ""}`}
+      />
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-600 uppercase">{unit}</span>
+    </div>
+  </div>
+);
+
+const FormSelect: React.FC<{ label: string, value: string, options: string[], onChange: (v: string) => void }> = ({ label, value, options, onChange }) => (
+  <div>
+    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 font-bold transition-colors focus:outline-none focus:border-[#e8a020]/50"
+    >
+      {options.map(opt => <option key={opt} value={opt}>{opt.startsWith('S') || opt.includes('.') ? opt : opt.charAt(0).toUpperCase() + opt.slice(1)}</option>)}
+    </select>
+  </div>
+);
 
 export default AnalyzePage;

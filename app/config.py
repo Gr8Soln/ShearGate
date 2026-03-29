@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -9,32 +9,33 @@ class Settings(BaseSettings):
     # Database
     POSTGRES_URL: str
 
-    # Authentication
-    SECRET_KEY: str
+    # Auth settings
+    JWT_SECRET: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 43200  # 30 days
     
-    # AI
-    ANTHROPIC_API_KEY: str
-    ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20240620" # Or claude-sonnet-4-20250514 if it's really intended
+    # OAuth settings
+    GOOGLE_CLIENT_ID: str
     
-    # CORS
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
+    # AI settings
+    GEMINI_API_KEY: str
+    GEMINI_MODEL: str = "gemini-2.0-flash"
     
-    # App
-    DEBUG: bool = True
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    # App settings
     ENVIRONMENT: str = "development"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
     
     @property
     def cors_origins_list(self) -> List[str]:
-        """Convert CORS_ORIGINS string to list"""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"
+    )
 
 
 settings = Settings()

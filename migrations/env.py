@@ -10,7 +10,7 @@ from alembic import context
 # Import your models and settings
 from app.config import settings
 from app.db import Base
-from app.models.domain import User, Session, Calculation # Ensure models are imported
+from app.models.domain import User, Session, Message # Ensure models are imported
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

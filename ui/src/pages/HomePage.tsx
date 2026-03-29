@@ -1,265 +1,147 @@
-import {
-  BookOpen,
-  Calculator,
-  CheckCircle2,
-  FileText,
-  Shield,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { 
+  Calculator, 
+  Sparkles, 
+  ShieldCheck, 
+  FileText, 
+  Zap, 
+  History, 
+  ArrowRight,
+  ChevronRight,
+  Globe
+} from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 const HomePage: React.FC = () => {
-  const features = [
-    {
-      icon: Calculator,
-      title: "Automated Analysis",
-      description:
-        "Input parameters manually or let AI extract them from your questions",
-      color: "blue",
-    },
-    {
-      icon: Shield,
-      title: "BS 5950 Compliant",
-      description: "All calculations follow British Standard design codes",
-      color: "green",
-    },
-    {
-      icon: FileText,
-      title: "Step-by-Step Solutions",
-      description: "Detailed calculation steps with clause references",
-      color: "orange",
-    },
-    {
-      icon: BookOpen,
-      title: "Interactive Clauses",
-      description: "Click on any clause reference to view full standard text",
-      color: "blue",
-    },
-    {
-      icon: Zap,
-      title: "Fast & Accurate",
-      description: "Get instant results with professional-grade precision",
-      color: "green",
-    },
-    {
-      icon: TrendingUp,
-      title: "Track History",
-      description: "Save and review all your previous calculations",
-      color: "orange",
-    },
-  ];
-
-  const connectionTypes = [
-    "Bearing-type connections",
-    "Slip-resistant connections",
-    "Tension connections",
-    "Shear connections",
-    "Combined shear and tension",
-    "All ordinary bolt grades (4.6, 8.8)",
-  ];
+  const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen font-sans bg-transparent">
+    <div className="min-h-screen relative overflow-hidden bg-[#0f172a]">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#e8a020]/5 rounded-full blur-[120px] animate-pulse delay-700" />
+      
       {/* Hero Section */}
-      <section className="relative text-white py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="inline-block mb-6">
-            <span className="badge bg-white/5 text-amber-300 border-white/20 backdrop-blur-md px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(232,160,32,0.2)]">
-              CVE505 | Design of Steel Structures
-            </span>
+      <section className="relative pt-32 pb-20 px-4">
+        <div className="max-w-7xl mx-auto text-center space-y-8">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-700">
+            <Sparkles className="text-[#e8a020]" size={16} />
+            <span className="text-slate-300 text-xs font-bold uppercase tracking-widest">Next-Gen Structural Analysis</span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
-            Block Shear Analysis
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-amber-400 to-amber-400 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
-              Made Simple
+          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+            ConnCalc <br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#e8a020] via-[#f59e0b] to-[#fbbf24]">
+              Reimagined.
             </span>
           </h1>
 
-          <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto leading-relaxed font-light">
-            Professional block shear failure analysis for bolted connections
-            following BS 5950 standards. Built for engineering students and
-            professionals.
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            The world's first industrial-grade block shear analyzer powered by 
+            <span className="text-white font-bold ml-1">Gemini 2.0 Flash</span>. 
+            Precision calculations for BS 5950-1:2000 bolted connections.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              to="/analyze"
-              className="btn-primary hover:shadow-[0_0_20px_rgba(232,160,32,0.5)] text-lg px-8 py-4 flex items-center gap-2"
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+            <Link 
+              to={isAuthenticated ? "/analyze" : "/auth"}
+              className="group px-8 py-5 rounded-[2rem] bg-white text-[#0f172a] font-black text-xl flex items-center space-x-3 shadow-2xl shadow-white/5 hover:scale-105 transition-all"
             >
-              Start Analysis
-              <Calculator className="w-5 h-5" />
+              <span>{isAuthenticated ? "Launch Workspace" : "Get Started Free"}</span>
+              <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link
+            <Link 
               to="/clauses"
-              className="btn-secondary text-lg px-8 py-4 flex items-center gap-2"
+              className="px-8 py-5 rounded-[2rem] bg-slate-900 border border-slate-800 text-slate-300 font-bold text-lg hover:bg-slate-800 transition-all"
             >
-              Browse BS 5950
-              <BookOpen className="w-5 h-5" />
+              Explore Standard
             </Link>
           </div>
+        </div>
+      </section>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-6 mt-20 max-w-3xl mx-auto bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-xl shadow-2xl shadow-amber-900/20">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
-                100%
-              </div>
-              <div className="text-sm text-white/60">BS 5950 Compliant</div>
-            </div>
-            <div className="text-center border-l border-r border-white/10">
-              <div className="text-4xl font-bold text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
-                AI
-              </div>
-              <div className="text-sm text-white/60">Powered Analysis</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(232,160,32,0.4)]">
-                ∞
-              </div>
-              <div className="text-sm text-white/60">Free Calculations</div>
-            </div>
+      {/* Feature Grid */}
+      <section className="py-32 px-4 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
+            <FeatureCard 
+              icon={<Sparkles size={32} />}
+              title="AI Parameter Extraction"
+              description="Upload sketches or paste problem text. Our Gemini-powered engine extracts design variables in seconds."
+              delay="delay-[400ms]"
+            />
+            <FeatureCard 
+              icon={<ShieldCheck size={32} />}
+              title="BS 5950 Compliance"
+              description="Rock-solid calculations following Clause 6.2.4 strictly. Verified against industry standard benchmarks."
+              delay="delay-[500ms]"
+            />
+            <FeatureCard 
+              icon={<FileText size={32} />}
+              title="Narrative Explanations"
+              description="Get plain-English walk-throughs of every design check. Perfect for audit reports and engineering learning."
+              delay="delay-[600ms]"
+            />
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-24 px-4 bg-black/40 backdrop-blur-sm border-y border-white/5 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-300">
-              Everything You Need
-            </h2>
-            <p className="text-lg text-white/60 max-w-2xl mx-auto">
-              Powerful features designed to make block shear analysis effortless
-              and educational
+      {/* Visual Teaser */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto bg-gradient-to-b from-slate-900 to-[#0f172a] border border-slate-800 rounded-[3rem] p-12 md:p-20 shadow-2xl text-center relative overflow-hidden group">
+          <div className="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <div className="relative z-10 space-y-6">
+            <h2 className="text-4xl font-black text-white">Trusted by Structural Engineers</h2>
+            <p className="text-slate-500 max-w-xl mx-auto text-lg">
+              Streamline your connection design workflow. Go from design question to certified calculation in under 60 seconds.
             </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, idx) => (
-              <div
-                key={idx}
-                className="card p-6 bg-white/[0.03] hover:bg-white/[0.08] backdrop-blur-xl border border-white/10 hover:border-amber-500/30 transition-all duration-300 group"
-              >
-                <div
-                  className={`w-14 h-14 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(232,160,32,0.3)] transition-all`}
-                >
-                  <feature.icon
-                    className={`w-7 h-7 text-white/80 group-hover:text-amber-400`}
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-white/60 leading-relaxed font-light">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Connection Types Coverage */}
-      <section className="py-24 px-4 bg-transparent relative z-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-300 mb-4">
-              Comprehensive Coverage
-            </h2>
-            <p className="text-lg text-white/60">
-              Supports all bolted connection types per BS 5950
-            </p>
-          </div>
-
-          <div className="card-elevated p-8 bg-black/40 border-white/10 shadow-[0_0_50px_rgba(232,160,32,0.1)]">
-            <div className="grid md:grid-cols-2 gap-4">
-              {connectionTypes.map((type, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg hover:border-amber-500/30 transition-colors"
-                >
-                  <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 drop-shadow-[0_0_5px_rgba(232,160,32,0.5)]" />
-                  <span className="text-white/80 font-medium">{type}</span>
-                </div>
-              ))}
+            <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+               <StatItem label="Steel Grades" val="S275/S355" />
+               <StatItem label="Bolts Supported" val="4.6 / 8.8" />
+               <StatItem label="Code Basis" val="BS 5950" />
+               <StatItem label="AI Model" val="Flash 2.0" />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-4 bg-black/60 relative z-10 border-t border-white/10">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="card-elevated p-12 bg-gradient-to-b from-amber-900/20 to-transparent border border-white/10 shadow-[0_0_30px_rgba(232,160,32,0.15)] backdrop-blur-md">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-              Ready to Analyze Your First Connection?
-            </h2>
-            <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto font-light">
-              Join students and professionals using the most advanced block
-              shear analysis tool. No credit card required.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/signup"
-                className="btn-primary flex justify-center items-center text-lg px-8 py-4 shadow-[0_0_20px_rgba(232,160,32,0.4)]"
-              >
-                Create Free Account
-              </Link>
-              <Link
-                to="/analyze"
-                className="btn-secondary flex justify-center items-center text-lg px-8 py-4"
-              >
-                Try Without Signup
-              </Link>
-            </div>
-            <p className="text-sm text-white/40 mt-6">
-              Full access • No installation required • Works on any device
-            </p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#050508] text-white/50 py-12 px-4 border-t border-white/5 relative z-10">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="mb-6">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-                  <circle cx="8" cy="8" r="2" fill="white" />
-                  <circle cx="16" cy="8" r="2" fill="white" />
-                  <circle cx="8" cy="16" r="2" fill="white" />
-                  <circle cx="16" cy="16" r="2" fill="white" />
-                </svg>
-              </div>
-              <span className="text-lg font-bold text-white">
-                Block Shear Analyzer
-              </span>
+      <footer className="py-20 border-t border-slate-900">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-8 text-slate-600 text-sm font-bold">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+              <Calculator size={16} />
             </div>
-            <p className="text-steel-400 mb-4">
-              Professional structural analysis tool for CVE505: Design of Steel
-              Structures
-            </p>
+            <span className="text-slate-400">ConnCalc Enterprise</span>
           </div>
-
-          <div className="border-t border-steel-700 pt-6">
-            <p className="text-sm text-steel-400">
-              © 2026 Block Shear Analyzer. Built with React, Tailwind CSS, and
-              FastAPI.
-            </p>
-            <p className="text-xs text-steel-500 mt-2">
-              All calculations follow BS 5950-1:2000 standards
-            </p>
+          <div className="flex items-center space-x-8">
+            <a href="#" className="hover:text-white transition-colors">Documentation</a>
+            <a href="#" className="hover:text-white transition-colors">Security</a>
+            <a href="#" className="hover:text-white transition-colors">Contact Support</a>
           </div>
+          <p>© 2026 Structural Logic Inc. All rights reserved.</p>
         </div>
       </footer>
     </div>
   );
 };
+
+const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, description: string, delay: string }> = ({ icon, title, description, delay }) => (
+  <div className={`p-10 rounded-[2.5rem] bg-slate-900/50 border border-slate-800 hover:border-indigo-500/30 transition-all group animate-in fade-in slide-in-from-bottom-8 duration-1000 ${delay}`}>
+    <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-white mb-8 group-hover:bg-indigo-600 group-hover:scale-110 transition-all duration-500 shadow-xl group-hover:shadow-indigo-600/20">
+      {icon}
+    </div>
+    <h3 className="text-2xl font-black text-white mb-4 group-hover:text-indigo-400 transition-colors">{title}</h3>
+    <p className="text-slate-500 leading-relaxed font-medium">{description}</p>
+  </div>
+);
+
+const StatItem: React.FC<{ label: string, val: string }> = ({ label, val }) => (
+  <div className="space-y-1">
+    <p className="text-[10px] font-black uppercase tracking-widest">{label}</p>
+    <p className="text-xl font-black text-white">{val}</p>
+  </div>
+);
 
 export default HomePage;

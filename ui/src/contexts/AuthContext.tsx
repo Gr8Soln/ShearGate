@@ -1,87 +1,91 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { getMe, refreshAuth } from "../api/client";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  created_at: string;
-}
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { User } from "../types";
+import { authApi } from "../api/client";
+import { queryClient } from "../api/queryClient";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (accessToken: string, refreshToken: string, userData: User) => void;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  login: () => {},
-  logout: () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = (accessToken: string, refreshToken: string, userData: User) => {
-    localStorage.setItem("cc_access", accessToken);
-    localStorage.setItem("cc_refresh", refreshToken);
-    setUser(userData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("cc_access");
-    localStorage.removeItem("cc_refresh");
+  const logout = useCallback(() => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     setUser(null);
+    queryClient.clear();
+    authApi.logout().catch(() => {});
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const userData = await authApi.getMe();
+      setUser(userData);
+    } catch (error) {
+      logout();
+    }
+  }, [logout]);
+
+  const loginWithGoogle = async (credential: string) => {
+    setIsLoading(true);
+    try {
+      const { access_token, refresh_token, user: userData } = await authApi.loginWithGoogle(credential);
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", refresh_token);
+      setUser(userData);
+    } catch (error) {
+      console.error("Login failed", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    const restoreAuth = async () => {
-      const accessToken = localStorage.getItem("cc_access");
-      const refreshToken = localStorage.getItem("cc_refresh");
-
-      if (!accessToken) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const u = await getMe();
-        setUser(u);
-      } catch (err) {
-        // Access token failed, try refresh
-        if (refreshToken) {
-          try {
-            const res = await refreshAuth(refreshToken);
-            login(res.access_token, res.refresh_token, res.user);
-          } catch (refreshErr) {
-            logout();
-          }
-        } else {
+    const restoreSession = async () => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          // Verify token and get user info
+          const userData = await authApi.getMe();
+          setUser(userData);
+        } catch (error) {
+          // Token might be expired, let the interceptor handle it or logout
           logout();
         }
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
-
-    restoreAuth();
-  }, []);
+    restoreSession();
+  }, [logout]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, login, logout }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      loginWithGoogle,
+      logout,
+      refreshUser
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

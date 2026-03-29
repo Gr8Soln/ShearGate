@@ -1,168 +1,94 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-export const USE_MOCK = false;
+import axios, { AxiosError } from "axios";
 
-// Convert snake_case to camelCase
-function toCamel(o: any): any {
-  if (Array.isArray(o)) {
-    return o.map(toCamel);
-  } else if (o !== null && typeof o === "object") {
-    return Object.keys(o).reduce((result, key) => {
-      const camelKey = key.replace(/([-_][a-z])/gi, ($1) => {
-        return $1.toUpperCase().replace("-", "").replace("_", "");
-      });
-      result[camelKey] = toCamel(o[key]);
-      return result;
-    }, {} as any);
-  }
-  return o;
-}
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-// Convert camelCase to snake_case
-function toSnake(o: any): any {
-  if (Array.isArray(o)) {
-    return o.map(toSnake);
-  } else if (o !== null && typeof o === "object") {
-    return Object.keys(o).reduce((result, key) => {
-      const snakeKey = key.replace(
-        /[A-Z]/g,
-        (letter) => `_${letter.toLowerCase()}`,
-      );
-      result[snakeKey] = toSnake(o[key]);
-      return result;
-    }, {} as any);
-  }
-  return o;
-}
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-export async function authFetch(path: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("cc_access");
-  const headers = { ...options.headers } as any;
-
+// Interceptor to attach JWT
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
 
-  // Set default content type to JSON if body is a string (and not FormData)
-  if (
-    options.body &&
-    typeof options.body === "string" &&
-    !headers["Content-Type"]
-  ) {
-    headers["Content-Type"] = "application/json";
+// Interceptor to handle token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem("refresh_token");
+      
+      if (refreshToken) {
+        try {
+          const resp = await axios.post(`${API_URL}/auth/refresh`, { refresh_token: refreshToken });
+          const { access_token, refresh_token } = resp.data.data;
+          
+          localStorage.setItem("access_token", access_token);
+          localStorage.setItem("refresh_token", refresh_token);
+          
+          originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/login";
+        }
+      }
+    }
+    return Promise.reject(error);
   }
+);
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+// --- API Methods ---
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(errText || `Request failed with status ${response.status}`);
-  }
+export const authApi = {
+  loginWithGoogle: (credential: string) => 
+    api.post("/auth/google", { credential }).then(r => r.data.data),
+  getMe: () => api.get("/auth/me").then(r => r.data.data),
+  logout: () => api.post("/auth/logout").then(r => r.data.data),
+};
 
-  return response;
-}
+export const extractApi = {
+  extractText: (question: string, sessionId?: string) => {
+    const formData = new FormData();
+    formData.append("question", question);
+    if (sessionId) formData.append("session_id", sessionId);
+    return api.post("/extract/text", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    }).then(r => r.data.data);
+  },
+  extractFile: (file: File, sessionId?: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (sessionId) formData.append("session_id", sessionId);
+    return api.post("/extract/file", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    }).then(r => r.data.data);
+  },
+};
 
-// --- Auth Endpoints ---
+export const explainApi = {
+  explainResult: (inputs: any, result: any) => 
+    api.post("/explain/result", { inputs, result }).then(r => r.data.data),
+  explainReference: (refId: string, refType: string) => 
+    api.post("/explain/reference", { ref_id: refId, ref_type: refType }).then(r => r.data.data),
+};
 
-export async function signUp(data: any) {
-  const res = await fetch(`${BASE_URL}/auth/signup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(toSnake(data)),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return toCamel(await res.json());
-}
+export const sessionApi = {
+  list: () => api.get("/sessions").then(r => r.data.data),
+  get: (id: string) => api.get(`/sessions/${id}`).then(r => r.data.data),
+  create: (title: string) => api.post("/sessions", { title }).then(r => r.data.data),
+  update: (id: string, title: string) => api.patch(`/sessions/${id}`, { title }).then(r => r.data.data),
+  delete: (id: string) => api.delete(`/sessions/${id}`).then(r => r.data.data),
+};
 
-export async function logIn(data: any) {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(toSnake(data)),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return toCamel(await res.json());
-}
-
-export async function refreshAuth(refreshToken: string) {
-  const res = await fetch(`${BASE_URL}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refreshToken }),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return toCamel(await res.json());
-}
-
-export async function getMe() {
-  const res = await authFetch("/auth/me");
-  return toCamel(await res.json());
-}
-
-// --- Calculate & Parse Endpoints ---
-
-export async function parseText(question: string) {
-  const res = await authFetch("/parse/text", {
-    method: "POST",
-    body: JSON.stringify({ question }),
-  });
-  return toCamel(await res.json());
-}
-
-export async function parseImage(file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await authFetch("/parse/image", {
-    method: "POST",
-    body: formData,
-  });
-  return toCamel(await res.json());
-}
-
-export async function calculate(inputs: any, sessionId?: string) {
-  const url = sessionId ? `/calculate?session_id=${sessionId}` : "/calculate";
-  const res = await authFetch(url, {
-    method: "POST",
-    body: JSON.stringify(toSnake(inputs)),
-  });
-  return toCamel(await res.json());
-}
-
-// --- Sessions & History ---
-
-export async function getSessions() {
-  const res = await authFetch("/sessions");
-  return toCamel(await res.json());
-}
-
-export async function createSession(title: string) {
-  const res = await authFetch("/sessions", {
-    method: "POST",
-    body: JSON.stringify({ title }),
-  });
-  return toCamel(await res.json());
-}
-
-export async function getCalculations(sessionId: string) {
-  const res = await authFetch(`/sessions/${sessionId}/calculations`);
-  return toCamel(await res.json());
-}
-
-export async function saveCalculation(sessionId: string, data: any) {
-  const res = await authFetch(`/sessions/${sessionId}/calculations`, {
-    method: "POST",
-    body: JSON.stringify(toSnake(data)),
-  });
-  return toCamel(await res.json());
-}
-
-// --- Clauses ---
-
-export async function getClause(clauseId: string) {
-  const res = await fetch(`${BASE_URL}/clauses/${clauseId}`);
-  if (!res.ok) throw new Error(await res.text());
-  return toCamel(await res.json());
-}
+export default api;

@@ -85,6 +85,35 @@ export interface SaveCalculationRequest {
   governing_check: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  google_id: string;
+  avatar_url?: string;
+  created_at: string;
+}
+
+export interface Message {
+  id: string;
+  session_id: string;
+  input_type: "text" | "file";
+  input_raw: string;
+  input_parsed?: any;
+  result?: any;
+  overall_pass: boolean;
+  ai_explanation?: string;
+  created_at: string;
+}
+
+export interface Session {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages?: Message[];
+}
+
 export interface BS5950Clause {
   number: string;
   title: string;
@@ -94,26 +123,13 @@ export interface BS5950Clause {
   references?: string[];
 }
 
+export interface BS5950Table {
+  id: string;
+  title: string;
+  headers: string[];
+  rows: string[][];
+}
+
 export type ClauseDictionary = {
   [key: string]: BS5950Clause;
 };
-
-export interface CalculationResult {
-  blockShearOccurs: boolean;
-  blockShearCapacity: string | number;
-  appliedLoad: string | number;
-  utilizationRatio: string | number;
-  verdict: string;
-  mode1Capacity?: string | number;
-  mode2Capacity?: string | number;
-  calculations?: any;
-}
-
-export interface Calculation {
-  id: string;
-  timestamp: string;
-  questionText: string;
-  inputs: any;
-  result: CalculationResult;
-  steps: any[];
-}

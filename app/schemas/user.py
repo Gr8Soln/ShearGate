@@ -1,42 +1,31 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-
-from pydantic import BaseModel, EmailStr, Field
-
-
-class UserBase(BaseModel):
-    """Base user schema"""
-    email: EmailStr
-    name: str
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
-class UserCreate(UserBase):
-    """User creation schema"""
-    password: str = Field(..., min_length=8)
-
-
-class UserLogin(BaseModel):
-    """User login schema"""
-    email: EmailStr
-    password: str
-
-
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     """User response schema"""
     id: uuid.UUID
+    email: EmailStr
+    name: str
+    google_id: str
+    avatar_url: Optional[str] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
-class Token(BaseModel):
+class GoogleAuthRequest(BaseModel):
+    """Request schema for Google OAuth credential (ID Token)"""
+    credential: str
+
+
+class TokenResponse(BaseModel):
     """JWT token response"""
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
-    user: UserResponse
 
 
 class TokenData(BaseModel):
