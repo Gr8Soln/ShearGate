@@ -4,12 +4,10 @@ from typing import List
 
 class Settings(BaseSettings):
     """Application settings"""
-    
+
     # Database
-    MONGODB_URL: str
-    MONGODB_DB_NAME: str
     POSTGRES_URL: str
-    
+
     # Authentication
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
