@@ -17,16 +17,17 @@ NC='\033[0m' # No Color
 # Check Python version
 echo ""
 echo "📌 Checking Python version..."
-if command -v python3 &> /dev/null; then
-    PYTHON_CMD="python3"
-elif command -v python &> /dev/null; then
+
+if python -c "import sys" &> /dev/null; then
     PYTHON_CMD="python"
+elif python3 -c "import sys" &> /dev/null; then
+    PYTHON_CMD="python3"
 else
-    echo -e "${RED}❌ Python is not installed${NC}"
+    echo -e "${RED}❌ Python is not installed or accessible${NC}"
     exit 1
 fi
 
-PYTHON_VERSION=$($PYTHON_CMD --version | cut -d' ' -f2 | cut -d'.' -f1,2)
+PYTHON_VERSION=$($PYTHON_CMD --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
 echo -e "${GREEN}✅ Python $PYTHON_VERSION found${NC}"
 
 # Create virtual environment

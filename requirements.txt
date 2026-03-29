@@ -28,3 +28,6 @@ python-cors==1.0.0
 
 # Utilities
 python-dateutil==2.8.2
+sqlalchemy[asyncio]==2.0.29
+asyncpg==0.29.0
+alembic==1.13.1

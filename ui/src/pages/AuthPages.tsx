@@ -1,6 +1,8 @@
 import { Lock, LogIn, Mail, User } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { logIn, signUp } from "../api/client";
+import { useAuth } from "../contexts/AuthContext";
 
 interface AuthPageProps {
   onLogin: () => void;
@@ -8,13 +10,26 @@ interface AuthPageProps {
 
 export const LoginPage: React.FC<AuthPageProps> = ({ onLogin }) => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onLogin();
-    navigate("/");
+    try {
+      setError("");
+      const res = await logIn({ email, password });
+      login(
+        res.access_token || res.accessToken,
+        res.refresh_token || res.refreshToken,
+        res.user,
+      );
+      onLogin(); // keeping backwards UI compatibility
+      navigate("/");
+    } catch (err: any) {
+      setError(err.message || "Failed to log in");
+    }
   };
 
   return (
@@ -31,6 +46,12 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin }) => {
         </div>
 
         <div className="card p-8 border-[#272b35]">
+          {" "}
+          {error && (
+            <div className="text-red-500 mb-4 text-sm bg-red-500/10 p-3 rounded">
+              {error}
+            </div>
+          )}{" "}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-[#c0c6d4] mb-2">
@@ -73,7 +94,6 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin }) => {
               Sign In
             </button>
           </form>
-
           <div className="mt-6 text-center">
             <p className="text-sm text-[#8890a0]">
               Don't have an account?{" "}
@@ -102,14 +122,27 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin }) => {
 
 export const SignupPage: React.FC<AuthPageProps> = ({ onLogin }) => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onLogin();
-    navigate("/");
+    try {
+      setError("");
+      const res = await signUp({ name, email, password });
+      login(
+        res.access_token || res.accessToken,
+        res.refresh_token || res.refreshToken,
+        res.user,
+      );
+      onLogin(); // keeping backwards UI compatibility
+      navigate("/");
+    } catch (err: any) {
+      setError(err.message || "Failed to sign up");
+    }
   };
 
   return (
@@ -126,6 +159,11 @@ export const SignupPage: React.FC<AuthPageProps> = ({ onLogin }) => {
         </div>
 
         <div className="card p-8 border-[#272b35]">
+          {error && (
+            <div className="text-red-500 mb-4 text-sm bg-red-500/10 p-3 rounded">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-[#c0c6d4] mb-2">

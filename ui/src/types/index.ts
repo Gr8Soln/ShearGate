@@ -1,51 +1,75 @@
 // Type definitions for the Block Shear Analyzer
 
+export interface BoltLayout {
+  rows: number;
+  cols: number;
+  pitch: number; // mm
+  gauge: number; // mm
+  edge_parallel: number; // mm — e1
+  edge_perpendicular: number; // mm — e2
+}
+
 export interface ConnectionInputs {
-  boltGrade: "4.6" | "8.8";
-  boltDiameter: number;
-  numberOfBolts: number;
-  pitch: number;
-  edgeDistance: number;
-  endDistance: number;
-  plateMaterial: "S275" | "S355" | "S235";
-  plateThickness: number;
-  gauge: number;
-  connectionType: "bearing" | "slip-resistant" | "tension";
-  appliedLoad: number;
+  connection_type: "lap_joint" | "butt_joint" | "gusset_plate" | "angle_cleat";
+  bolt_grade: "4.6" | "8.8";
+  bolt_diameter: number;
+  hole_diameter: number;
+  steel_grade: "S275" | "S355";
+  plate_thickness: number;
+  member_thickness?: number;
+  layout: BoltLayout;
+  applied_force: number; // kN
+  shear_planes: 1 | 2;
 }
 
-export interface CalculationResult {
-  blockShearOccurs: boolean;
-  blockShearCapacity: string;
-  appliedLoad: string;
-  utilizationRatio: string;
-  verdict: string;
-  mode1Capacity: string;
-  mode2Capacity: string;
-  calculations?: {
-    py: number;
-    fu: number;
-    Av: string;
-    At: string;
-    Atn: string;
-  };
+export interface CalcStep {
+  description: string;
+  formula: string;
+  substitution: string;
+  result: string;
+  unit: string;
 }
 
-export interface CalculationStep {
-  step: number;
-  title: string;
-  content: string;
-  clause: string;
-  formulas: string[];
-}
-
-export interface Calculation {
+export interface CheckResult {
   id: string;
-  timestamp: string;
-  questionText?: string;
+  name: string;
+  clause: string;
+  clause_title: string;
+  steps: CalcStep[];
+  capacity: number;
+  applied: number;
+  utilisation: number;
+  pass: boolean;
+  note?: string;
+}
+
+export interface SolutionResult {
+  connection_type: string;
   inputs: ConnectionInputs;
-  result: CalculationResult;
-  steps: CalculationStep[];
+  checks: CheckResult[];
+  overall_pass: boolean;
+  governing_check: string;
+  summary: string;
+}
+
+export interface CalculationOut {
+  id: string;
+  session_id: string;
+  user_id: string;
+  input_raw: string;
+  input_parsed: ConnectionInputs;
+  result: SolutionResult;
+  overall_pass: boolean;
+  governing_check: string;
+  created_at: string;
+}
+
+export interface SaveCalculationRequest {
+  input_raw: string;
+  input_parsed: ConnectionInputs;
+  result: SolutionResult;
+  overall_pass: boolean;
+  governing_check: string;
 }
 
 export interface BS5950Clause {
@@ -60,13 +84,3 @@ export interface BS5950Clause {
 export type ClauseDictionary = {
   [key: string]: BS5950Clause;
 };
-
-export interface MaterialProperties {
-  py: number;
-  fu: number;
-}
-
-export interface BoltProperties {
-  ps: number;
-  pt: number;
-}
