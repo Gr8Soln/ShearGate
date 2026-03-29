@@ -1,44 +1,50 @@
-# Block Shear Analyzer - Backend API
+# Block Shear Analyzer - Full Stack Evaluation Tool
 
-FastAPI backend for BS 5950 block shear analysis with AI-powered question parsing.
+A comprehensive web application designed to evaluate and verify block shear capacities in steel connections precisely according to the stipulations of **BS 5950-1:2000**. The robust system features a React-vite frontend, a FastAPI asynchronous backend with strictly maintained typed interfaces, and Anthropic's Claude AI for interpreting textual or image-based structural engineering question payloads.
 
 ## 🚀 Tech Stack
 
-- **FastAPI** - Modern Python web framework
-- **PostgreSQL** - Users & BS 5950 clauses
-- **Claude AI** - Question parsing (text & image)
-- **JWT** - Authentication
-- **Pydantic** - Data validation
+### Frontend
+
+- **React.js & Vite** - Lightning-fast execution with Hot Module Replacement (HMR).
+- **TypeScript** - Enforcing robust type safety across calculation data models.
+- **Tailwind CSS** - Modern, utility-first UI styling.
+
+### Backend
+
+- **FastAPI** - High-performance asynchronous Python web framework.
+- **PostgreSQL & SQLAlchemy (asyncio)** - Pure relational, scalable datastore handling user sessions and authentication alongside Alembic for migrations.
+- **Pydantic** - Strict schema definitions for robust structural calculation input-validation.
+
+### Intelligence
+
+- **Claude AI (Anthropic)** - Processes natural language queries and diagram images to extract specific engineering parameters like bolt types, forces, and spatial geometries without strictly rigid form inputs.
+- **BS 5950-1:2000 Integration** - A dynamic repository cross-referencing individual step calculations directly to normative clauses like `Clause 6.2.4` and spacing tables (`T.30`, `T.34`).
 
 ---
 
 ## 📋 Features
 
-### ✅ Authentication
+### ✅ Theoretical Core & BS 5950 Compliance
 
-- User registration & login
-- JWT token-based auth
-- Password hashing with bcrypt
+The calculation engine strictly respects block shear mechanics as per British Standards:
 
-### ✅ Block Shear Calculations
+- **Mode 1 (Shear Yielding + Tension Rupture):** `P_{bs1} = 0.6 \cdot p_y \cdot A_v + p_y \cdot A_t`
+- **Mode 2 (Shear Rupture + Tension Rupture):** `P_{bs2} = f_u \cdot A_v + 0.5 \cdot f_u \cdot A_{tn}`
+- **Edge Distances:** Lookups for min/max edge definitions against table `T.30` and `T.31`.
+- **Bolt Gradings:** Shear and bearing derivations via `T.34` for normal 4.6 and 8.8 grade setups.
+- **Material Specs:** Integrated property definitions for typical S235, S275, and S355 steels.
 
-- Full BS 5950-1:2000 compliance
-- Two failure modes (shear yielding + tension rupture)
-- Step-by-step calculation generation
-- Material property lookup (S275, S355, S235)
-- Bolt grade support (4.6, 8.8)
+### ✅ Authentication & Lifecycle
 
-### ✅ AI-Powered Input Parsing
+- Stateless JWT token-based robust security.
+- Encrypted hashed passwords.
+- Structured session persistence. Users can view historic calculation summaries tracking their utilized ratios and margins of safety.
 
-- **Text questions** - Extract parameters from natural language
-- **Image questions** - OCR and diagram analysis
-- Powered by Claude AI (Anthropic)
+### ✅ AI-Powered Parsing
 
-### ✅ BS 5950 Clause Database
-
-- Full clause text storage
-- Search functionality
-- Cross-references
+- **Text Queries:** Provide paragraph descriptions of connections (e.g., "A double angle with 4 M20 8.8 bolts..."). The AI translates this to a typed `ConnectionInputs` object.
+- **Image Intelligence:** OCR diagram detection to bridge conventional assignment handouts straight to computations.
 
 ---
 
@@ -46,221 +52,103 @@ FastAPI backend for BS 5950 block shear analysis with AI-powered question parsin
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.11+
+- Node.js & npm (or Bun/Yarn)
 - PostgreSQL 14+
-- Anthropic API key
+- Anthropic API Key
 
-### 1. Clone & Install
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Or create virtual environment first (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 2. Database Setup
-
-**PostgreSQL:**
+### 1. Database Setup (PostgreSQL)
 
 ```bash
-# Create database
 psql -U postgres
 CREATE DATABASE blockshear;
 \q
 ```
 
+### 2. Environment Configuration
+
+Copy the example `.env` file to `.env`:
 
 ```bash
-mongod
-
-# Or with Docker:
-```
-
-### 3. Environment Configuration
-
-```bash
-# Copy example env file
 cp .env.example .env
-
-# Edit .env and fill in your values
-nano .env
 ```
 
-**Required variables:**
+**Required `.env` variables:**
 
 ```env
+# Database Configuration
+POSTGRES_URL=postgresql+asyncpg://postgres:password@localhost:5432/blockshear
 
-# PostgreSQL
-POSTGRES_URL=postgresql://postgres:password@localhost:5432/blockshear
-
-# Security (generate with: openssl rand -hex 32)
+# Security (Generate via: openssl rand -hex 32)
 SECRET_KEY=your-secret-key-here
-
-# Anthropic AI
-ANTHROPIC_API_KEY=your_api_key_here
-```
-
-### 4. Seed Database
-
-```bash
-# Seed BS 5950 clauses into PostgreSQL
-python seed_db.py
-```
-
-### 5. Run Server
-
-```bash
-# Development mode (with auto-reload)
-uvicorn app.main:app --reload --port 8000
-
-# Production mode
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
-```
-
-**Server will start at:** `http://localhost:8000`
-
-**API Documentation:** `http://localhost:8000/docs`
-
----
-
-## 📚 API Endpoints
-
-### Authentication
-
-```bash
-POST   /api/auth/register       # Register new user
-POST   /api/auth/login          # Login user
-POST   /api/auth/token          # OAuth2 token endpoint
-GET    /api/auth/me             # Get current user
-```
-
-### Calculations
-
-```bash
-POST   /api/calculate           # Create calculation
-GET    /api/calculations        # Get user's calculations
-GET    /api/calculations/{id}   # Get specific calculation
-DELETE /api/calculations/{id}   # Delete calculation
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=120
 
 # AI Parsing
-POST   /api/parse-text          # Parse text question
-POST   /api/parse-image         # Parse image question
+ANTHROPIC_API_KEY=your_anthropic_key_here
+
+# Internal Config
+CORS_ORIGINS=http://localhost:5173
 ```
 
-### Clauses
+### 3. Application Startup
+
+A unified startup bash script is provided for UNIX/POSIX-like environments (Linux, macOS, Git Bash on Windows):
 
 ```bash
-GET    /api/clauses             # Get all clauses
-GET    /api/clauses/search      # Search clauses
-GET    /api/clauses/{number}    # Get specific clause
-POST   /api/clauses             # Create clause (admin)
+chmod +x start.sh
+./start.sh
 ```
 
-### Health & Info
+This orchestrated script will automatically:
 
-```bash
-GET    /                        # API info
-GET    /health                  # Health check
-```
+1. Detect your Python version
+2. Verify existing virtual environments
+3. Validate and sync Backend `requirements.txt` via pip
+4. Invoke Alembic for iterative PostgreSQL datastore schema migrations
+5. Boot up the Vite frontend in a background loop (`http://localhost:5173`)
+6. Execute the Uvicorn FastAPI backend visibly (`http://localhost:8000`)
 
 ---
 
-## 🧪 Testing the API
+## 📚 Core Routing Mapping
 
-### Using Swagger UI
+The API encapsulates several distinct boundaries supporting the UI. All endpoints trace off `http://localhost:8000`.
 
-1. Open `http://localhost:8000/docs`
-2. Try the interactive API documentation
-
-### Using cURL
-
-**Register User:**
-
-```bash
-curl -X POST "http://localhost:8000/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "student@university.edu",
-    "name": "John Doe",
-    "password": "SecurePassword123"
-  }'
-```
-
-**Login:**
-
-```bash
-curl -X POST "http://localhost:8000/api/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "student@university.edu",
-    "password": "SecurePassword123"
-  }'
-```
-
-**Create Calculation:**
-
-```bash
-curl -X POST "http://localhost:8000/api/calculate" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -d '{
-    "inputs": {
-      "bolt_grade": "8.8",
-      "bolt_diameter": 20,
-      "number_of_bolts": 4,
-      "pitch": 70,
-      "edge_distance": 50,
-      "end_distance": 50,
-      "plate_material": "S275",
-      "plate_thickness": 10,
-      "gauge": 60,
-      "connection_type": "bearing",
-      "applied_load": 320
-    }
-  }'
-```
-
-**Parse Text Question:**
-
-```bash
-curl -X POST "http://localhost:8000/api/parse-text" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "question": "A double angle connection with 4 x M20 Grade 8.8 bolts. Angles: 100x100x10mm, S275 steel. Check block shear capacity."
-  }'
-```
+- `POST /auth/login`, `POST /auth/signup` - Maps to frontend `authFetch().` Returns JWT contexts.
+- `POST /calculate` - Directly submits standardized JSON typed forms against the `BS5950/block_shear.py` derivation engine.
+- `POST /parse/text|image` - Interfaces Anthropic prompts. Returns inferred JSON shapes matching `ConnectionInputs`.
+- `GET /clauses/T.{num}` - Dynamically renders BS 5950 engineering table contents straight to interactive React `ResultsPage.tsx` overlay components.
 
 ---
 
-## 🔧 Project Structure
+## 🔧 File Structure Hierarchy
 
-```
+```text
 blockshear/
-├── app/                       # FastAPI Backend
-│   ├── core/
-│   ├── database/
-│   ├── models/
-│   ├── schemas/
-│   ├── services/
-│   ├── routers/
-│   ├── utils/
-│   └── main.py
-├── ui/                        # React + Vite Frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── App.tsx
-│   ├── package.json
-│   └── vite.config.ts
-├── docker-compose.yml         # Full-stack orchestration
-├── Dockerfile                 # Backend image
-├── ui/Dockerfile              # Frontend image
-├── start.sh                   # Dev launch script
-└── README.md
+├── .env                       # Secrets and Environment Variables
+├── docker-compose.yml         # Container Orchestration
+├── requirements.txt           # Python Dependency Maps
+├── start.sh                   # Main initialization pipeline
+├── app/                       # FastAPI Backend Ecosystem
+│   ├── config.py              # Pydantic Settings Validations
+│   ├── db.py                  # PostgreSQL async engine definition
+│   ├── main.py                # ASGI Route and App Integrator
+│   ├── models/                # SQLAlchemy Entity Relational mappings
+│   ├── routers/               # Isolated domain-specific logic handles (Auth, Parse)
+│   ├── schemas/               # Validations (Connection Inputs, Calculation Steps)
+│   └── services/              # Sub-domains
+│       └── bs5950/            # Distinct mechanical evaluation logic engines (.py)
+└── ui/                        # React + Vite Client
+    ├── index.html             # Entry template
+    ├── package.json           # Node Packages
+    ├── vite.config.ts         # Fast-bundler configurations
+    └── src/
+        ├── api/               # Abstracted async logic fetching and error parsing
+        ├── components/        # Isolated modular fragments (Navbar, Context Modals)
+        ├── contexts/          # React Auth Providers & Access Controls
+        ├── data/              # Default Fallback Models
+        └── pages/             # Routing Component Tree Views
 ```
 
 ---
@@ -402,7 +290,6 @@ docker run -d -p 8000:8000 \
 
 ## 📊 Database Schemas
 
-
 ```javascript
 {
   _id: ObjectId,
@@ -473,7 +360,6 @@ pg_isready
 # Restart service
 sudo service postgresql restart
 ```
-
 
 ```bash
 # Check status
