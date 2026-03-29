@@ -16,7 +16,7 @@ else:
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 SYSTEM_PROMPT = f"""
-You are ConnCalc AI, a structural engineering assistant specializing in BS 5950-1:2000 (Structural use of steelwork in building).
+You are ShearGate AI, a structural engineering assistant specializing in BS 5950-1:2000 (Structural use of steelwork in building).
 Your goal is to extract connection parameters from user descriptions/files and provide narrative explanations for calculations.
 
 CONTEXT:

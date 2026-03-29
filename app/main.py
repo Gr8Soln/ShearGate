@@ -9,7 +9,7 @@ from app.utils.response import success_response
 
 # Create FastAPI app
 app = FastAPI(
-    title="ConnCalc API",
+    title="ShearGate API",
     description="Structural Engineering Connection Design API — BS 5950-1:2000",
     version="1.0.0"
 )
@@ -33,9 +33,9 @@ app.include_router(sessions.router)
 async def root():
     """API Health Check"""
     return success_response(
-        message="ConnCalc API is online",
+        message="ShearGate API is online",
         data={
-            "api": "ConnCalc",
+            "api": "ShearGate",
             "version": "1.0.0",
             "support": "BS 5950-1:2000"
         }

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Printer, 
-  Download, 
-  CheckCircle2, 
-  XCircle, 
-  Sparkles, 
-  BookOpen, 
+import {
+  ArrowLeft,
+  Printer,
+  Download,
+  CheckCircle2,
+  XCircle,
+  Sparkles,
+  BookOpen,
   MessageSquare,
   Loader2,
   ChevronRight,
@@ -43,11 +43,11 @@ const ResultsPage: React.FC = () => {
   const { id: sessionId } = useParams();
   const location = useLocation();
   const { user } = useAuth();
-  
+
   const state = location.state as { inputs: ConnectionInputs, result: CalculationResult } | null;
   const [inputs, setInputs] = useState<ConnectionInputs | null>(state?.inputs || null);
   const [result, setResult] = useState<CalculationResult | null>(state?.result || null);
-  
+
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [isExplaining, setIsExplaining] = useState(false);
   const [selectedRef, setSelectedRef] = useState<{ id: string, type: "clause" | "table" } | null>(null);
@@ -124,7 +124,7 @@ const ResultsPage: React.FC = () => {
           <div className={`relative overflow-hidden p-10 rounded-[2.5rem] border ${isSafe ? 'border-emerald-500/20 shadow-emerald-500/5' : 'border-rose-500/20 shadow-rose-500/5'} bg-slate-900/50 backdrop-blur-xl shadow-2xl`}>
             {/* Background Glow */}
             <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] ${isSafe ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`} />
-            
+
             <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8">
               <div className={`w-24 h-24 rounded-3xl flex items-center justify-center shrink-0 shadow-lg ${isSafe ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'}`}>
                 {isSafe ? <CheckCircle2 className="text-white" size={48} /> : <XCircle className="text-white" size={48} />}
@@ -173,7 +173,7 @@ const ResultsPage: React.FC = () => {
                 </div>
               </div>
               {!aiExplanation && (
-                <button 
+                <button
                   onClick={handleExplain}
                   disabled={isExplaining}
                   className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all disabled:opacity-50"
@@ -189,7 +189,7 @@ const ResultsPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-10 space-y-4">
-                  <p className="text-slate-500 max-w-sm mx-auto">Get a personalized, clause-by-clause explanation of your results using ConnCalc's AI engine.</p>
+                  <p className="text-slate-500 max-w-sm mx-auto">Get a personalized, clause-by-clause explanation of your results using ShearGate's AI engine.</p>
                   <button onClick={handleExplain} className="text-indigo-400 font-bold hover:underline">Click to start AI analysis</button>
                 </div>
               )}
@@ -211,7 +211,7 @@ const ResultsPage: React.FC = () => {
                       <h4 className="font-bold text-white text-lg">{step.title}</h4>
                     </div>
                     {step.clause && (
-                      <button 
+                      <button
                         onClick={() => onRefClick(step.clause!, "clause")}
                         className="text-[10px] font-black uppercase text-indigo-400 hover:text-indigo-300 tracking-tighter"
                       >
@@ -234,9 +234,9 @@ const ResultsPage: React.FC = () => {
             <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity">
               <BookOpen className="text-slate-600" size={40} />
             </div>
-            
+
             <SectionHeader title="BS 5950 Reference" subtitle="Context for this calculation" icon={<BookOpen size={16} />} />
-            
+
             <div className="mt-8">
               {selectedRef ? (
                 <ReferenceDetail id={selectedRef.id} type={selectedRef.type} onClear={() => setSelectedRef(null)} />
@@ -285,7 +285,7 @@ const ReferenceDetail: React.FC<{ id: string, type: "clause" | "table", onClear:
         <span className="text-sm font-black text-indigo-400 uppercase tracking-widest">{type} {id}</span>
         <button onClick={onClear} className="text-slate-600 hover:text-white transition-colors"><XCircle size={18} /></button>
       </div>
-      
+
       {clause && (
         <div className="space-y-4">
           <h5 className="text-lg font-bold text-white leading-tight">{clause.title}</h5>

@@ -10,7 +10,7 @@ if db_url and db_url.startswith("postgresql://"):
     db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 engine = create_async_engine(
-    db_url or "postgresql+asyncpg://postgres:password@localhost:5432/steelconn",
+    db_url or "postgresql+asyncpg://postgres:password@localhost:5432/ShearGate",
     echo=False,
 )
 

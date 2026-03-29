@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  Calculator, 
-  History, 
-  BookOpen, 
-  Menu, 
-  X, 
-  LogOut, 
+import {
+  Calculator,
+  History,
+  BookOpen,
+  Menu,
+  X,
+  LogOut,
   User as UserIcon,
   ChevronDown
 } from "lucide-react";
@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
                 <Calculator className="text-white" size={24} />
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                ConnCalc
+                ShearGate
               </span>
             </Link>
           </div>
@@ -48,11 +48,10 @@ const Navbar: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive(item.path)
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive(item.path)
                       ? "bg-[#e8a020]/10 text-[#e8a020]"
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
-                  }`}
+                    }`}
                 >
                   {item.icon}
                   <span>{item.name}</span>
@@ -129,11 +128,10 @@ const Navbar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium ${
-                  isActive(item.path)
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium ${isActive(item.path)
                     ? "bg-[#e8a020]/10 text-[#e8a020]"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 {item.icon}
                 <span>{item.name}</span>

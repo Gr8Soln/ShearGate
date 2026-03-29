@@ -7,7 +7,9 @@ class Settings(BaseSettings):
     """Application settings"""
 
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = normalize_database_url(
+		os.getenv("DATABASE_URL", "postgresql://postgres:admin@localhost:5432/ShearGate")
+	)
 
     # Auth settings
     JWT_SECRET: str

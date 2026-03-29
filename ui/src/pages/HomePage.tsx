@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { 
-  Calculator, 
-  Sparkles, 
-  ShieldCheck, 
-  FileText, 
-  Zap, 
-  History, 
+import {
+  Calculator,
+  Sparkles,
+  ShieldCheck,
+  FileText,
+  Zap,
+  History,
   ArrowRight,
   ChevronRight,
   Globe
@@ -21,7 +21,7 @@ const HomePage: React.FC = () => {
       {/* Dynamic Background Elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#e8a020]/5 rounded-full blur-[120px] animate-pulse delay-700" />
-      
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4">
         <div className="max-w-7xl mx-auto text-center space-y-8">
@@ -31,27 +31,27 @@ const HomePage: React.FC = () => {
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-            ConnCalc <br />
+            ShearGate <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#e8a020] via-[#f59e0b] to-[#fbbf24]">
               Reimagined.
             </span>
           </h1>
 
           <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            The world's first industrial-grade block shear analyzer powered by 
-            <span className="text-white font-bold ml-1">Gemini 2.0 Flash</span>. 
+            The world's first industrial-grade block shear analyzer powered by
+            <span className="text-white font-bold ml-1">Gemini 2.0 Flash</span>.
             Precision calculations for BS 5950-1:2000 bolted connections.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-            <Link 
+            <Link
               to={isAuthenticated ? "/analyze" : "/auth"}
               className="group px-8 py-5 rounded-[2rem] bg-white text-[#0f172a] font-black text-xl flex items-center space-x-3 shadow-2xl shadow-white/5 hover:scale-105 transition-all"
             >
               <span>{isAuthenticated ? "Launch Workspace" : "Get Started Free"}</span>
               <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link 
+            <Link
               to="/clauses"
               className="px-8 py-5 rounded-[2rem] bg-slate-900 border border-slate-800 text-slate-300 font-bold text-lg hover:bg-slate-800 transition-all"
             >
@@ -65,19 +65,19 @@ const HomePage: React.FC = () => {
       <section className="py-32 px-4 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard 
+            <FeatureCard
               icon={<Sparkles size={32} />}
               title="AI Parameter Extraction"
               description="Upload sketches or paste problem text. Our Gemini-powered engine extracts design variables in seconds."
               delay="delay-[400ms]"
             />
-            <FeatureCard 
+            <FeatureCard
               icon={<ShieldCheck size={32} />}
               title="BS 5950 Compliance"
               description="Rock-solid calculations following Clause 6.2.4 strictly. Verified against industry standard benchmarks."
               delay="delay-[500ms]"
             />
-            <FeatureCard 
+            <FeatureCard
               icon={<FileText size={32} />}
               title="Narrative Explanations"
               description="Get plain-English walk-throughs of every design check. Perfect for audit reports and engineering learning."
@@ -97,10 +97,10 @@ const HomePage: React.FC = () => {
               Streamline your connection design workflow. Go from design question to certified calculation in under 60 seconds.
             </p>
             <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-               <StatItem label="Steel Grades" val="S275/S355" />
-               <StatItem label="Bolts Supported" val="4.6 / 8.8" />
-               <StatItem label="Code Basis" val="BS 5950" />
-               <StatItem label="AI Model" val="Flash 2.0" />
+              <StatItem label="Steel Grades" val="S275/S355" />
+              <StatItem label="Bolts Supported" val="4.6 / 8.8" />
+              <StatItem label="Code Basis" val="BS 5950" />
+              <StatItem label="AI Model" val="Flash 2.0" />
             </div>
           </div>
         </div>
@@ -113,7 +113,7 @@ const HomePage: React.FC = () => {
             <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
               <Calculator size={16} />
             </div>
-            <span className="text-slate-400">ConnCalc Enterprise</span>
+            <span className="text-slate-400">ShearGate Enterprise</span>
           </div>
           <div className="flex items-center space-x-8">
             <a href="#" className="hover:text-white transition-colors">Documentation</a>
