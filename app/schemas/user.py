@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+import uuid
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -22,19 +24,21 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     """User response schema"""
-    id: str = Field(..., alias="_id")
+    id: uuid.UUID
     created_at: datetime
     
     class Config:
-        populate_by_name = True
+        from_attributes = True
 
 
 class Token(BaseModel):
     """JWT token response"""
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
+    user: UserResponse
 
 
 class TokenData(BaseModel):
     """Token payload data"""
-    email: Optional[str] = None
+    user_id: Optional[str] = None

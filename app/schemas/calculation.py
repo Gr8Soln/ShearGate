@@ -1,69 +1,102 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List, Literal
+import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class BoltLayout(BaseModel):
+    rows: int
+    cols: int
+    pitch: float
+    gauge: float
+    edge_parallel: float
+    edge_perpendicular: float
 
 
 class ConnectionInputs(BaseModel):
     """Connection input parameters"""
-    boltGrade: Literal["4.6", "8.8"]
-    boltDiameter: float = Field(..., gt=0)
-    numberOfBolts: int = Field(..., gt=0)
-    pitch: float = Field(..., gt=0)
-    edgeDistance: float = Field(..., gt=0)
-    endDistance: float = Field(..., gt=0)
-    plateMaterial: Literal["S275", "S355", "S235"]
-    plateThickness: float = Field(..., gt=0)
-    gauge: float = Field(..., gt=0)
-    connectionType: Literal["bearing", "slip-resistant", "tension"]
-    appliedLoad: float = Field(..., ge=0)
+    connection_type: Literal["lap_joint", "butt_joint", "gusset_plate", "angle_cleat"]
+    bolt_grade: Literal["4.6", "8.8"]
+    bolt_diameter: float = Field(..., gt=0)
+    hole_diameter: float = Field(..., gt=0)
+    steel_grade: Literal["S275", "S355"]
+    plate_thickness: float = Field(..., gt=0)
+    member_thickness: Optional[float] = None
+    layout: BoltLayout
+    applied_force: float = Field(..., ge=0)
+    shear_planes: Literal[1, 2]
 
 
-class CalculationStep(BaseModel):
+class CalcStep(BaseModel):
     """Single calculation step"""
-    step: int
-    title: str
-    content: str
+    description: str
+    formula: str
+    substitution: str
+    result: str
+    unit: str
+    clause: Optional[str] = None
+
+
+class CheckResult(BaseModel):
+    """Single check result (e.g. Shear, Bearing)"""
+    id: str
+    name: str
     clause: str
-    formulas: List[str]
+    clause_title: str
+    steps: List[CalcStep]
+    capacity: float
+    applied: float
+    utilisation: float
+    pass_: bool = Field(..., alias="pass")
+    note: Optional[str] = None
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
-class CalculationResult(BaseModel):
-    """Calculation result"""
-    blockShearOccurs: bool
-    blockShearCapacity: float
-    appliedLoad: float
-    utilizationRatio: float
-    verdict: str
-    mode1Capacity: float
-    mode2Capacity: float
-    calculations: Optional[dict] = None
-
-
-class CalculationCreate(BaseModel):
-    """Create calculation request"""
-    questionText: Optional[str] = None
+class SolutionResult(BaseModel):
+    """Full solution result"""
+    connection_type: str
     inputs: ConnectionInputs
+    checks: List[CheckResult]
+    overall_pass: bool
+    governing_check: str
+    summary: str
 
 
-class CalculationResponse(BaseModel):
-    """Calculation response"""
-    id: str = Field(..., alias="_id")
-    user_id: Optional[str] = None
-    timestamp: datetime
-    questionText: Optional[str] = None
-    inputs: ConnectionInputs
-    result: CalculationResult
-    steps: List[CalculationStep]
-    
+class CalculationOut(BaseModel):
+    """Calculation database output"""
+    id: uuid.UUID
+    session_id: uuid.UUID
+    user_id: uuid.UUID
+    input_raw: str
+    input_parsed: ConnectionInputs
+    result: SolutionResult
+    overall_pass: bool
+    governing_check: str
+    created_at: datetime
+
     class Config:
-        populate_by_name = True
+        from_attributes = True
+
+
+class SaveCalculationRequest(BaseModel):
+    """Save calculation request"""
+    input_raw: str
+    input_parsed: ConnectionInputs
+    result: SolutionResult
+    overall_pass: bool
+    governing_check: str
 
 
 class ParseQuestionRequest(BaseModel):
     """Parse question text request"""
-    question: str = Field(..., min_length=10)
+    question: str = Field(..., min_length=1)
 
 
-class ParseImageRequest(BaseModel):
-    """Parse image request"""
-    image_base64: str
+class ParseResponse(BaseModel):
+    """Response from parse endpoints"""
+    raw_question: str
+    inputs: ConnectionInputs
+    confidence: Optional[float] = None
+    assumptions: Optional[List[str]] = None

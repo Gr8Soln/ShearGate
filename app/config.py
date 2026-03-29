@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     
     # AI
     ANTHROPIC_API_KEY: str
+    ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20240620" # Or claude-sonnet-4-20250514 if it's really intended
     
     # CORS
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
