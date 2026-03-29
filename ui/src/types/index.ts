@@ -10,16 +10,29 @@ export interface BoltLayout {
 }
 
 export interface ConnectionInputs {
-  connection_type: "lap_joint" | "butt_joint" | "gusset_plate" | "angle_cleat";
-  bolt_grade: "4.6" | "8.8";
-  bolt_diameter: number;
-  hole_diameter: number;
-  steel_grade: "S275" | "S355";
-  plate_thickness: number;
+  connection_type?: "lap_joint" | "butt_joint" | "gusset_plate" | "angle_cleat";
+  bolt_grade?: "4.6" | "8.8";
+  bolt_diameter?: number;
+  hole_diameter?: number;
+  steel_grade?: "S275" | "S355";
+  plate_thickness?: number;
   member_thickness?: number;
-  layout: BoltLayout;
-  applied_force: number; // kN
-  shear_planes: 1 | 2;
+  layout?: BoltLayout;
+  applied_force?: number; // kN
+  shear_planes?: 1 | 2;
+
+  // Frontend camelCase properties
+  connectionType?: string;
+  boltGrade?: string;
+  boltDiameter?: number;
+  numberOfBolts?: number;
+  pitch?: number;
+  edgeDistance?: number;
+  endDistance?: number;
+  plateMaterial?: string;
+  plateThickness?: number;
+  gauge?: number;
+  appliedLoad?: number;
 }
 
 export interface CalcStep {
@@ -84,3 +97,23 @@ export interface BS5950Clause {
 export type ClauseDictionary = {
   [key: string]: BS5950Clause;
 };
+
+export interface CalculationResult {
+  blockShearOccurs: boolean;
+  blockShearCapacity: string | number;
+  appliedLoad: string | number;
+  utilizationRatio: string | number;
+  verdict: string;
+  mode1Capacity?: string | number;
+  mode2Capacity?: string | number;
+  calculations?: any;
+}
+
+export interface Calculation {
+  id: string;
+  timestamp: string;
+  questionText: string;
+  inputs: any;
+  result: CalculationResult;
+  steps: any[];
+}

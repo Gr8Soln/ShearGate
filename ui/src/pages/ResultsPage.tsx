@@ -24,6 +24,33 @@ interface LocationState {
   result: CalculationResult;
 }
 
+const parseDescription = (
+  content: string,
+  onClauseClick: (clause: string) => void,
+) => {
+  if (!content) return null;
+  const parts = content.split(/(\[TABLE:T\.[^\]]+\])/g);
+  return parts.map((part, index) => {
+    const match = part.match(/\[TABLE:(T\.[^\]]+)\]/);
+    if (match) {
+      const tableName = match[1];
+      return (
+        <button
+          key={index}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClauseClick(tableName);
+          }}
+          className="clause-ref-btn table-ref inline-flex items-center gap-1 text-[#e8a020] hover:text-[#ffc150] transition-colors font-medium bg-[rgba(232,160,32,0.1)] px-1.5 py-0.5 rounded border border-[rgba(232,160,32,0.3)] mx-1"
+        >
+          📊 {tableName}
+        </button>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
 const ResultsPage: React.FC = () => {
   const location = useLocation();
   const state = location.state as LocationState | null;
@@ -213,7 +240,7 @@ const ResultsPage: React.FC = () => {
               Calculation Steps
             </h2>
             <div className="space-y-3">
-              {steps.map((step) => (
+              {steps.map((step: any) => (
                 <div
                   key={step.step}
                   className="bg-[#13161b] border border-[#272b35] rounded-lg overflow-hidden"
@@ -243,14 +270,14 @@ const ResultsPage: React.FC = () => {
                   {expandedStep === step.step && (
                     <div className="p-5 bg-[#0d0f12] animate-fade-in border-t border-[#272b35]">
                       <div className="mb-4">
-                        <p className="text-[#e8eaf0] text-sm whitespace-pre-line leading-relaxed font-mono">
-                          {step.content}
-                        </p>
+                        <div className="text-[#e8eaf0] text-sm whitespace-pre-line leading-relaxed font-mono">
+                          {parseDescription(step.content, handleClauseClick)}
+                        </div>
                       </div>
 
                       {step.formulas && step.formulas.length > 0 && (
                         <div className="space-y-2 mb-4">
-                          {step.formulas.map((formula, idx) => (
+                          {step.formulas.map((formula: any, idx: number) => (
                             <div
                               key={idx}
                               className="font-mono text-xs bg-[rgba(62,207,142,0.05)] text-[#3ecf8e] p-3 rounded-md border border-[rgba(62,207,142,0.2)]"
