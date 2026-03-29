@@ -11,7 +11,7 @@ import AnalyzePage from "./pages/AnalyzePage";
 import ResultsPage from "./pages/ResultsPage";
 import HistoryPage from "./pages/HistoryPage";
 import ClausesPage from "./pages/ClausesPage";
-import AuthPage from "@/pages/AuthPage";
+import AuthPage from "./pages/AuthPage";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
