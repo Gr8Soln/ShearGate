@@ -1,7 +1,8 @@
-from fastapi import APIRouter
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-from app.schemas.calculation import ConnectionInputs, CalculationResponse
+from fastapi import APIRouter
+
+from app.schemas.calculation import CalculationResponse, ConnectionInputs
 from app.services.bs5950.block_shear import analyze_block_shear
 
 router = APIRouter(

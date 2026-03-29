@@ -1,5 +1,6 @@
+from typing import Any, Dict, List
+
 from fastapi import APIRouter
-from typing import Dict, Any, List
 
 router = APIRouter(
     prefix="/sessions",

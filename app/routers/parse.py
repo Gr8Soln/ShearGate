@@ -1,7 +1,8 @@
-from fastapi import APIRouter, File, UploadFile
-from typing import Dict, Any
+from typing import Any, Dict
 
-from app.schemas.calculation import ParseQuestionRequest, ConnectionInputs
+from fastapi import APIRouter, File, UploadFile
+
+from app.schemas.calculation import ConnectionInputs, ParseQuestionRequest
 
 router = APIRouter(
     prefix="/parse",

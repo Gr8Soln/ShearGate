@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Dict, Any
+from typing import Any, Dict
 
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.schemas.user import Token, UserCreate, UserLogin, UserResponse
 
 router = APIRouter(
     prefix="/auth",

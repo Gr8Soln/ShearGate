@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import Settings
-from app.routers import auth, clauses, calculate, parse, sessions
+from app.routers import auth, calculate, clauses, parse, sessions
 
 # Initialize settings
 settings = Settings()
