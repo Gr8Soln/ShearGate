@@ -25,10 +25,10 @@ log_error() {
     echo -e "${RED}âŒ $1${NC}"
 }
 
-echo "íº€ Block Shear Analyzer Setup"
+echo "ï¿½ï¿½ï¿½ Block Shear Analyzer Setup"
 echo "======================================"
 
-log_info "í³Œ Checking Python version..."
+log_info "ï¿½ï¿½ï¿½ Checking Python version..."
 if python -c "import sys" >/dev/null 2>&1; then
     PYTHON_BIN="python"
 elif python3 -c "import sys" >/dev/null 2>&1; then
@@ -42,7 +42,7 @@ PYTHON_VERSION=$("$PYTHON_BIN" --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
 log_ok "Python $PYTHON_VERSION found"
 
 if [ ! -d "venv" ]; then
-    log_info "í³¦ No venv found. Creating virtual environment..."
+    log_info "ï¿½ï¿½ï¿½ No venv found. Creating virtual environment..."
     "$PYTHON_BIN" -m venv venv
     log_ok "Created virtual environment"
 fi
@@ -58,7 +58,7 @@ fi
 
 log_ok "Activated virtual environment (venv)"
 
-log_info "í³¥ Updating pip..."
+log_info "ï¿½ï¿½ï¿½ Updating pip..."
 python -m pip install --upgrade pip > /dev/null
 
 if [ ! -f "requirements.txt" ]; then
@@ -95,7 +95,7 @@ if [ -f ".env" ]; then
     set +a
 fi
 
-log_info "í·„ï¸  Checking database connections..."
+log_info "ï¿½ï¿½ï¿½ï¸  Checking database connections..."
 if command -v psql >/dev/null 2>&1; then
     log_ok "PostgreSQL client found"
 else
@@ -113,12 +113,17 @@ fi
 # Start frontend in background if directory exists
 FRONTEND_PID=""
 if [ -d "ui" ]; then
-    log_info "í¾¨ Starting Frontend application..."
+    log_info "ðŸŽ¨ Starting Frontend application (Vite)..."
     cd ui
-    npm install > /dev/null
-    npm run dev -- --host &
+    if [ ! -d "node_modules" ]; then
+        log_info "Installing frontend dependencies (this may take a moment)..."
+        npm install
+    fi
+    nohup npm run dev -- --host > frontend.log 2>&1 &
     FRONTEND_PID=$!
     cd ..
+    log_ok "Frontend started in background (PID $FRONTEND_PID)"
+    log_info "Frontend log: ui/frontend.log"
     log_ok "Frontend available at: http://localhost:5173"
 else
     log_warn "UI folder not found. Skipping frontend startup."
