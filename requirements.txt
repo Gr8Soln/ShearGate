@@ -8,8 +8,10 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.1
 
-# Database
-asyncpg==0.29.0  # PostgreSQL async driver
+# Database & ORM
+sqlalchemy[asyncio]==2.0.29
+asyncpg==0.29.0
+alembic==1.13.1
 
 # AI Integration
 anthropic==0.18.0
@@ -19,15 +21,10 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 email-validator==2.1.0
 
-# PDF Generation
+# PDF Generation & Assets
 reportlab==4.0.9
 pillow==10.2.0
 
-# CORS & Middleware
-python-cors==1.0.0
-
 # Utilities
 python-dateutil==2.8.2
-sqlalchemy[asyncio]==2.0.29
-asyncpg==0.29.0
-alembic==1.13.1
+python-dateutil==2.8.2

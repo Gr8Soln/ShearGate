@@ -1,133 +1,146 @@
 #!/bin/bash
+set -euo pipefail
 
-# Block Shear Analyzer Backend - Quick Start Script
-# This script sets up and runs the backend API
+# Block Shear Analyzer - local development startup script.
 
-set -e
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo "🚀 Block Shear Analyzer Backend Setup"
+log_info() {
+    echo -e "${BLUE}$1${NC}"
+}
+
+log_ok() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+log_warn() {
+    echo -e "${YELLOW}⚠️ $1${NC}"
+}
+
+log_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+echo "��� Block Shear Analyzer Setup"
 echo "======================================"
 
-# Colors
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-# Check Python version
-echo ""
-echo "📌 Checking Python version..."
-
-if python -c "import sys" &> /dev/null; then
-    PYTHON_CMD="python"
-elif python3 -c "import sys" &> /dev/null; then
-    PYTHON_CMD="python3"
+log_info "��� Checking Python version..."
+if python -c "import sys" >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+elif python3 -c "import sys" >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
 else
-    echo -e "${RED}❌ Python is not installed or accessible${NC}"
+    log_error "Python is not installed or not on PATH."
     exit 1
 fi
 
-PYTHON_VERSION=$($PYTHON_CMD --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
-echo -e "${GREEN}✅ Python $PYTHON_VERSION found${NC}"
+PYTHON_VERSION=$("$PYTHON_BIN" --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
+log_ok "Python $PYTHON_VERSION found"
 
-# Create virtual environment
-echo ""
-echo "📦 Creating virtual environment..."
 if [ ! -d "venv" ]; then
-    $PYTHON_CMD -m venv venv
-    echo -e "${GREEN}✅ Virtual environment created${NC}"
-else
-    echo -e "${YELLOW}⚠️  Virtual environment already exists${NC}"
+    log_info "��� No venv found. Creating virtual environment..."
+    "$PYTHON_BIN" -m venv venv
+    log_ok "Created virtual environment"
 fi
 
-# Activate virtual environment
-echo ""
-echo "🔌 Activating virtual environment..."
 if [ -f "venv/bin/activate" ]; then
     source venv/bin/activate
 elif [ -f "venv/Scripts/activate" ]; then
     source venv/Scripts/activate
 else
-    echo -e "${RED}❌ Virtual environment activation script not found${NC}"
+    log_error "Unable to find activation script for venv"
     exit 1
 fi
-echo -e "${GREEN}✅ Virtual environment activated${NC}"
 
-# Install dependencies
-echo ""
-echo "📥 Installing dependencies..."
-pip install --upgrade pip > /dev/null
-pip install -r requirements.txt
-echo -e "${GREEN}✅ Dependencies installed${NC}"
+log_ok "Activated virtual environment (venv)"
 
-# Check for .env file
-echo ""
-echo "⚙️  Checking environment configuration..."
+log_info "��� Updating pip..."
+python -m pip install --upgrade pip > /dev/null
+
+if [ ! -f "requirements.txt" ]; then
+    log_error "requirements.txt not found"
+    exit 1
+fi
+
+REQ_STAMP="venv/.requirements.installed"
+if [ ! -f "$REQ_STAMP" ] || [ "requirements.txt" -nt "$REQ_STAMP" ]; then
+    log_info "Installing/updating dependencies from requirements.txt..."
+    python -m pip install -r requirements.txt
+    touch "$REQ_STAMP"
+    log_ok "Dependencies installed"
+else
+    log_ok "Dependencies already up-to-date"
+fi
+
+log_info "⚙️  Checking environment configuration..."
 if [ ! -f ".env" ]; then
-    echo -e "${YELLOW}⚠️  .env file not found${NC}"
-    echo "Creating .env from template..."
+    log_warn ".env file not found"
+    log_info "Creating .env from template..."
     cp .env.example .env
-    echo -e "${YELLOW}⚠️  Please edit .env file with your configuration${NC}"
+    log_warn "Please edit .env file with your configuration"
     echo ""
     read -p "Press Enter to continue after editing .env..."
 else
-    echo -e "${GREEN}✅ .env file found${NC}"
+    log_ok ".env file found"
 fi
 
-# Check database connections
-echo ""
-echo "🗄️  Checking database connections..."
+# Export variables so Alembic/Uvicorn can use them
+if [ -f ".env" ]; then
+    set -a
+    source .env
+    set +a
+fi
 
-# Check PostgreSQL
-echo "   Checking PostgreSQL..."
-if command -v psql &> /dev/null; then
-    echo -e "${GREEN}   ✅ PostgreSQL client found${NC}"
+log_info "���️  Checking database connections..."
+if command -v psql >/dev/null 2>&1; then
+    log_ok "PostgreSQL client found"
 else
-    echo -e "${YELLOW}   ⚠️  PostgreSQL client not found (install postgresql-client)${NC}"
+    log_warn "PostgreSQL client not found (install postgresql-client)"
 fi
 
-
-
-
-# Start backend server
-echo ""
-echo "🚀 Starting applications..."
-echo -e "${GREEN}======================================"
-echo "   Backend API will be available at:"
-echo "   📍 http://localhost:8000"
-echo "   📚 Documentation: http://localhost:8000/docs"
-echo ""
+if [ -f "alembic.ini" ]; then
+    log_info "Running database migrations..."
+    python -m alembic upgrade head
+    log_ok "Migrations complete"
+else
+    log_warn "alembic.ini not found, skipping migrations"
+fi
 
 # Start frontend in background if directory exists
+FRONTEND_PID=""
 if [ -d "ui" ]; then
-    echo "🎨 Starting Frontend application..."
-    echo "   📍 http://localhost:5173"
+    log_info "��� Starting Frontend application..."
     cd ui
     npm install > /dev/null
     npm run dev -- --host &
     FRONTEND_PID=$!
     cd ..
+    log_ok "Frontend available at: http://localhost:5173"
 else
-    echo -e "${YELLOW}   ⚠️  UI folder not found. Skipping frontend startup.${NC}"
+    log_warn "UI folder not found. Skipping frontend startup."
 fi
-
-echo "======================================"
-echo -e "${NC}"
-echo "Press Ctrl+C to stop the servers"
-echo ""
 
 # Define cleanup function for graceful exit
 cleanup() {
     echo ""
-    echo -e "${YELLOW}Shutting down servers...${NC}"
+    log_warn "Shutting down servers..."
     if [ ! -z "$FRONTEND_PID" ]; then
-        kill $FRONTEND_PID 2>/dev/null
+        kill $FRONTEND_PID 2>/dev/null || true
     fi
     exit 0
 }
 
 trap cleanup SIGINT SIGTERM
 
+echo "======================================"
+log_ok "Starting Backend API on port 8000"
+log_info "API docs: http://localhost:8000/docs"
+echo "Press Ctrl+C to stop the servers"
+echo "======================================"
+
 # Run uvicorn (blocks the script until interrupted)
 uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
-
