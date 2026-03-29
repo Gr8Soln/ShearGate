@@ -26,7 +26,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/blockshear    
+      - POSTGRES_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/blockshear    
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DEBUG=True
@@ -47,7 +47,8 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://api:8000
+      # React fetches from the browser running on the HOST machine, so it must point to HOST localhost!
+      - VITE_API_URL=http://localhost:8000
     depends_on:
       - api
     volumes:
@@ -55,4 +56,6 @@ services:
       - /app/node_modules
 
 volumes:
+  postgres_data:
+
   postgres_data:
