@@ -1,52 +1,38 @@
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 
-def parse_database_url(database_url: str) -> str:
-    """Normalize DB URLs so asyncpg-compatible options are used.
+def parse_database_url(url: str) -> str:
+    """Normalize DB URLs for SQLAlchemy + asyncpg."""
+    if not url:
+        return url
 
-    Some managed Postgres providers expose libpq-style query params like
-    `sslmode` and `channel_binding`. SQLAlchemy asyncpg expects asyncpg-style
-    arguments, so we rewrite/remove incompatible options.
-    """
-    if not database_url:
-        return database_url
+    # Ensure scheme is postgresql+asyncpg
+    if url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
 
-    parts = urlsplit(database_url)
+    parts = urlsplit(url)
+    
+    # Only process postgresql+asyncpg URLs
+    if parts.scheme != "postgresql+asyncpg":
+        return url
 
-    # Only apply normalization for asyncpg URLs.
-    if "asyncpg" not in (parts.scheme or ""):
-        return database_url
+    # Parse query parameters
+    query = dict(parse_qsl(parts.query))
+    
+    # Remove asyncpg-incompatible parameters (libpq style)
+    # These often come from Neon/Vercel/Render connection strings
+    incompatible = ["sslmode", "channel_binding"]
+    has_ssl_requested = any(k in query for k in ["ssl", "sslmode"])
+    
+    for key in incompatible:
+        query.pop(key, None)
+        
+    # If SSL was explicitly requested via sslmode, ensure ssl=require is set for asyncpg
+    if has_ssl_requested and "ssl" not in query:
+        query["ssl"] = "require"
 
-    sslmode_to_ssl = {
-        "disable": "disable",
-        "allow": "allow",
-        "prefer": "prefer",
-        "require": "require",
-        "verify-ca": "verify-ca",
-        "verify-full": "verify-full",
-    }
-
-    query_pairs = parse_qsl(parts.query, keep_blank_values=True)
-    normalized_pairs = []
-    has_ssl = False
-
-    for key, value in query_pairs:
-        if key == "ssl":
-            has_ssl = True
-            normalized_pairs.append((key, value))
-            continue
-
-        if key == "sslmode":
-            if not has_ssl:
-                normalized_pairs.append(("ssl", sslmode_to_ssl.get(value, "require")))
-                has_ssl = True
-            continue
-
-        # libpq-specific option that asyncpg does not accept.
-        if key == "channel_binding":
-            continue
-
-        normalized_pairs.append((key, value))
-
-    normalized_query = urlencode(normalized_pairs, doseq=True)
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, normalized_query, parts.fragment))
+    # Reconstruct the URL
+    new_query = urlencode(query)
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, new_query, parts.fragment))

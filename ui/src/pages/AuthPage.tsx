@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { Calculator, ShieldCheck, Zap, Globe } from "lucide-react";
+
 import { useAuth } from "../contexts/AuthContext";
 
 const AuthPage: React.FC = () => {

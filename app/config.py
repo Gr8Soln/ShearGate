@@ -1,15 +1,21 @@
+import os
 from typing import List
-
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.database.url_parser import parse_database_url
 
 
 class Settings(BaseSettings):
     """Application settings"""
 
     # Database
-    DATABASE_URL: str = normalize_database_url(
-		os.getenv("DATABASE_URL", "postgresql://postgres:admin@localhost:5432/ShearGate")
-	)
+    DATABASE_URL: str = "postgresql://postgres:admin@localhost:5432/ShearGate"
+
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def normalize_db_url(cls, v: str) -> str:
+        return parse_database_url(v)
 
     # Auth settings
     JWT_SECRET: str
