@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
+import uuid
+from typing import Any, Dict
 from app.db import get_db
 from app.models.domain import User
 from app.schemas.user import GoogleAuthRequest, TokenResponse, UserResponse
 from app.services.auth import create_access_token, create_refresh_token, get_current_user, decode_token
 from app.services.oauth import verify_google_token
 from app.utils.response import success_response, failure_response
+
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -99,6 +101,4 @@ async def logout():
     """Stateless logout."""
     return success_response(message="Logged out successfully")
 
-# Imports needed for the router logic
-import uuid
-from typing import Any, Dict
+

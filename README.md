@@ -77,7 +77,7 @@ cp .env.example .env
 
 ```env
 # Database Configuration
-POSTGRES_URL=postgresql+asyncpg://postgres:password@localhost:5432/blockshear
+DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/blockshear
 
 # Security (Generate via: openssl rand -hex 32)
 SECRET_KEY=your-secret-key-here
@@ -259,7 +259,7 @@ railway login
 railway init
 
 # Add environment variables
-railway variables set POSTGRES_URL=postgresql://...
+railway variables set DATABASE_URL=postgresql://...
 railway variables set ANTHROPIC_API_KEY=sk-...
 railway variables set SECRET_KEY=$(openssl rand -hex 32)
 
@@ -281,7 +281,7 @@ docker build -t blockshear-api .
 
 # Run container
 docker run -d -p 8000:8000 \
-  -e POSTGRES_URL=postgresql://... \
+  -e DATABASE_URL=postgresql://... \
   -e ANTHROPIC_API_KEY=sk-... \
   blockshear-api
 ```

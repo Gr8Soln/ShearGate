@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     """Application settings"""
 
     # Database
-    POSTGRES_URL: str
+    DATABASE_URL: str
 
     # Auth settings
     JWT_SECRET: str

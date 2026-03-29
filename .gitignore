@@ -26,6 +26,8 @@ wheels/
 # Environment
 .env
 .env.local
+.env.prod
+
 
 # IDE
 .vscode/
@@ -43,3 +45,5 @@ htmlcov/
 *.log
 logs/
 docs/
+
+google-client.json

@@ -11,7 +11,7 @@ class PostgreSQL:
     async def connect(cls):
         """Create PostgreSQL connection pool"""
         cls.pool = await asyncpg.create_pool(
-            settings.POSTGRES_URL,
+            settings.DATABASE_URL,
             min_size=2,
             max_size=10
         )

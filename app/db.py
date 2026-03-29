@@ -4,8 +4,8 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config import settings
 
-# If POSTGRES_URL is like postgresql://, change it to postgresql+asyncpg:// for asyncpg
-db_url = settings.POSTGRES_URL
+# If DATABASE_URL is like postgresql://, change it to postgresql+asyncpg:// for asyncpg
+db_url = settings.DATABASE_URL
 if db_url and db_url.startswith("postgresql://"):
     db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 

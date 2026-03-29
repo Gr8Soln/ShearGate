@@ -124,7 +124,7 @@ if [ -d "ui" ]; then
     cd ..
     log_ok "Frontend started in background (PID $FRONTEND_PID)"
     log_info "Frontend log: ui/frontend.log"
-    log_ok "Frontend available at: http://localhost:5173"
+    log_ok "Frontend available at: http://localhost:$FRONTEND_PORT"
 else
     log_warn "UI folder not found. Skipping frontend startup."
 fi
@@ -142,10 +142,10 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 echo "======================================"
-log_ok "Starting Backend API on port 8000"
-log_info "API docs: http://localhost:8000/docs"
+log_ok "Starting Backend API on port $BACKEND_PORT"
+log_info "API docs: http://localhost:$BACKEND_PORT/docs"
 echo "Press Ctrl+C to stop the servers"
 echo "======================================"
 
 # Run uvicorn (blocks the script until interrupted)
-uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
+uvicorn app.main:app --reload --port $BACKEND_PORT --host 0.0.0.0
