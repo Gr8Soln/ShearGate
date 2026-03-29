@@ -17,19 +17,23 @@ NC='\033[0m' # No Color
 # Check Python version
 echo ""
 echo "📌 Checking Python version..."
-if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 is not installed${NC}"
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+else
+    echo -e "${RED}❌ Python is not installed${NC}"
     exit 1
 fi
 
-PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2)
+PYTHON_VERSION=$($PYTHON_CMD --version | cut -d' ' -f2 | cut -d'.' -f1,2)
 echo -e "${GREEN}✅ Python $PYTHON_VERSION found${NC}"
 
 # Create virtual environment
 echo ""
 echo "📦 Creating virtual environment..."
 if [ ! -d "venv" ]; then
-    python3 -m venv venv
+    $PYTHON_CMD -m venv venv
     echo -e "${GREEN}✅ Virtual environment created${NC}"
 else
     echo -e "${YELLOW}⚠️  Virtual environment already exists${NC}"
@@ -38,7 +42,14 @@ fi
 # Activate virtual environment
 echo ""
 echo "🔌 Activating virtual environment..."
-source venv/bin/activate
+if [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+elif [ -f "venv/Scripts/activate" ]; then
+    source venv/Scripts/activate
+else
+    echo -e "${RED}❌ Virtual environment activation script not found${NC}"
+    exit 1
+fi
 echo -e "${GREEN}✅ Virtual environment activated${NC}"
 
 # Install dependencies
