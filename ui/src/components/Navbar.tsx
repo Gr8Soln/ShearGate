@@ -2,6 +2,7 @@ import {
   BookOpen,
   Calculator,
   Loader2,
+  LogOut,
   Menu,
   User as UserIcon,
   X,
@@ -90,8 +91,8 @@ const Navbar: React.FC = () => {
 
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
+                <div className="flex items-center space-x-2">
+                  <div className="h-10 flex items-center space-x-2 px-4 rounded-lg bg-white/5 border border-white/5">
                     <div className="w-5 h-5 rounded-full overflow-hidden bg-[#161a1f] border border-white/10 shrink-0">
                       {avatarUrl && !avatarLoadFailed ? (
                         <img
@@ -113,22 +114,34 @@ const Navbar: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-slate-300">
+                    <span className="text-sm font-bold text-slate-300">
                       {firstName}
                     </span>
                   </div>
                   <button
                     onClick={() => void logout()}
                     disabled={isAuthActionLoading}
-                    className="text-xs font-bold text-slate-500 hover:text-red-400 transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                    aria-label="Logout"
+                    className={`group inline-flex items-center justify-center h-10 rounded-lg border border-white/5 bg-white/5 text-slate-400 hover:text-red-400 transition-all disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden ${
+                      isAuthActionLoading
+                        ? "w-[124px] px-3"
+                        : "w-10 hover:w-[92px] px-0 hover:px-3"
+                    }`}
                   >
                     {isAuthActionLoading ? (
                       <>
-                        <Loader2 size={12} className="animate-spin" />
-                        Logging out...
+                        <Loader2 size={14} className="animate-spin shrink-0" />
+                        <span className="ml-2 text-xs font-bold whitespace-nowrap">
+                          Logging out
+                        </span>
                       </>
                     ) : (
-                      "Logout"
+                      <>
+                        <LogOut size={14} className="shrink-0" />
+                        <span className="ml-0 max-w-0 opacity-0 group-hover:ml-2 group-hover:max-w-[56px] group-hover:opacity-100 whitespace-nowrap text-xs font-bold transition-all duration-200">
+                          Logout
+                        </span>
+                      </>
                     )}
                   </button>
                 </div>
