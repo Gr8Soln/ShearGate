@@ -3,7 +3,7 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from loguru import logger
 
-from app.config import settings
+from app.core.config import settings
 from app.utils.response import failure_response
 
 

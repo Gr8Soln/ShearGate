@@ -6,7 +6,7 @@ from sqlalchemy import (JSON, Boolean, DateTime, ForeignKey, String, Text,
                         Uuid, func)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db import Base
+from app.core.db import Base
 
 
 class User(Base):

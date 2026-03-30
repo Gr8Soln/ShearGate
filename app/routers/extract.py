@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any, Dict, Optional
 import json
 
-from app.db import get_db
+from app.core.db import get_db
 from app.models.domain import User, Message, Session
 from app.schemas.extract import ExtractTextRequest, ExtractResponse
 from app.services.auth import get_current_user

@@ -5,7 +5,7 @@ from sqlalchemy import delete, update
 from typing import Any, Dict, List, Optional
 import uuid
 
-from app.db import get_db
+from app.core.db import get_db
 from app.models.domain import User, Session, Message
 from app.schemas.session import (
     SessionResponse, SessionDetailResponse, MessageResponse, 

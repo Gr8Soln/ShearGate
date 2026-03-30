@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.db import get_db
+from app.core.db import get_db
 from app.models.domain import Calculation, Session, User
 from app.routers.auth import get_current_user
 from app.schemas.calculation import ConnectionInputs, SolutionResult

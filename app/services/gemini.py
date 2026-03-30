@@ -2,7 +2,7 @@ import os
 import json
 import google.generativeai as genai
 from typing import Any, Dict, List, Optional
-from app.config import settings
+from app.core.config import settings
 
 # Load BS 5950 context
 CONTEXT_FILE = "bs5950_context.md"

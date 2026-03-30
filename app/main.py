@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
-from app.config import settings
+from app.core.config import settings
+from app.core.db import create_tables_if_not_exists
 from app.core.logging import configure_logging
 from app.routers import auth, explain, extract, sessions
 from app.utils.response import success_response
@@ -63,6 +64,9 @@ app.include_router(sessions.router)
 
 @app.on_event("startup")
 async def on_startup() -> None:
+    # Ensure database tables exist
+    create_tables_if_not_exists()
+    
     logger.info("ShearGate API started in {} mode", settings.ENVIRONMENT)
 
 

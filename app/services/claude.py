@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from anthropic import Anthropic
 from loguru import logger
 
-from app.config import settings
+from app.core.config import settings
 
 # Initialize Anthropic client
 client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)

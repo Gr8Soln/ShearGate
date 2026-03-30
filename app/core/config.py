@@ -4,7 +4,7 @@ from typing import List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.database.url_parser import parse_database_url
+from app.core.url_parser import parse_database_url
 
 
 class Settings(BaseSettings):

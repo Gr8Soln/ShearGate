@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.db import get_db
+from app.core.db import get_db
 from app.models.domain import User
 from app.schemas.user import GoogleAuthRequest, TokenResponse, UserResponse
 from app.services.auth import (create_access_token, create_refresh_token,
