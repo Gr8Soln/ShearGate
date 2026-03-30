@@ -67,16 +67,16 @@ const ClausesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-4 max-w-7xl mx-auto space-y-12">
+    <div className="min-h-screen pt-24 sm:pt-28 pb-14 sm:pb-20 px-4 max-w-7xl mx-auto space-y-8 sm:space-y-12">
       {/* Page Header */}
       <div className="space-y-4">
         <div className="inline-flex items-center">
           <span className="badge-glow">Reference</span>
         </div>
-        <h1 className="text-4xl font-black text-white tracking-tight leading-none uppercase">
+        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none uppercase">
           ShearGate References
         </h1>
-        <p className="text-slate-500 font-medium max-w-2xl">
+        <p className="text-sm sm:text-base text-slate-500 font-medium max-w-2xl">
           Browse and search design clauses related to bolted connections and
           ShearGate analysis per BS 5950
         </p>
@@ -131,7 +131,7 @@ const ClausesPage: React.FC = () => {
                           >
                             {BS5950_CLAUSES[id] ? "Clause" : "Table"} {id}
                           </span>
-                          <span className="text-sm font-bold truncate mt-0.5">
+                          <span className="text-sm font-bold mt-0.5 break-words">
                             {item.title}
                           </span>
                         </button>
@@ -149,7 +149,7 @@ const ClausesPage: React.FC = () => {
           {selectedItem ? (
             <div className="space-y-8 animate-fade-in">
               {/* Main Content Card */}
-              <div className="card-premium p-10 md:p-12 relative">
+              <div className="card-premium p-5 sm:p-8 md:p-12 relative">
                 <div className="flex flex-wrap items-center gap-2 mb-8">
                   <span className="badge-glow bg-[#e8a020]/5 text-[#e8a020] border-[#e8a020]/20">
                     {selectedType} {selectedId}
@@ -161,7 +161,7 @@ const ClausesPage: React.FC = () => {
                   )}
                 </div>
 
-                <h2 className="text-3xl font-black text-white mb-8 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-white mb-8 tracking-tight break-words">
                   {selectedItem.title}
                 </h2>
 
@@ -191,7 +191,7 @@ const ClausesPage: React.FC = () => {
                           {selectedItem.headers.map((h) => (
                             <th
                               key={h}
-                              className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5"
+                              className="px-3 sm:px-6 py-3 sm:py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5"
                             >
                               {h}
                             </th>
@@ -207,7 +207,7 @@ const ClausesPage: React.FC = () => {
                             {row.map((cell, j) => (
                               <td
                                 key={j}
-                                className="px-6 py-4 border-b border-white/[0.02] text-sm font-bold"
+                                className="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/[0.02] text-sm font-bold"
                               >
                                 {cell}
                               </td>
@@ -255,7 +255,7 @@ const ClausesPage: React.FC = () => {
                   <Sparkles size={120} className="text-[#e8a020]" />
                 </div>
 
-                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-[#e8a020]/[0.02]">
+                <div className="p-5 sm:p-8 border-b border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#e8a020]/[0.02]">
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
                       <Sparkles size={20} />
@@ -273,7 +273,7 @@ const ClausesPage: React.FC = () => {
                     <button
                       onClick={handleExplain}
                       disabled={isExplaining}
-                      className="btn-primary py-2 px-6 text-sm inline-flex items-center gap-2"
+                      className="btn-primary py-2 px-6 text-sm inline-flex items-center justify-center gap-2 w-full sm:w-auto"
                     >
                       {isExplaining ? (
                         <>
@@ -286,7 +286,7 @@ const ClausesPage: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <div className="p-10 bg-black/20">
+                <div className="p-5 sm:p-10 bg-black/20">
                   {aiInsight ? (
                     <div className="text-slate-300 leading-relaxed font-medium opacity-90 text-lg">
                       <ParseDescription

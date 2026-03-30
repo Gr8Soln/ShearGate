@@ -44,7 +44,7 @@ const App: React.FC = () => {
           <Router
             future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
           >
-            <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-[#e8a020]/30 selection:text-[#e8a020]">
+            <div className="min-h-screen overflow-x-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-[#e8a020]/30 selection:text-[#e8a020]">
               <Navbar />
               <main>
                 <Routes>

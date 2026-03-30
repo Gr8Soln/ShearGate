@@ -107,7 +107,7 @@ const ResultsPage: React.FC = () => {
   const isSafe = result.pass;
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-4 max-w-7xl mx-auto space-y-10">
+    <div className="min-h-screen pt-24 sm:pt-28 pb-14 sm:pb-20 px-4 max-w-7xl mx-auto space-y-8 sm:space-y-10">
       {/* Navbar Actions */}
       <div className="flex items-center justify-between no-print">
         <Link
@@ -128,7 +128,7 @@ const ResultsPage: React.FC = () => {
         {/* Left Column */}
         <div className="lg:col-span-8 space-y-8">
           {/* Main Scorecard */}
-          <div className="card-premium p-10 md:p-12 relative overflow-hidden">
+          <div className="card-premium p-5 sm:p-8 md:p-12 relative overflow-hidden">
             <div
               className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-20 ${isSafe ? "bg-emerald-500" : "bg-rose-500"}`}
             />
@@ -143,7 +143,7 @@ const ResultsPage: React.FC = () => {
               <div className="flex-1 space-y-8 text-center md:text-left">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="space-y-1">
-                    <h1 className="text-4xl font-black text-white tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                       {isSafe ? "Connection Safe" : "Analysis Failed"}
                     </h1>
                     <p className="text-slate-500 font-bold uppercase tracking-widest text-[0.6rem]">
@@ -151,7 +151,7 @@ const ResultsPage: React.FC = () => {
                     </p>
                   </div>
                   <div
-                    className={`px-5 py-2.5 rounded-xl font-black text-xl border ${isSafe ? "bg-emerald-500/5 text-emerald-500 border-emerald-500/20" : "bg-rose-500/5 text-rose-500 border-rose-500/20"}`}
+                    className={`px-5 py-2.5 rounded-xl font-black text-base sm:text-xl border ${isSafe ? "bg-emerald-500/5 text-emerald-500 border-emerald-500/20" : "bg-rose-500/5 text-rose-500 border-rose-500/20"}`}
                   >
                     {(result.utilization * 100).toFixed(1)}%{" "}
                     <span className="text-[10px] opacity-60 uppercase ml-1">
@@ -160,7 +160,7 @@ const ResultsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 pt-8 border-t border-white/5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pt-8 border-t border-white/5">
                   <div className="space-y-1">
                     <p className="text-[10px] uppercase tracking-widest font-black text-slate-600">
                       Design Capacity
@@ -194,7 +194,7 @@ const ResultsPage: React.FC = () => {
 
           {/* AI Narrative */}
           <div className="card-premium overflow-hidden">
-            <div className="p-8 border-b border-white/5 bg-[#e8a020]/[0.02] flex items-center justify-between">
+            <div className="p-5 sm:p-8 border-b border-white/5 bg-[#e8a020]/[0.02] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
                   <Sparkles size={20} />
@@ -212,7 +212,7 @@ const ResultsPage: React.FC = () => {
                 <button
                   onClick={handleExplain}
                   disabled={isExplaining}
-                  className="btn-primary py-2 px-6 text-sm inline-flex items-center gap-2"
+                  className="btn-primary py-2 px-6 text-sm inline-flex items-center justify-center gap-2 w-full sm:w-auto"
                 >
                   {isExplaining ? (
                     <>
@@ -225,7 +225,7 @@ const ResultsPage: React.FC = () => {
                 </button>
               )}
             </div>
-            <div className="p-10">
+            <div className="p-5 sm:p-10">
               {aiExplanation ? (
                 <div className="text-slate-300 leading-relaxed font-medium opacity-90 text-lg">
                   <ParseDescription
@@ -300,7 +300,7 @@ const ResultsPage: React.FC = () => {
 
         {/* Right Column */}
         <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
-          <div className="card p-8 space-y-8 min-h-[400px]">
+          <div className="card p-5 sm:p-8 space-y-8 min-h-[320px] sm:min-h-[400px]">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
                 <BookOpen size={16} />

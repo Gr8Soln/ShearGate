@@ -11,6 +11,7 @@ const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(320);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -19,6 +20,18 @@ const AuthPage: React.FC = () => {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate, location]);
+
+  useEffect(() => {
+    const setResponsiveWidth = () => {
+      const maxWidth = 360;
+      const mobileSafeWidth = window.innerWidth - 88;
+      setGoogleButtonWidth(Math.min(maxWidth, Math.max(220, mobileSafeWidth)));
+    };
+
+    setResponsiveWidth();
+    window.addEventListener("resize", setResponsiveWidth);
+    return () => window.removeEventListener("resize", setResponsiveWidth);
+  }, []);
 
   const handleSuccess = async (response: any) => {
     if (response.credential) {
@@ -40,27 +53,27 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100-4rem)] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background Orbs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#e8a020]/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
 
       <div className="max-w-md w-full relative">
         {/* Logo & Branding */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#e8a020] to-[#f59e0b] rounded-3xl shadow-2xl shadow-[#e8a020]/30 mb-6 transform hover:rotate-6 transition-transform">
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#e8a020] to-[#f59e0b] rounded-3xl shadow-2xl shadow-[#e8a020]/30 mb-5 sm:mb-6 transform hover:rotate-6 transition-transform">
             <Calculator size={40} className="text-white" />
           </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
             Welcome back
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-400 text-base sm:text-lg">
             Sign in to start your engineering analysis
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl relative">
+        <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-5 sm:p-8 rounded-[2rem] shadow-2xl relative">
           <div className="space-y-6">
             <div className="flex justify-center py-4">
               <div className="relative w-full max-w-[360px]">
@@ -76,7 +89,7 @@ const AuthPage: React.FC = () => {
                     shape="pill"
                     size="large"
                     text="continue_with"
-                    width="360"
+                    width={`${googleButtonWidth}`}
                   />
                 </div>
 

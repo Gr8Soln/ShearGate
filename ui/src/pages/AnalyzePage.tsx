@@ -122,22 +122,22 @@ const AnalyzePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-4 max-w-6xl mx-auto space-y-12">
+    <div className="min-h-screen pt-24 sm:pt-28 pb-14 sm:pb-20 px-4 max-w-6xl mx-auto space-y-8 sm:space-y-12">
       {/* Page Header */}
       <div className="space-y-4">
         <div className="inline-flex items-center">
           <span className="badge-glow">AI-Powered Engineering</span>
         </div>
-        <h1 className="text-4xl font-black text-white tracking-tight leading-none">
+        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
           New Analysis
         </h1>
-        <p className="text-slate-500 font-medium max-w-2xl">
+        <p className="text-sm sm:text-base text-slate-500 font-medium max-w-2xl">
           Start a block shear analysis by entering parameters manually or
           uploading your connection design question.
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8 items-start">
+      <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Input Method Selector */}
         <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-28">
           <InputMethodCard
@@ -197,7 +197,7 @@ const AnalyzePage: React.FC = () => {
 
           {/* AI Text Mode */}
           {inputMode === "text" && (
-            <div className="card-premium p-10 space-y-6 animate-fade-in">
+            <div className="card-premium p-5 sm:p-8 lg:p-10 space-y-6 animate-fade-in">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
                   <Sparkles size={20} />
@@ -239,7 +239,7 @@ const AnalyzePage: React.FC = () => {
 
           {/* AI Image Mode */}
           {inputMode === "image" && (
-            <div className="card-premium p-10 space-y-6 animate-fade-in">
+            <div className="card-premium p-5 sm:p-8 lg:p-10 space-y-6 animate-fade-in">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
                   <Upload size={20} />
@@ -300,7 +300,7 @@ const AnalyzePage: React.FC = () => {
 
           {/* Manual Entry Form */}
           {inputMode === "manual" && (
-            <div className="card-premium p-10 animate-fade-in">
+            <div className="card-premium p-5 sm:p-8 lg:p-10 animate-fade-in">
               <form
                 className="space-y-12"
                 onSubmit={(e) => {
@@ -417,7 +417,7 @@ const AnalyzePage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isProcessing}
-                    className="btn-primary w-full py-5 text-xl flex items-center justify-center gap-4 transition-all"
+                    className="btn-primary w-full py-4 sm:py-5 text-base sm:text-xl flex items-center justify-center gap-3 sm:gap-4 transition-all"
                   >
                     {isProcessing ? (
                       <>

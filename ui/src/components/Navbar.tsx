@@ -23,6 +23,10 @@ const Navbar: React.FC = () => {
     setAvatarLoadFailed(false);
   }, [avatarUrl]);
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   const navItems = [
     {
       name: "Home",
@@ -188,9 +192,60 @@ const Navbar: React.FC = () => {
               ),
           )}
           <div className="pt-4 flex flex-col gap-2">
-            <Link to="/auth" className="btn-primary w-full text-center">
-              Login
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <div className="h-11 flex items-center gap-3 px-4 rounded-xl bg-white/5 border border-white/5">
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-[#161a1f] border border-white/10 shrink-0">
+                    {avatarUrl && !avatarLoadFailed ? (
+                      <img
+                        src={avatarUrl}
+                        alt={`${firstName} avatar`}
+                        className="w-full h-full object-cover"
+                        onError={() => setAvatarLoadFailed(true)}
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#e8a020]">
+                        {firstName?.[0] ? (
+                          <span className="text-[10px] font-black uppercase">
+                            {firstName[0]}
+                          </span>
+                        ) : (
+                          <UserIcon size={12} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-sm font-bold text-slate-300 truncate">
+                    {firstName}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    void logout();
+                    setIsOpen(false);
+                  }}
+                  disabled={isAuthActionLoading}
+                  className="w-full h-11 rounded-xl border border-white/5 bg-white/5 text-slate-300 hover:text-red-400 hover:border-red-400/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 font-bold"
+                >
+                  {isAuthActionLoading ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Logging out
+                    </>
+                  ) : (
+                    <>
+                      <LogOut size={14} />
+                      Logout
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <Link to="/auth" className="btn-primary w-full text-center">
+                Login
+              </Link>
+            )}
           </div>
         </div>
       )}

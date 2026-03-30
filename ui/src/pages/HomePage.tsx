@@ -1,13 +1,13 @@
+import {
+  BookOpen,
+  Calculator,
+  FileText,
+  History,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-  Calculator,
-  ShieldCheck,
-  FileText,
-  Zap,
-  History,
-  BookOpen
-} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const HomePage: React.FC = () => {
@@ -16,7 +16,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen relative bg-[#090a0c]">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-20 sm:pt-24 pb-16 sm:pb-20 px-4 overflow-hidden">
         <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
           <div className="inline-flex items-center">
             <span className="badge-glow animate-fade-in">
@@ -24,12 +24,12 @@ const HomePage: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-none animate-slide-up">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter leading-none animate-slide-up">
             ShearGate Analysis <br />
             <span className="text-[#e8a020]">Made Simple</span>
           </h1>
 
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed opacity-80">
+          <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed opacity-80">
             Professional ShearGate failure analysis for bolted connections
             following BS 5950 standards. Built for engineering students and
             professionals.
@@ -41,7 +41,10 @@ const HomePage: React.FC = () => {
               className="btn-primary flex items-center gap-2 group"
             >
               <span>Start Analysis</span>
-              <Calculator size={18} className="group-hover:rotate-12 transition-transform" />
+              <Calculator
+                size={18}
+                className="group-hover:rotate-12 transition-transform"
+              />
             </Link>
             <Link
               to="/clauses"
@@ -54,8 +57,8 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Hero Features Row */}
-        <div className="max-w-4xl mx-auto mt-24">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 px-6 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto mt-16 sm:mt-24">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 py-8 sm:py-10 px-4 sm:px-6 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-sm">
             <HeroStat label="100%" sub="BS 5950 Compliant" />
             <HeroStat label="AI" sub="Powered Analysis" border />
             <HeroStat label="∞" sub="Free Calculations" border />
@@ -64,12 +67,15 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Main Features Grid */}
-      <section className="py-24 px-4 bg-[#090a0c]/50">
+      <section className="py-16 sm:py-24 px-4 bg-[#090a0c]/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl font-black text-white tracking-tight">Everything You Need</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Everything You Need
+            </h2>
             <p className="text-slate-500 max-w-xl mx-auto font-medium">
-              Powerful features designed to make connection analysis effortless and educational
+              Powerful features designed to make connection analysis effortless
+              and educational
             </p>
           </div>
 
@@ -109,11 +115,15 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Coverage Section */}
-      <section className="py-24 px-4 relative overflow-hidden">
+      <section className="py-16 sm:py-24 px-4 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-black text-white">Comprehensive Coverage</h2>
-            <p className="text-slate-500 mt-2 font-medium">Supports all bolted connection types per BS 5950</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              Comprehensive Coverage
+            </h2>
+            <p className="text-slate-500 mt-2 font-medium">
+              Supports all bolted connection types per BS 5950
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -128,18 +138,26 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 px-4">
-        <div className="max-w-4xl mx-auto p-12 md:p-16 bg-gradient-to-br from-[#161a1f] to-[#090a0c] border border-white/5 rounded-[2.5rem] text-center space-y-8 shadow-2xl">
-          <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">
+      <section className="py-16 sm:py-24 px-4">
+        <div className="max-w-4xl mx-auto p-6 sm:p-10 md:p-16 bg-gradient-to-br from-[#161a1f] to-[#090a0c] border border-white/5 rounded-[2.5rem] text-center space-y-6 sm:space-y-8 shadow-2xl">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
             Ready to Analyze Your First <br /> Connection?
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto font-medium leading-relaxed">
-            Join students and professionals using the most advanced ShearGate analysis tool.
+            Join students and professionals using the most advanced ShearGate
+            analysis tool.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/auth" className="btn-primary px-10">Sign In to Get Started</Link>
+            <Link
+              to={isAuthenticated ? "/analyze" : "/auth"}
+              className="btn-primary px-10"
+            >
+              Sign In to Get Started
+            </Link>
           </div>
-          <p className="text-xs text-slate-600 font-bold uppercase tracking-widest pt-4">Full access • No installation required • Works on any device</p>
+          <p className="text-xs text-slate-600 font-bold uppercase tracking-widest pt-4">
+            Full access • No installation required • Works on any device
+          </p>
         </div>
       </section>
 
@@ -149,31 +167,43 @@ const HomePage: React.FC = () => {
           <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[#e8a020] border border-white/5">
             <Calculator size={16} />
           </div>
-          <span className="text-white font-black uppercase tracking-widest text-sm">ShearGate Analyzer</span>
+          <span className="text-white font-black uppercase tracking-widest text-sm">
+            ShearGate Analyzer
+          </span>
         </div>
         <p className="text-slate-600 text-[0.7rem] max-w-lg mx-auto leading-loose uppercase tracking-[0.1em] font-bold">
-          Professional structural analysis tool for CVE505: Design of Steel Structures
+          Professional structural analysis tool for CVE505: Design of Steel
+          Structures
         </p>
         <div className="pt-8 text-slate-700 text-[0.65rem] font-bold">
-          © 2026 ShearGate Analyzer. Built with React, Tailwind CSS, and FastAPI. <br /> All calculations follow BS 5950-1:2000 standards.
+          © 2026 ShearGate Analyzer. Built with React, Tailwind CSS, and
+          FastAPI. <br /> All calculations follow BS 5950-1:2000 standards.
         </div>
       </footer>
     </div>
   );
 };
 
-const HeroStat: React.FC<{ label: string, sub: string, border?: boolean }> = ({ label, sub, border }) => (
-  <div className={`flex flex-col items-center justify-center space-y-1 ${border ? 'md:border-l border-white/10' : ''}`}>
-    <span className="text-3xl font-black text-[#e8a020]">
-      {label}
-    </span>
+const HeroStat: React.FC<{ label: string; sub: string; border?: boolean }> = ({
+  label,
+  sub,
+  border,
+}) => (
+  <div
+    className={`flex flex-col items-center justify-center space-y-1 ${border ? "md:border-l border-white/10" : ""}`}
+  >
+    <span className="text-3xl font-black text-[#e8a020]">{label}</span>
     <span className="text-[0.65rem] font-black uppercase tracking-widest text-slate-500">
       {sub}
     </span>
   </div>
 );
 
-const FeatureItem: React.FC<{ icon: React.ReactNode, title: string, desc: string }> = ({ icon, title, desc }) => (
+const FeatureItem: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}> = ({ icon, title, desc }) => (
   <div className="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-[#e8a020]/30 hover:bg-white/[0.07] transition-all group">
     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 mb-6 group-hover:scale-110 group-hover:bg-[#e8a020]/10 group-hover:text-[#e8a020] transition-all duration-300">
       {icon}
@@ -188,7 +218,9 @@ const CoverageItem: React.FC<{ text: string }> = ({ text }) => (
     <div className="w-6 h-6 rounded-full bg-[#e8a020]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
       <div className="w-2.5 h-2.5 rounded-full bg-[#e8a020]" />
     </div>
-    <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">{text}</span>
+    <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">
+      {text}
+    </span>
   </div>
 );
 
