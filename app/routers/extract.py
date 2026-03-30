@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Depends, status, UploadFile, File, Form
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, Dict, Optional
 import json
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
-from app.models.domain import User, Message, Session
-from app.schemas.extract import ExtractTextRequest, ExtractResponse
+from app.models.domain import Message, Session, User
+from app.schemas.extract import ExtractResponse, ExtractTextRequest
+from app.services.anthropic_ai import extract_from_text
 from app.services.auth import get_current_user
-from app.services.gemini import extract_from_text
 from app.services.bs5950.block_shear import analyze_block_shear
-from app.utils.response import success_response, failure_response
+from app.utils.response import failure_response, success_response
 
 router = APIRouter(prefix="/extract", tags=["Extraction"])
 
@@ -21,7 +22,7 @@ async def extract_text(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Extract connection parameters from a text description using Gemini.
+    Extract connection parameters from a text description using AI.
     Then performs an initial calculation and saves the result in the session.
     """
     # 1. AI Extract
@@ -75,15 +76,15 @@ async def extract_file(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Extract connection parameters from an uploaded file (PDF, image) using Gemini Vision.
+    Extract connection parameters from an uploaded file (PDF, image) using AI vision.
     (Placeholder implementation for now, similar to text but with file).
     """
     # Placeholder for file processing
-    # In a real scenario, we'd send the file to Gemini's File API or Vision model.
+    # In a real scenario, we'd send the file to the AI provider's file/vision model.
     contents = await file.read()
     filename = file.filename
     
-    # Real extraction logic using Gemini (needs to be implemented in gemini.py)
+    # Real extraction logic using AI (needs file extraction implementation in gemini.py)
     # For now, mocking as generic success
     mock_params = {
         "bolt_diameter": 20,
@@ -105,4 +106,5 @@ async def extract_file(
     )
 
 import uuid
+
 from sqlalchemy.future import select

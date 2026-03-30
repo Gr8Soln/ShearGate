@@ -2,19 +2,22 @@ import base64
 import json
 from typing import Any, Dict, List, Optional
 
-from anthropic import Anthropic
+from anthropic import AsyncAnthropic
 from loguru import logger
 
 from app.core.config import settings
 
-# Initialize Anthropic client
-client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+# Legacy compatibility module for parse/clauses/calculate routes.
+# Active extraction/explanation provider is in anthropic_ai.py.
+client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY) if settings.ANTHROPIC_API_KEY.strip() else None
 
-# Use user requested model
-MODEL = "claude-sonnet-4-20250514" 
+MODEL = settings.ANTHROPIC_MODEL
 
 async def parse_text_question(question: str) -> Dict[str, Any]:
     """Parse engineering problem text to extract ConnectionInputs."""
+    if client is None:
+        return {}
+
     prompt = f"""
     You are a structural engineering assistant expert in BS 5950-1:2000.
     Extract the connection parameters from the following text and return them as a JSON object matching this schema:
@@ -44,7 +47,7 @@ async def parse_text_question(question: str) -> Dict[str, Any]:
     Question: {question}
     """
     
-    response = client.messages.create(
+    response = await client.messages.create(
         model=MODEL,
         max_tokens=1000,
         system="You are an expert structural engineer specializing in steel connection design per BS 5950.",
@@ -67,6 +70,8 @@ async def parse_text_question(question: str) -> Dict[str, Any]:
 
 async def parse_document_question(content: bytes, media_type: str, question: Optional[str] = None) -> Dict[str, Any]:
     """Parse engineering problem from a document (image, PDF, etc.) to extract ConnectionInputs."""
+    if client is None:
+        return {}
     
     # Format message content based on media type
     # For Images and PDFs
@@ -106,7 +111,7 @@ async def parse_document_question(content: bytes, media_type: str, question: Opt
     
     message_content.append({"type": "text", "text": prompt_text})
 
-    response = client.messages.create(
+    response = await client.messages.create(
         model=MODEL,
         max_tokens=2000,
         messages=[{"role": "user", "content": message_content}]
@@ -122,9 +127,17 @@ async def parse_document_question(content: bytes, media_type: str, question: Opt
 
 async def explain_clause(clause_id: str) -> Dict[str, Any]:
     """Explain a BS 5950 clause in markdown."""
+    if client is None:
+        return {
+            "clause": clause_id,
+            "title": f"BS 5950 Clause {clause_id}",
+            "content": "AI explanation is unavailable because ANTHROPIC_API_KEY is not configured.",
+            "related_clauses": [],
+        }
+
     prompt = f"Explain BS 5950-1:2000 Clause {clause_id} in professional engineering terms. Provide context, limitations, and how it applies to bolted connections. Return as Markdown."
     
-    response = client.messages.create(
+    response = await client.messages.create(
         model=MODEL,
         max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
@@ -139,9 +152,12 @@ async def explain_clause(clause_id: str) -> Dict[str, Any]:
 
 async def generate_summary(result: Dict[str, Any]) -> str:
     """Generate a professional engineering summary paragraph for a calculation."""
+    if client is None:
+        return "AI summary is unavailable because ANTHROPIC_API_KEY is not configured."
+
     prompt = f"Based on the following structural calculation results, write a concise professional summary paragraph for an engineering report: {json.dumps(result)}"
     
-    response = client.messages.create(
+    response = await client.messages.create(
         model=MODEL,
         max_tokens=500,
         messages=[{"role": "user", "content": prompt}]

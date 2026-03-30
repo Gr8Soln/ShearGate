@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, status, Request
-from typing import Any, Dict, Optional
 import json
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, Request, status
 
 from app.schemas.user import UserResponse
+from app.services.anthropic_ai import explain_reference, explain_result
 from app.services.auth import get_current_user
-from app.services.gemini import explain_result, explain_reference
-from app.utils.response import success_response, failure_response
+from app.utils.response import failure_response, success_response
 
 router = APIRouter(prefix="/explain", tags=["Exploration"])
 

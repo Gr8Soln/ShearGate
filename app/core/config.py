@@ -28,8 +28,12 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     
     # AI settings
-    GEMINI_API_KEY: str
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.0-flash"
+    ANTHROPIC_API_KEY: str = ""
+    ANTHROPIC_MODEL: str = "claude-3-5-haiku-latest"
     
     # App settings
     ENVIRONMENT: str = "development"

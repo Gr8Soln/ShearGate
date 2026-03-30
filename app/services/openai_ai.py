@@ -2,18 +2,18 @@ import json
 import os
 from typing import Any, Dict
 
-import google.generativeai as genai
 from loguru import logger
+from openai import AsyncOpenAI
 
 from app.core.config import settings
 
-# Load BS 5950 context
 CONTEXT_FILE = "bs5950_context.md"
 if os.path.exists(CONTEXT_FILE):
     with open(CONTEXT_FILE, "r", encoding="utf-8") as f:
         BS5950_CONTEXT = f.read()
 else:
     BS5950_CONTEXT = "BS 5950-1:2000 context not available."
+
 
 SYSTEM_PROMPT = f"""
 You are ShearGate AI, a structural engineering assistant specializing in BS 5950-1:2000 (Structural use of steelwork in building).
@@ -29,14 +29,8 @@ RULES:
 4. Calculations are performed on the frontend, but you must provide the narrative "why" and "how".
 """
 
-if settings.GEMINI_API_KEY.strip():
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-    model = genai.GenerativeModel(
-        model_name=settings.GEMINI_MODEL,
-        system_instruction=SYSTEM_PROMPT,
-    )
-else:
-    model = None
+
+client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY.strip() else None
 
 
 def _strip_markdown_fence(text: str) -> str:
@@ -48,16 +42,26 @@ def _strip_markdown_fence(text: str) -> str:
     return cleaned
 
 
-def _ask_gemini(prompt: str) -> str:
-    if model is None:
-        raise RuntimeError("GEMINI_API_KEY is not configured")
-    response = model.generate_content(prompt)
-    return (response.text or "").strip()
+async def _ask_openai(prompt: str, max_tokens: int = 800, temperature: float = 0.1) -> str:
+    if client is None:
+        raise RuntimeError("OPENAI_API_KEY is not configured")
+
+    response = await client.chat.completions.create(
+        model=settings.OPENAI_MODEL,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+    )
+
+    return (response.choices[0].message.content or "").strip()
+
 
 async def extract_from_text(question: str) -> Dict[str, Any]:
-    """Extract connection parameters from a text description."""
-    if model is None:
-        return {"error": "GEMINI_API_KEY is not configured"}
+    if client is None:
+        return {"error": "OPENAI_API_KEY is not configured"}
 
     prompt = (
         "Extract connection parameters from the structural engineering question below. "
@@ -66,28 +70,28 @@ async def extract_from_text(question: str) -> Dict[str, Any]:
     )
 
     try:
-        text = _ask_gemini(prompt)
+        text = await _ask_openai(prompt, max_tokens=700, temperature=0)
         text = _strip_markdown_fence(text)
         return json.loads(text)
     except Exception as e:
-        logger.exception("Failed to parse Gemini extraction response: {}", e)
-        return {"error": "Failed to parse Gemini response", "raw": text if "text" in locals() else ""}
+        logger.exception("Failed to parse OpenAI extraction response: {}", e)
+        return {"error": "Failed to parse OpenAI response", "raw": text if "text" in locals() else ""}
+
 
 async def explain_reference(ref_id: str, ref_type: str) -> str:
-    """Explain a specific BS 5950 clause or table."""
     prompt = (
         f"Explain the purpose and application of {ref_type} {ref_id} "
         "in the context of bolted connection design under BS 5950-1:2000."
     )
 
     try:
-        return _ask_gemini(prompt)
+        return await _ask_openai(prompt, max_tokens=700, temperature=0.2)
     except Exception as e:
-        logger.exception("Failed to explain reference using Gemini: {}", e)
+        logger.exception("Failed to explain reference using OpenAI: {}", e)
         return "AI explanation is temporarily unavailable."
 
+
 async def explain_result(inputs: Dict[str, Any], result: Dict[str, Any]) -> str:
-    """Provide a narrative explanation of a calculation result."""
     prompt = (
         "Explain the following calculation result. "
         f"Inputs: {json.dumps(inputs)}. Result: {json.dumps(result)}. "
@@ -95,7 +99,7 @@ async def explain_result(inputs: Dict[str, Any], result: Dict[str, Any]) -> str:
     )
 
     try:
-        return _ask_gemini(prompt)
+        return await _ask_openai(prompt, max_tokens=900, temperature=0.25)
     except Exception as e:
-        logger.exception("Failed to explain result using Gemini: {}", e)
+        logger.exception("Failed to explain result using OpenAI: {}", e)
         return "AI explanation is temporarily unavailable."
