@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.models.domain import Message, Session, User
 from app.schemas.extract import ExtractResponse, ExtractTextRequest
-from app.services.anthropic_ai import extract_from_text
+from app.services.ai_provider import extract_from_text
 from app.services.auth import get_current_user
 from app.services.bs5950.block_shear import analyze_block_shear
 from app.utils.response import failure_response, success_response

@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, Depends, Request, status
 
 from app.schemas.user import UserResponse
-from app.services.anthropic_ai import explain_reference, explain_result
+from app.services.ai_provider import explain_reference, explain_result
 from app.services.auth import get_current_user
 from app.utils.response import failure_response, success_response
 

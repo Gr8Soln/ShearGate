@@ -28,12 +28,22 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     
     # AI settings
+    AI_PROVIDER: str = "anthropic"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o-mini"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.0-flash"
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "claude-3-5-haiku-latest"
+
+    @field_validator("AI_PROVIDER", mode="after")
+    @classmethod
+    def normalize_ai_provider(cls, v: str) -> str:
+        provider = v.strip().lower()
+        allowed = {"anthropic", "openai", "gemini"}
+        if provider not in allowed:
+            raise ValueError("AI_PROVIDER must be one of: anthropic, openai, gemini")
+        return provider
     
     # App settings
     ENVIRONMENT: str = "development"
