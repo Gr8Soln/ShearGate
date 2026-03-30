@@ -140,12 +140,12 @@ export const mockCalculate = (
       // Simplified block shear calculation
       const py = 275; // S275 steel
       const fu = 430;
-      const t = inputs.plateThickness;
-      const d0 = inputs.boltDiameter + 2;
-      const p = inputs.pitch;
-      const e = inputs.edgeDistance;
-      const gauge = inputs.gauge;
-      const n = inputs.numberOfBolts;
+      const t = inputs.plateThickness ?? 10;
+      const d0 = (inputs.boltDiameter ?? 20) + 2;
+      const p = inputs.pitch ?? 70;
+      const e = inputs.edgeDistance ?? 50;
+      const gauge = inputs.gauge ?? 60;
+      const n = inputs.numberOfBolts ?? 4;
 
       // Shear area
       const Av = ((n - 1) * p + e) * t;

@@ -85,6 +85,41 @@ export interface SaveCalculationRequest {
   governing_check: string;
 }
 
+// Legacy/demo mock types used by ui/src/data/mockData.ts
+export interface CalculationResult {
+  blockShearOccurs: boolean;
+  blockShearCapacity: string;
+  appliedLoad: string;
+  utilizationRatio: string;
+  verdict: string;
+  mode1Capacity: string;
+  mode2Capacity: string;
+  calculations?: {
+    py: number;
+    fu: number;
+    Av: string;
+    At: string;
+    Atn: string;
+  };
+}
+
+export interface CalculationStepItem {
+  step: number;
+  title: string;
+  content: string;
+  clause: string;
+  formulas: string[];
+}
+
+export interface Calculation {
+  id: string;
+  timestamp: string;
+  questionText: string;
+  inputs: ConnectionInputs;
+  result: CalculationResult;
+  steps: CalculationStepItem[];
+}
+
 export interface User {
   id: string;
   email: string;

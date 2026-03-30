@@ -220,14 +220,15 @@ const ClausesPage: React.FC = () => {
                 )}
 
                 {/* Sub-references helper */}
-                {selectedItem.references &&
+                {"references" in selectedItem &&
+                  selectedItem.references &&
                   selectedItem.references.length > 0 && (
                     <div className="mt-12 pt-8 border-t border-white/5 flex flex-wrap items-center gap-4">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
                         Related References
                       </span>
                       <div className="flex flex-wrap gap-2">
-                        {selectedItem.references.map((ref) => (
+                        {selectedItem.references.map((ref: string) => (
                           <button
                             key={ref}
                             onClick={() =>
