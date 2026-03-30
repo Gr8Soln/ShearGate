@@ -32,6 +32,12 @@ RULES:
 
 client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY) if settings.ANTHROPIC_API_KEY.strip() else None
 
+FALLBACK_MODELS = [
+    settings.ANTHROPIC_MODEL,
+    "claude-3-5-haiku-20241022",
+    "claude-3-haiku-20240307",
+]
+
 
 def _strip_markdown_fence(text: str) -> str:
     cleaned = text.strip()
@@ -54,14 +60,39 @@ async def _ask_anthropic(prompt: str, max_tokens: int = 800, temperature: float 
     if client is None:
         raise RuntimeError("ANTHROPIC_API_KEY is not configured")
 
-    response = await client.messages.create(
-        model=settings.ANTHROPIC_MODEL,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return _extract_message_text(response)
+    tried_models = []
+    last_error: Exception | None = None
+
+    # Keep order but remove duplicates if configured model equals one fallback.
+    model_candidates = list(dict.fromkeys(FALLBACK_MODELS))
+
+    for model_name in model_candidates:
+        tried_models.append(model_name)
+        try:
+            response = await client.messages.create(
+                model=model_name,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            if model_name != settings.ANTHROPIC_MODEL:
+                logger.warning(
+                    "Configured Anthropic model unavailable. Fallback model '{}' used.",
+                    model_name,
+                )
+            return _extract_message_text(response)
+        except Exception as e:
+            last_error = e
+            error_text = str(e)
+            # Retry only for model-not-found style errors; otherwise fail fast.
+            if "not_found_error" in error_text or "model:" in error_text:
+                continue
+            raise
+
+    raise RuntimeError(
+        f"No available Anthropic model found. Tried: {', '.join(tried_models)}"
+    ) from last_error
 
 
 async def extract_from_text(question: str) -> Dict[str, Any]:
