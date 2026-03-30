@@ -66,6 +66,49 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Block Shear Explainer */}
+      <section className="py-16 sm:py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="card-premium p-6 sm:p-10 md:p-12 space-y-8 border border-[#e8a020]/15">
+            <div className="space-y-4">
+              <div className="inline-flex items-center">
+                <span className="badge-glow">Core Concept</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                Will The Connection Tear Out?
+              </h2>
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-4xl">
+                Block shear failure is a connection failure mode where a block
+                of plate material tears out around bolts. It occurs under a
+                combination of tension and shear stresses, so safe design must
+                verify that the connection block shear capacity is greater than
+                the applied load.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+              <ExplainerCard
+                icon={<ShieldCheck size={18} />}
+                title="What ShearGate Determines"
+                description="Whether your bolted connection passes or fails against block shear, with clear utilization and step-by-step reasoning."
+              />
+              <ExplainerCard
+                icon={<FileText size={18} />}
+                title="What The Check Depends On"
+                description="Material strengths, bolt geometry, spacing, and edge/end distances all directly affect the tear-out resistance."
+              />
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <FactorPill label="Yield Strength (py)" />
+              <FactorPill label="Ultimate Strength (fu)" />
+              <FactorPill label="Bolt Layout & Spacing" />
+              <FactorPill label="Edge and End Distances" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Main Features Grid */}
       <section className="py-16 sm:py-24 px-4 bg-[#090a0c]/50">
         <div className="max-w-7xl mx-auto">
@@ -210,6 +253,28 @@ const FeatureItem: React.FC<{
     </div>
     <h3 className="text-[1.1rem] font-black text-white mb-2">{title}</h3>
     <p className="text-sm text-slate-500 leading-relaxed font-medium">{desc}</p>
+  </div>
+);
+
+const ExplainerCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}> = ({ icon, title, description }) => (
+  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+    <div className="w-9 h-9 rounded-lg bg-[#e8a020]/10 border border-[#e8a020]/20 text-[#e8a020] flex items-center justify-center mb-4">
+      {icon}
+    </div>
+    <h3 className="text-white font-black text-lg mb-2">{title}</h3>
+    <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+      {description}
+    </p>
+  </div>
+);
+
+const FactorPill: React.FC<{ label: string }> = ({ label }) => (
+  <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-bold text-slate-300 text-center">
+    {label}
   </div>
 );
 
