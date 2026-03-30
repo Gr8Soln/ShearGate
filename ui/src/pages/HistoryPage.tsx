@@ -7,22 +7,17 @@ import {
   Calendar, 
   Clock, 
   ChevronRight, 
-  Search, 
-  Filter,
   Inbox,
   Loader2,
-  MoreVertical,
   ExternalLink
 } from "lucide-react";
 import { sessionApi } from "../api/client";
-import { useAuth } from "../contexts/AuthContext";
 
 const HistoryPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
-  const { data: sessions, isLoading, error } = useQuery({
+  const { data: sessions, isLoading } = useQuery({
     queryKey: ["sessions"],
     queryFn: () => sessionApi.list(),
   });
@@ -61,33 +56,32 @@ const HistoryPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="min-h-screen pt-28 flex items-center justify-center bg-[#090a0c]">
         <div className="text-center space-y-4">
-          <Loader2 className="animate-spin text-indigo-500 mx-auto" size={40} />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Retrieving session history</p>
+          <Loader2 className="animate-spin text-[#e8a020] mx-auto" size={40} />
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Retrieving audit trail...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4 max-w-5xl mx-auto">
+    <div className="min-h-screen pt-28 pb-20 px-4 max-w-5xl mx-auto space-y-12">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider">
-            <Clock size={14} />
-            <span>Audit Trail</span>
+          <div className="inline-flex items-center">
+            <span className="badge-glow">Audit Trail</span>
           </div>
-          <h1 className="text-5xl font-black text-white tracking-tight">History</h1>
-          <p className="text-slate-500 text-lg max-w-xl">
+          <h1 className="text-4xl font-black text-white tracking-tight leading-none">History</h1>
+          <p className="text-slate-500 font-medium max-w-xl">
             Access your recent engineering sessions and AI-explained connection analyses.
           </p>
         </div>
         
         <Link 
           to="/analyze" 
-          className="px-6 py-3 rounded-2xl bg-[#e8a020] hover:bg-[#f59e0b] text-[#0f172a] font-bold flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="btn-primary py-3 px-8 flex items-center gap-3"
         >
           <Calculator size={20} />
           <span>New Analysis</span>
@@ -95,29 +89,29 @@ const HistoryPage: React.FC = () => {
       </div>
 
       {sessions && sessions.length > 0 ? (
-        <div className="grid gap-4">
+        <div className="grid gap-4 animate-fade-in">
           {sessions.map((session: any) => (
             <div 
               key={session.id}
               onClick={() => navigate(`/results/${session.id}`)}
-              className="group relative bg-slate-900 border border-slate-800 hover:border-indigo-500/50 p-6 rounded-[2.5rem] transition-all cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/5"
+              className="card p-6 cursor-pointer hover:border-white/10 group bg-white/[0.02]"
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center space-x-6">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-colors">
-                    <Calculator size={28} />
+                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-500 group-hover:bg-[#e8a020]/10 group-hover:text-[#e8a020] group-hover:border-[#e8a020]/20 transition-all">
+                    <Calculator size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-400 transition-colors">
+                    <h3 className="text-xl font-black text-white mb-2 group-hover:text-[#e8a020] transition-colors leading-none">
                       {session.title || "Untitled Session"}
                     </h3>
-                    <div className="flex items-center space-x-4 text-sm text-slate-500">
-                      <div className="flex items-center space-x-1.5">
-                        <Calendar size={14} />
+                    <div className="flex items-center space-x-4 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                      <div className="flex items-center space-x-2">
+                        <Calendar size={12} className="text-[#e8a020]/40" />
                         <span>{formatDate(session.created_at)}</span>
                       </div>
-                      <div className="flex items-center space-x-1.5">
-                        <Clock size={14} />
+                      <div className="flex items-center space-x-2">
+                        <Clock size={12} className="text-[#e8a020]/40" />
                         <span>{formatTime(session.created_at)}</span>
                       </div>
                     </div>
@@ -127,12 +121,12 @@ const HistoryPage: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <button 
                     onClick={(e) => handleDelete(e, session.id)}
-                    className="p-3 rounded-xl bg-slate-800/50 text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} />
                   </button>
-                  <div className="p-3 rounded-xl bg-slate-800 text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                    <ChevronRight size={20} />
+                  <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-slate-600 group-hover:bg-[#e8a020] group-hover:text-[#090a0c] transition-all">
+                    <ChevronRight size={18} />
                   </div>
                 </div>
               </div>
@@ -140,18 +134,17 @@ const HistoryPage: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="py-24 text-center border-2 border-dashed border-slate-800 rounded-[3rem]">
-          <div className="w-20 h-20 bg-slate-900 rounded-3xl mx-auto flex items-center justify-center text-slate-700 mb-6">
-            <Inbox size={40} />
+        <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01]">
+          <div className="w-16 h-16 bg-white/5 rounded-2xl mx-auto flex items-center justify-center text-slate-700 mb-6">
+            <Inbox size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">No history yet</h2>
-          <p className="text-slate-500 mb-8 max-w-sm mx-auto">Perform your first analysis to see your engineering history here.</p>
+          <h2 className="text-xl font-black text-white mb-2 uppercase tracking-tight">No history yet</h2>
+          <p className="text-slate-500 font-medium mb-8 max-w-sm mx-auto">Perform your first analysis to see your engineering history here.</p>
           <Link 
             to="/analyze" 
-            className="inline-flex items-center space-x-2 text-indigo-400 font-bold hover:text-indigo-300"
+            className="text-[#e8a020] text-sm font-black uppercase tracking-widest hover:underline flex items-center justify-center gap-2"
           >
-            <span>Start an analysis</span>
-            <ExternalLink size={18} />
+            Start Analysis <ExternalLink size={16} />
           </Link>
         </div>
       )}

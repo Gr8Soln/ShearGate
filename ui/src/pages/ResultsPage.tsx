@@ -8,16 +8,13 @@ import {
   XCircle,
   Sparkles,
   BookOpen,
-  MessageSquare,
   Loader2,
-  ChevronRight,
   Info
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { explainApi, sessionApi } from "../api/client";
+import { sessionApi, explainApi } from "../api/client";
 import { BS5950_CLAUSES, BS5950_TABLES } from "../data/bs5950";
 import { ParseDescription } from "../utils/parseDescription";
-import type { ConnectionInputs, BS5950Clause, BS5950Table } from "../types";
+import type { ConnectionInputs } from "../types";
 
 interface CalculationStep {
   title: string;
@@ -42,7 +39,6 @@ interface CalculationResult {
 const ResultsPage: React.FC = () => {
   const { id: sessionId } = useParams();
   const location = useLocation();
-  const { user } = useAuth();
 
   const state = location.state as { inputs: ConnectionInputs, result: CalculationResult } | null;
   const [inputs, setInputs] = useState<ConnectionInputs | null>(state?.inputs || null);
@@ -52,7 +48,6 @@ const ResultsPage: React.FC = () => {
   const [isExplaining, setIsExplaining] = useState(false);
   const [selectedRef, setSelectedRef] = useState<{ id: string, type: "clause" | "table" } | null>(null);
 
-  // Fetch session data if not provided in state (e.g. on refresh)
   useEffect(() => {
     if (!state && sessionId && sessionId !== "temporary") {
       sessionApi.get(sessionId).then(data => {
@@ -87,10 +82,10 @@ const ResultsPage: React.FC = () => {
 
   if (!inputs || !result) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">
-        <div className="text-center">
-          <Loader2 className="animate-spin mx-auto mb-4" size={32} />
-          <p>Loading analysis results...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#090a0c] text-white">
+        <div className="text-center space-y-4">
+          <Loader2 className="animate-spin mx-auto text-[#e8a020]" size={32} />
+          <p className="font-bold text-slate-500 uppercase tracking-widest text-xs">Loading analysis...</p>
         </div>
       </div>
     );
@@ -99,98 +94,98 @@ const ResultsPage: React.FC = () => {
   const isSafe = result.pass;
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="min-h-screen pt-28 pb-20 px-4 max-w-7xl mx-auto space-y-10">
       {/* Navbar Actions */}
-      <div className="flex items-center justify-between mb-10 no-print">
-        <Link to="/analyze" className="flex items-center space-x-2 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft size={18} />
-          <span className="text-sm font-bold">Back to Analyze</span>
+      <div className="flex items-center justify-between no-print">
+        <Link to="/analyze" className="flex items-center space-x-2 text-slate-500 hover:text-white transition-colors group">
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-black uppercase tracking-widest">Back to Analyze</span>
         </Link>
         <div className="flex items-center space-x-3">
-          <button className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors">
+          <button className="p-2 rounded-lg bg-white/5 border border-white/5 text-slate-500 hover:text-white transition-all">
             <Printer size={18} />
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-indigo-600/10 border border-indigo-600/20 text-indigo-400 hover:bg-indigo-600/20 transition-all font-bold text-sm">
+          <button className="btn-secondary py-2 px-5 flex items-center gap-2 text-sm">
             <Download size={18} />
-            <span>Export Report</span>
+            <span>Export PDF</span>
           </button>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8">
-        {/* Left Column: Calculation Results */}
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column */}
         <div className="lg:col-span-8 space-y-8">
           {/* Main Scorecard */}
-          <div className={`relative overflow-hidden p-10 rounded-[2.5rem] border ${isSafe ? 'border-emerald-500/20 shadow-emerald-500/5' : 'border-rose-500/20 shadow-rose-500/5'} bg-slate-900/50 backdrop-blur-xl shadow-2xl`}>
-            {/* Background Glow */}
-            <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] ${isSafe ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`} />
+          <div className="card-premium p-10 md:p-12 relative overflow-hidden">
+            <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-20 ${isSafe ? 'bg-emerald-500' : 'bg-rose-500'}`} />
 
-            <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8">
-              <div className={`w-24 h-24 rounded-3xl flex items-center justify-center shrink-0 shadow-lg ${isSafe ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'}`}>
-                {isSafe ? <CheckCircle2 className="text-white" size={48} /> : <XCircle className="text-white" size={48} />}
+            <div className="relative flex flex-col md:flex-row items-center md:items-start gap-10">
+              <div className={`w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 border ${isSafe ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-rose-500/10 border-rose-500/30 text-rose-500'}`}>
+                {isSafe ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
               </div>
-              <div className="text-center md:text-left flex-1">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                  <div>
-                    <h1 className="text-4xl font-black text-white mb-1">
-                      {isSafe ? "Connection Safe" : "Action Required"}
+              
+              <div className="flex-1 space-y-8 text-center md:text-left">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-1">
+                    <h1 className="text-4xl font-black text-white tracking-tight">
+                      {isSafe ? "Connection Safe" : "Analysis Failed"}
                     </h1>
-                    <p className="text-slate-500 font-medium">Standard Check per BS 5950-1:2000 Clause 6.2.4</p>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[0.6rem]">BS 5950-1:2000 | Clause 6.2.4 Check</p>
                   </div>
-                  <div className={`px-4 py-2 rounded-2xl font-black text-lg ${isSafe ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
-                    {(result.utilization * 100).toFixed(1)}% <span className="text-xs opacity-60">Util.</span>
+                  <div className={`px-5 py-2.5 rounded-xl font-black text-xl border ${isSafe ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/5 text-rose-500 border-rose-500/20'}`}>
+                    {(result.utilization * 100).toFixed(1)}% <span className="text-[10px] opacity-60 uppercase ml-1">Utilization</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-800">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 pt-8 border-t border-white/5">
                   <div className="space-y-1">
-                    <p className="text-[10px] uppercase tracking-widest font-black text-slate-500">Design Capacity</p>
-                    <p className="text-2xl font-mono font-bold text-white">{result.Pbs.toFixed(1)}<span className="text-sm ml-1 opacity-40">kN</span></p>
+                    <p className="text-[10px] uppercase tracking-widest font-black text-slate-600">Design Capacity</p>
+                    <p className="text-2xl font-mono font-black text-white">{result.Pbs.toFixed(1)}<span className="text-xs ml-1 opacity-30">kN</span></p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] uppercase tracking-widest font-black text-slate-500">Applied Force</p>
-                    <p className="text-2xl font-mono font-bold text-white">{(inputs.appliedLoad || 0).toFixed(1)}<span className="text-sm ml-1 opacity-40">kN</span></p>
+                    <p className="text-[10px] uppercase tracking-widest font-black text-slate-600">Applied Force</p>
+                    <p className="text-2xl font-mono font-black text-white">{(inputs.appliedLoad || 0).toFixed(1)}<span className="text-xs ml-1 opacity-30">kN</span></p>
                   </div>
                   <div className="space-y-1 hidden lg:block">
-                    <p className="text-[10px] uppercase tracking-widest font-black text-slate-500">Steel Grade</p>
-                    <p className="text-2xl font-mono font-bold text-indigo-400">{inputs.plateMaterial}</p>
+                    <p className="text-[10px] uppercase tracking-widest font-black text-slate-600">Material Grade</p>
+                    <p className="text-2xl font-mono font-black text-[#e8a020]">{inputs.plateMaterial}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* AI Narrative Section */}
-          <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
-            <div className="bg-gradient-to-r from-indigo-500/10 via-transparent to-transparent p-8 flex items-center justify-between border-b border-slate-800">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                  <Sparkles className="text-white" size={20} />
+          {/* AI Narrative */}
+          <div className="card-premium overflow-hidden">
+            <div className="p-8 border-b border-white/5 bg-[#e8a020]/[0.02] flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
+                  <Sparkles size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">AI Engineering Explanation</h3>
-                  <p className="text-xs text-slate-500">Narrative generated by Gemini 2.0 Flash</p>
+                  <h3 className="text-lg font-black text-white">Engineering Narrative</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Logic breakdown by Gemini 2.0</p>
                 </div>
               </div>
               {!aiExplanation && (
                 <button
                   onClick={handleExplain}
                   disabled={isExplaining}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all disabled:opacity-50"
+                  className="btn-primary py-2 px-6 text-sm"
                 >
-                  {isExplaining ? <Loader2 className="animate-spin" size={18} /> : "Generate Narrative"}
+                  {isExplaining ? <Loader2 className="animate-spin" size={16} /> : "Generate Narrative"}
                 </button>
               )}
             </div>
             <div className="p-10">
               {aiExplanation ? (
-                <div className="prose prose-invert prose-indigo max-w-none text-slate-300 leading-relaxed text-lg font-medium">
+                <div className="text-slate-300 leading-relaxed font-medium opacity-90 text-lg">
                   <ParseDescription text={aiExplanation} onRefClick={onRefClick} />
                 </div>
               ) : (
-                <div className="text-center py-10 space-y-4">
-                  <p className="text-slate-500 max-w-sm mx-auto">Get a personalized, clause-by-clause explanation of your results using ShearGate's AI engine.</p>
-                  <button onClick={handleExplain} className="text-indigo-400 font-bold hover:underline">Click to start AI analysis</button>
+                <div className="text-center py-6 space-y-4">
+                  <p className="text-slate-500 font-medium italic">Get a professional narrative explanation of this connection check.</p>
+                  <button onClick={handleExplain} className="text-[#e8a020] text-sm font-black uppercase tracking-widest hover:underline">Start AI Analysis</button>
                 </div>
               )}
             </div>
@@ -198,63 +193,74 @@ const ResultsPage: React.FC = () => {
 
           {/* Detailed Steps */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold font-syne text-white flex items-center space-x-3">
-              <Calculator className="text-[#e8a020]" size={24} />
-              <span>Full Step-by-Step Breakdown</span>
-            </h3>
-            <div className="grid gap-4">
+            <div className="flex items-center gap-3 ml-2">
+              <div className="w-1 h-4 bg-[#e8a020] rounded-full" />
+              <h3 className="text-lg font-black text-white uppercase tracking-tight">Calculation Breakdown</h3>
+            </div>
+            <div className="space-y-4">
               {result.steps.map((step, idx) => (
-                <div key={idx} className="group bg-slate-900/50 border border-slate-800 hover:border-slate-700 p-6 rounded-[2rem] transition-all">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <span className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-black text-slate-400">{idx + 1}</span>
-                      <h4 className="font-bold text-white text-lg">{step.title}</h4>
-                    </div>
-                    {step.clause && (
-                      <button
-                        onClick={() => onRefClick(step.clause!, "clause")}
-                        className="text-[10px] font-black uppercase text-indigo-400 hover:text-indigo-300 tracking-tighter"
-                      >
-                        Clause {step.clause}
-                      </button>
-                    )}
+                <div key={idx} className="card p-6 flex flex-col md:flex-row items-center md:items-start gap-4 hover:border-white/10 group">
+                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xs font-black text-slate-500 group-hover:bg-[#e8a020]/10 group-hover:text-[#e8a020] transition-colors">
+                    {idx + 1}
                   </div>
-                  <p className="text-slate-400 text-sm pl-11 leading-relaxed">
-                    <ParseDescription text={step.description} onRefClick={onRefClick} />
-                  </p>
+                  <div className="flex-1 space-y-2 text-center md:text-left">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <h4 className="font-black text-white text-[1.1rem]">{step.title}</h4>
+                      {step.clause && (
+                        <button
+                          onClick={() => onRefClick(step.clause!, "clause")}
+                          className="badge-glow bg-white/5 text-slate-500 border-white/10 hover:border-[#e8a020]/30 hover:text-white transition-all lowercase"
+                        >
+                          Clause {step.clause}
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-slate-400 text-sm leading-relaxed font-medium">
+                      <ParseDescription text={step.description} onRefClick={onRefClick} />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column: AI Reference Sandbox */}
-        <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl relative group">
-            <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity">
-              <BookOpen className="text-slate-600" size={40} />
+        {/* Right Column */}
+        <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
+          <div className="card p-8 space-y-8 min-h-[400px]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
+                <BookOpen size={16} />
+              </div>
+              <h3 className="text-sm font-black text-white uppercase tracking-widest">Reference Context</h3>
             </div>
 
-            <SectionHeader title="BS 5950 Reference" subtitle="Context for this calculation" icon={<BookOpen size={16} />} />
-
-            <div className="mt-8">
-              {selectedRef ? (
-                <ReferenceDetail id={selectedRef.id} type={selectedRef.type} onClear={() => setSelectedRef(null)} />
-              ) : (
-                <div className="py-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-slate-800 mx-auto flex items-center justify-center text-slate-600">
-                    <Info size={32} />
-                  </div>
-                  <p className="text-sm text-slate-500 px-4">Select a reference link in the explanation to see full clause details here.</p>
+            {selectedRef ? (
+              <div className="animate-fade-in space-y-6">
+                <div className="pb-4 border-b border-white/5 flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#e8a020]">
+                    {selectedRef.type} {selectedRef.id}
+                  </span>
+                  <button onClick={() => setSelectedRef(null)} className="text-slate-600 hover:text-white transition-colors">
+                    <XCircle size={16} />
+                  </button>
                 </div>
-              )}
-            </div>
+                <ReferenceDetail id={selectedRef.id} type={selectedRef.type} />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 opacity-30">
+                <Info size={48} className="text-slate-600" />
+                <p className="text-xs font-black uppercase tracking-widest text-slate-500 max-w-[180px]">
+                  Select a reference link to view full details
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="bg-[#e8a020]/10 border border-[#e8a020]/20 rounded-[2.5rem] p-8">
-            <h4 className="text-[#e8a020] font-black text-sm uppercase tracking-widest mb-4">Engineering Note</h4>
-            <p className="text-slate-200 text-sm leading-relaxed">
-              Verify all edge/end distances against Table 29 before finalizing production designs. AI explanations are for guidance purposes only.
+          <div className="card p-6 bg-[#e8a020]/5 border-[#e8a020]/10">
+            <h4 className="text-[#e8a020] font-black text-[10px] uppercase tracking-widest mb-3">Notice</h4>
+            <p className="text-slate-400 text-xs leading-relaxed font-medium">
+              Calculations are based on BS 5950-1:2000. Verify partial safety factors (γm) and material properties for your specific application.
             </p>
           </div>
         </div>
@@ -263,70 +269,45 @@ const ResultsPage: React.FC = () => {
   );
 };
 
-// --- Helpers ---
-
-const SectionHeader: React.FC<{ title: string, subtitle: string, icon: React.ReactNode }> = ({ title, subtitle, icon }) => (
-  <div className="flex flex-col">
-    <div className="flex items-center space-x-2 text-[#e8a020] mb-1">
-      {icon}
-      <span className="text-[10px] font-black uppercase tracking-[0.2em]">{title}</span>
-    </div>
-    <h2 className="text-xl font-bold text-white">{subtitle}</h2>
-  </div>
-);
-
-const ReferenceDetail: React.FC<{ id: string, type: "clause" | "table", onClear: () => void }> = ({ id, type, onClear }) => {
+const ReferenceDetail: React.FC<{ id: string, type: "clause" | "table" }> = ({ id, type }) => {
   const clause = type === "clause" ? BS5950_CLAUSES[id] : null;
   const table = type === "table" ? BS5950_TABLES[id] : null;
 
-  return (
-    <div className="animate-in fade-in slide-in-from-bottom-4">
-      <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-800">
-        <span className="text-sm font-black text-indigo-400 uppercase tracking-widest">{type} {id}</span>
-        <button onClick={onClear} className="text-slate-600 hover:text-white transition-colors"><XCircle size={18} /></button>
-      </div>
-
-      {clause && (
-        <div className="space-y-4">
-          <h5 className="text-lg font-bold text-white leading-tight">{clause.title}</h5>
-          <p className="text-sm text-slate-400 leading-relaxed font-medium">{clause.content}</p>
-          {clause.equation && (
-            <div className="p-4 bg-slate-950 rounded-2xl border border-indigo-500/20 font-mono text-xs text-indigo-400 text-center">
-              {clause.equation}
-            </div>
-          )}
-        </div>
-      )}
-
-      {table && (
-        <div className="space-y-4">
-          <h5 className="text-lg font-bold text-white leading-tight">{table.title}</h5>
-          <div className="overflow-hidden rounded-xl border border-slate-800">
-            <table className="w-full text-xs text-left border-collapse">
-              <thead className="bg-slate-800/50 text-slate-400">
-                <tr>
-                  {table.headers.map(h => <th key={h} className="px-3 py-2 border-b border-slate-700">{h}</th>)}
-                </tr>
-              </thead>
-              <tbody className="text-slate-300">
-                {table.rows.map((row, i) => (
-                  <tr key={i} className="hover:bg-slate-800/30 transition-colors">
-                    {row.map((cell, j) => <td key={j} className="px-3 py-2 border-b border-slate-800/50">{cell}</td>)}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {!clause && !table && (
-        <div className="p-10 text-center space-y-4">
-          <p className="text-slate-500 italic">Detailed information for {type} {id} is available in the full BS 5950 PDF document.</p>
+  if (clause) return (
+    <div className="space-y-4">
+      <h5 className="font-black text-white text-lg tracking-tight leading-tight">{clause.title}</h5>
+      <p className="text-sm text-slate-400 leading-relaxed font-medium">{clause.content}</p>
+      {clause.equation && (
+        <div className="formula-box text-center p-4">
+          <span className="text-lg font-mono text-[#e8a020]">{clause.equation}</span>
         </div>
       )}
     </div>
   );
+
+  if (table) return (
+    <div className="space-y-4">
+      <h5 className="font-black text-white text-lg tracking-tight leading-tight">{table.title}</h5>
+      <div className="overflow-x-auto rounded-xl border border-white/5 bg-black/20">
+        <table className="w-full text-[10px] text-left border-collapse">
+          <thead>
+            <tr className="bg-white/5">
+              {table.headers.map(h => <th key={h} className="px-3 py-2 text-[8px] font-black text-slate-600 uppercase tracking-widest border-b border-white/5">{h}</th>)}
+            </tr>
+          </thead>
+          <tbody className="text-slate-400">
+            {table.rows.map((row, i) => (
+              <tr key={i} className="hover:bg-white/5 transition-colors">
+                {row.map((cell, j) => <td key={j} className="px-3 py-2 border-b border-white/[0.02] font-medium">{cell}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  return <p className="text-slate-600 italic text-xs">Full technical details are available in the master PDF document.</p>;
 };
 
 export default ResultsPage;

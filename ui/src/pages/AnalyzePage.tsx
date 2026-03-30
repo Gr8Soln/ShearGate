@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Calculator,
   FileText,
@@ -13,14 +13,11 @@ import {
 import { extractApi, sessionApi } from "../api/client";
 import { calculateBlockShear } from "../utils/calculations";
 import type { ConnectionInputs } from "../types";
-import { useAuth } from "../contexts/AuthContext";
 
 type InputMode = "manual" | "text" | "image";
 
 const AnalyzePage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
   
   const [inputMode, setInputMode] = useState<InputMode>("manual");
   const [questionText, setQuestionText] = useState<string>("");
@@ -28,8 +25,6 @@ const AnalyzePage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingStep, setProcessingStep] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  
-  // Current active session ID
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [inputs, setInputs] = useState<ConnectionInputs>({
@@ -46,7 +41,6 @@ const AnalyzePage: React.FC = () => {
     appliedLoad: 320,
   });
 
-  // Handle manual input changes
   const handleInputChange = (field: keyof ConnectionInputs, value: any) => {
     setInputs(prev => ({
       ...prev,
@@ -105,18 +99,9 @@ const AnalyzePage: React.FC = () => {
 
     try {
       const sid = await ensureSession();
-      // Calculate on frontend (Source of Truth)
       const result = calculateBlockShear(inputs);
-      
-      // Navigate to results page
-      // We pass the result and inputs in state for immediate display, 
-      // but also the sessionId for history/AI interaction.
       navigate(`/results/${sid || "temporary"}`, { 
-        state: { 
-          inputs, 
-          result,
-          fromExtraction: inputMode !== "manual"
-        } 
+        state: { inputs, result, fromExtraction: inputMode !== "manual" } 
       });
     } catch (err) {
       console.error("Calculation failed", err);
@@ -126,79 +111,80 @@ const AnalyzePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4 max-w-6xl mx-auto">
+    <div className="min-h-screen pt-28 pb-20 px-4 max-w-6xl mx-auto space-y-12">
       {/* Page Header */}
-      <div className="text-center mb-16 space-y-4">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#e8a020]/10 border border-[#e8a020]/20 text-[#e8a020] text-xs font-bold uppercase tracking-wider">
-          <Sparkles size={14} />
-          <span>AI-Powered Engineering</span>
+      <div className="space-y-4">
+        <div className="inline-flex items-center">
+          <span className="badge-glow">AI-Powered Engineering</span>
         </div>
-        <h1 className="text-5xl font-extrabold text-white tracking-tight">
-          New Analysis
-        </h1>
-        <p className="text-slate-400 text-lg max-w-2xl mx-auto line-clamp-2">
-          Start a block shear analysis by entering parameters or uploading your 
-          connection design question.
+        <h1 className="text-4xl font-black text-white tracking-tight leading-none">New Analysis</h1>
+        <p className="text-slate-500 font-medium max-w-2xl">
+          Start a block shear analysis by entering parameters manually or uploading your connection design question.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">
-        {/* Input Method Selector (Left Col on Desktop) */}
-        <div className="lg:col-span-4 space-y-4">
+        {/* Input Method Selector */}
+        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-28">
           <InputMethodCard
-            mode="manual"
             active={inputMode === "manual"}
-            icon={<Calculator className={inputMode === 'manual' ? 'text-[#e8a020]' : 'text-slate-500'} size={24} />}
+            icon={<Calculator className={inputMode === 'manual' ? 'text-[#e8a020]' : 'text-slate-500'} size={20} />}
             title="Manual Entry"
             description="Enter detailed parameters"
             onClick={() => setInputMode("manual")}
           />
           <InputMethodCard
-            mode="text"
             active={inputMode === "text"}
-            icon={<FileText className={inputMode === 'text' ? 'text-[#e8a020]' : 'text-slate-500'} size={24} />}
+            icon={<FileText className={inputMode === 'text' ? 'text-[#e8a020]' : 'text-slate-500'} size={20} />}
             title="Text Description"
             description="Paste problem text"
             onClick={() => setInputMode("text")}
           />
           <InputMethodCard
-            mode="image"
             active={inputMode === "image"}
-            icon={<ImageIcon className={inputMode === 'image' ? 'text-[#e8a020]' : 'text-slate-500'} size={24} />}
+            icon={<ImageIcon className={inputMode === 'image' ? 'text-[#e8a020]' : 'text-slate-500'} size={20} />}
             title="Image/PDF Scan"
             description="Upload design sketches"
             onClick={() => setInputMode("image")}
           />
         </div>
 
-        {/* Main Workspace (Right Col on Desktop) */}
-        <div className="lg:col-span-8 flex flex-col space-y-6">
+        {/* Main Workspace */}
+        <div className="lg:col-span-8 space-y-6">
           {error && (
-            <div className="p-4 bg-red-400/10 border border-red-400/20 rounded-2xl flex items-center space-x-3 text-red-400 animate-in fade-in slide-in-from-top-2">
-              <AlertCircle size={20} />
-              <p className="text-sm font-medium">{error}</p>
+            <div className="p-4 bg-red-400/5 border border-red-400/10 rounded-xl flex items-center space-x-3 text-red-500 animate-fade-in">
+              <AlertCircle size={18} />
+              <p className="text-sm font-bold uppercase tracking-tight">{error}</p>
             </div>
           )}
 
           {/* AI Text Mode */}
           {inputMode === "text" && (
-            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl animate-in fade-in slide-in-from-right-4">
-              <h2 className="text-xl font-bold text-white mb-4">Paste Your Question</h2>
+            <div className="card-premium p-10 space-y-6 animate-fade-in">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">Paste Problem Text</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">AI Extraction Engine</p>
+                </div>
+              </div>
               <textarea
                 value={questionText}
                 onChange={(e) => setQuestionText(e.target.value)}
-                placeholder="Example: A bearing type connection with 4 x M20 Grade 8.8 bolts on S275 plate of 12mm thickness. Edge distance is 50mm, pitch 70mm..."
-                className="w-full h-48 bg-slate-950 border border-slate-800 rounded-2xl p-4 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#e8a020] transition-colors"
+                placeholder="Example: A bearing type connection with 4 x M20 Grade 8.8 bolts on S275 plate of 12mm thickness..."
+                className="input-field h-40 resize-none font-medium leading-relaxed"
               />
               <button
                 onClick={handleAIExtraction}
                 disabled={!questionText || isProcessing}
-                className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8a020] to-[#f59e0b] text-[#0f172a] font-bold text-lg flex items-center justify-center space-x-2 shadow-lg shadow-[#e8a020]/10 hover:shadow-[#e8a020]/20 transition-all active:scale-[0.98] disabled:opacity-50"
+                className="btn-primary w-full py-4 flex items-center justify-center gap-3"
               >
                 {isProcessing ? (
-                  <><Loader2 className="animate-spin" size={20} /><span>{processingStep}</span></>
+                  <><Loader2 className="animate-spin" size={18} /><span>{processingStep}</span></>
                 ) : (
-                  <><Sparkles size={20} /><span>Extract with Gemini AI</span></>
+                  <><Sparkles size={18} /><span>Extract with Gemini AI</span></>
                 )}
               </button>
             </div>
@@ -206,27 +192,39 @@ const AnalyzePage: React.FC = () => {
 
           {/* AI Image Mode */}
           {inputMode === "image" && (
-            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl animate-in fade-in slide-in-from-right-4">
-              <h2 className="text-xl font-bold text-white mb-4">Upload Design Question</h2>
-              <div className="border-2 border-dashed border-slate-800 rounded-[2rem] p-12 text-center hover:border-[#e8a020]/50 transition-colors group">
+            <div className="card-premium p-10 space-y-6 animate-fade-in">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#e8a020]/10 flex items-center justify-center text-[#e8a020] border border-[#e8a020]/20">
+                  <Upload size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">Upload Sketch</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Vision Analysis System</p>
+                </div>
+              </div>
+              <div className="border-2 border-dashed border-white/5 rounded-2xl p-12 text-center hover:border-[#e8a020]/30 transition-all group bg-black/20">
                 <input type="file" id="file-upload" className="hidden" onChange={handleFileUpload} accept="image/*,.pdf" />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <Upload className="mx-auto mb-4 text-slate-600 group-hover:text-[#e8a020] transition-colors" size={48} />
-                  <p className="text-slate-400 mb-1 group-hover:text-slate-200">
-                    {file ? file.name : "Select an image or PDF file"}
-                  </p>
-                  <p className="text-xs text-slate-600">Max size 20MB</p>
+                <label htmlFor="file-upload" className="cursor-pointer block space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto group-hover:bg-[#e8a020]/10 group-hover:text-[#e8a020] transition-all">
+                    <Upload size={24} />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold">
+                      {file ? file.name : "Choose an image or PDF"}
+                    </p>
+                    <p className="text-xs text-slate-600 font-medium">Drag & drop or click to browse</p>
+                  </div>
                 </label>
               </div>
               <button
                 onClick={handleAIExtraction}
                 disabled={!file || isProcessing}
-                className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8a020] to-[#f59e0b] text-[#0f172a] font-bold text-lg flex items-center justify-center space-x-2 disabled:opacity-50"
+                className="btn-primary w-full py-4 flex items-center justify-center gap-3"
               >
                 {isProcessing ? (
-                  <><Loader2 className="animate-spin" size={20} /><span>{processingStep}</span></>
+                  <><Loader2 className="animate-spin" size={18} /><span>{processingStep}</span></>
                 ) : (
-                  <><Sparkles size={20} /><span>Extract from File</span></>
+                  <><Sparkles size={18} /><span>Analyze Source File</span></>
                 )}
               </button>
             </div>
@@ -234,13 +232,16 @@ const AnalyzePage: React.FC = () => {
 
           {/* Manual Entry Form */}
           {inputMode === "manual" && (
-            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl animate-in fade-in slide-in-from-bottom-4">
-              <form className="space-y-10" onSubmit={e => { e.preventDefault(); handleCalculate(); }}>
-                <div className="grid md:grid-cols-2 gap-10">
+            <div className="card-premium p-10 animate-fade-in">
+              <form className="space-y-12" onSubmit={e => { e.preventDefault(); handleCalculate(); }}>
+                <div className="grid md:grid-cols-2 gap-x-12 gap-y-10">
                   {/* Bolt Specs */}
                   <div className="space-y-6">
-                    <SectionTitle title="Bolt Specifications" />
-                    <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1 h-4 bg-[#e8a020] rounded-full" />
+                      <h3 className="text-lg font-black text-white">Bolt Specifications</h3>
+                    </div>
+                    <div className="space-y-5">
                       <FormSelect label="Bolt Grade" value={inputs.boltGrade || "8.8"} options={["4.6", "8.8"]} onChange={v => handleInputChange("boltGrade", v)} />
                       <FormField label="Bolt Diameter (d)" unit="mm" value={inputs.boltDiameter || 0} onChange={v => handleInputChange("boltDiameter", v)} />
                       <FormField label="Number of Bolts" unit="qty" value={inputs.numberOfBolts || 0} onChange={v => handleInputChange("numberOfBolts", v)} />
@@ -250,37 +251,46 @@ const AnalyzePage: React.FC = () => {
 
                   {/* Geometric Config */}
                   <div className="space-y-6">
-                    <SectionTitle title="Connection Geometry" />
-                    <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1 h-4 bg-[#e8a020] rounded-full" />
+                      <h3 className="text-lg font-black text-white">Connection Geometry</h3>
+                    </div>
+                    <div className="space-y-5">
                       <FormField label="Bolt Pitch (p)" unit="mm" value={inputs.pitch || 0} onChange={v => handleInputChange("pitch", v)} />
                       <FormField label="Gauge Spacing (g)" unit="mm" value={inputs.gauge || 0} onChange={v => handleInputChange("gauge", v)} />
-                      <FormField label="Edge Distance (e1/e2)" unit="mm" value={inputs.edgeDistance || 0} onChange={v => handleInputChange("edgeDistance", v)} />
-                      <FormField label="End Distance" unit="mm" value={inputs.endDistance || 0} onChange={v => handleInputChange("endDistance", v)} />
+                      <FormField label="Edge Distance (e2)" unit="mm" value={inputs.edgeDistance || 0} onChange={v => handleInputChange("edgeDistance", v)} />
+                      <FormField label="End Distance (e1)" unit="mm" value={inputs.endDistance || 0} onChange={v => handleInputChange("endDistance", v)} />
                     </div>
                   </div>
 
                   {/* Plate Config */}
-                  <div className="space-y-6 md:col-span-2">
-                    <SectionTitle title="Material & Loading" />
-                    <div className="grid md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2 space-y-6 pt-6 border-t border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1 h-4 bg-[#e8a020] rounded-full" />
+                      <h3 className="text-lg font-black text-white">Material & Loading</h3>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-6">
                       <FormSelect label="Steel Grade" value={inputs.plateMaterial || "S275"} options={["S275", "S355"]} onChange={v => handleInputChange("plateMaterial", v)} />
                       <FormField label="Plate Thickness (t)" unit="mm" value={inputs.plateThickness || 0} onChange={v => handleInputChange("plateThickness", v)} />
-                      <div className="md:col-span-2">
-                        <FormField label="Applied Load (Pknd)" unit="kN" value={inputs.appliedLoad || 0} onChange={v => handleInputChange("appliedLoad", v)} highlight />
-                      </div>
+                      <FormField label="Applied Load (Pknd)" unit="kN" value={inputs.appliedLoad || 0} onChange={v => handleInputChange("appliedLoad", v)} highlight />
                     </div>
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="w-full py-5 rounded-[2rem] bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xl flex items-center justify-center space-x-3 shadow-xl transition-all hover:scale-[1.01] active:scale-[0.99]"
-                >
-                  <Calculator size={24} />
-                  <span>Analyze Connection</span>
-                  <ArrowRight size={20} />
-                </button>
+                <div className="pt-8">
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="btn-primary w-full py-5 text-xl flex items-center justify-center gap-4 transition-all"
+                  >
+                    <Calculator size={24} />
+                    <span>Run Analysis</span>
+                    <ArrowRight size={20} />
+                  </button>
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] text-center mt-6">
+                    Source: BS 5950-1:2000 Structural Use of Steelwork
+                  </p>
+                </div>
               </form>
             </div>
           )}
@@ -290,58 +300,50 @@ const AnalyzePage: React.FC = () => {
   );
 };
 
-// --- Child Components ---
-
-const InputMethodCard: React.FC<{ mode: string, active: boolean, icon: React.ReactNode, title: string, description: string, onClick: () => void }> = ({ active, icon, title, description, onClick }) => (
+const InputMethodCard: React.FC<{ active: boolean, icon: React.ReactNode, title: string, description: string, onClick: () => void }> = ({ active, icon, title, description, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center space-x-4 p-5 rounded-[2rem] border transition-all duration-300 text-left ${
+    className={`w-full flex items-center space-x-4 p-5 rounded-xl border transition-all text-left ${
       active 
-        ? "bg-[#e8a020]/10 border-[#e8a020] shadow-lg shadow-[#e8a020]/5 translate-x-1" 
-        : "bg-slate-900 shadow-xl border-slate-800 hover:border-[#e8a020]/30 hover:bg-slate-800/50"
+        ? "bg-[#e8a020]/10 border-[#e8a020]/30 text-white shadow-xl shadow-[#e8a020]/5" 
+        : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/[0.08] hover:border-white/10"
     }`}
   >
-    <div className={`p-4 rounded-2xl ${active ? "bg-[#e8a020]/10" : "bg-slate-800"} transition-colors`}>
+    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${active ? "bg-[#e8a020]/10 text-[#e8a020]" : "bg-black/30"}`}>
       {icon}
     </div>
-    <div>
-      <h3 className={`font-bold transition-colors ${active ? "text-[#e8a020]" : "text-slate-200"}`}>{title}</h3>
-      <p className="text-xs text-slate-500">{description}</p>
+    <div className="flex-1 min-w-0">
+      <h3 className={`font-black text-sm transition-colors ${active ? "text-[#e8a020]" : "text-slate-300"}`}>{title}</h3>
+      <p className="text-[0.65rem] font-bold text-slate-600 uppercase tracking-widest mt-0.5">{description}</p>
     </div>
   </button>
 );
 
-const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
-  <div className="flex items-center space-x-3 mb-4">
-    <div className="w-1.5 h-6 bg-[#e8a020] rounded-full" />
-    <h3 className="text-lg font-bold text-white/90">{title}</h3>
-  </div>
-);
-
 const FormField: React.FC<{ label: string, unit: string, value: any, onChange: (v: string) => void, highlight?: boolean }> = ({ label, unit, value, onChange, highlight }) => (
-  <div className={highlight ? "bg-[#e8a020]/5 p-4 rounded-2xl border border-[#e8a020]/10" : ""}>
-    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
+  <div className="space-y-1.5 flex-1">
+    <label className="block text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{label}</label>
     <div className="relative group">
       <input
         type="number"
+        step="any"
         value={value}
         onChange={e => onChange(e.target.value)}
-        className={`w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 font-mono transition-colors focus:outline-none focus:border-[#e8a020]/50 ${highlight ? "text-[#e8a020] border-[#e8a020]/20" : ""}`}
+        className={`input-field pr-12 font-mono text-sm ${highlight ? "border-[#e8a020]/30 text-[#e8a020] bg-[#e8a020]/5" : ""}`}
       />
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-600 uppercase">{unit}</span>
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-700 uppercase">{unit}</span>
     </div>
   </div>
 );
 
 const FormSelect: React.FC<{ label: string, value: string, options: string[], onChange: (v: string) => void }> = ({ label, value, options, onChange }) => (
-  <div>
-    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
+  <div className="space-y-1.5 flex-1">
+    <label className="block text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{label}</label>
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 font-bold transition-colors focus:outline-none focus:border-[#e8a020]/50"
+      className="input-field font-black text-xs appearance-none cursor-pointer"
     >
-      {options.map(opt => <option key={opt} value={opt}>{opt.startsWith('S') || opt.includes('.') ? opt : opt.charAt(0).toUpperCase() + opt.slice(1)}</option>)}
+      {options.map(opt => <option key={opt} value={opt} className="bg-[#111418]">{opt.startsWith('S') || opt.includes('.') ? opt : opt.charAt(0).toUpperCase() + opt.slice(1)}</option>)}
     </select>
   </div>
 );

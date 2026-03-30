@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5050,
-    open: true
+    open: true,
+    allowedHosts: ["probably-chief-clam.ngrok-free.app", ".ngrok-free.app"]
   }
 })
