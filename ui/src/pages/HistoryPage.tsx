@@ -1,16 +1,16 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  Calculator, 
-  Trash2, 
-  Calendar, 
-  Clock, 
-  ChevronRight, 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Calculator,
+  Calendar,
+  ChevronRight,
+  Clock,
+  ExternalLink,
   Inbox,
   Loader2,
-  ExternalLink
+  Trash2,
 } from "lucide-react";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { sessionApi } from "../api/client";
 
 const HistoryPage: React.FC = () => {
@@ -41,18 +41,18 @@ const HistoryPage: React.FC = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-GB", { 
-      day: "2-digit", 
-      month: "short", 
-      year: "numeric" 
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleTimeString("en-GB", { 
-      hour: "2-digit", 
-      minute: "2-digit" 
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -61,7 +61,9 @@ const HistoryPage: React.FC = () => {
       <div className="min-h-screen pt-28 flex items-center justify-center bg-[#090a0c]">
         <div className="text-center space-y-4">
           <Loader2 className="animate-spin text-[#e8a020] mx-auto" size={40} />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Retrieving audit trail...</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+            Retrieving audit trail...
+          </p>
         </div>
       </div>
     );
@@ -75,14 +77,17 @@ const HistoryPage: React.FC = () => {
           <div className="inline-flex items-center">
             <span className="badge-glow">Audit Trail</span>
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tight leading-none">History</h1>
+          <h1 className="text-4xl font-black text-white tracking-tight leading-none">
+            History
+          </h1>
           <p className="text-slate-500 font-medium max-w-xl">
-            Access your recent engineering sessions and AI-explained connection analyses.
+            Access your recent engineering sessions and AI-explained connection
+            analyses.
           </p>
         </div>
-        
-        <Link 
-          to="/analyze" 
+
+        <Link
+          to="/analyze"
           className="btn-primary py-3 px-8 flex items-center gap-3"
         >
           <Calculator size={20} />
@@ -93,7 +98,7 @@ const HistoryPage: React.FC = () => {
       {sessions && sessions.length > 0 ? (
         <div className="grid gap-4 animate-fade-in">
           {sessions.map((session: any) => (
-            <div 
+            <div
               key={session.id}
               onClick={() => navigate(`/results/${session.id}`)}
               className="card p-6 cursor-pointer hover:border-white/10 group bg-white/[0.02]"
@@ -121,12 +126,16 @@ const HistoryPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <button 
+                  <button
                     onClick={(e) => handleDelete(e, session.id)}
                     disabled={deleteMutation.isPending}
                     className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-80 disabled:cursor-not-allowed"
                   >
-                    {deletingId === session.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                    {deletingId === session.id ? (
+                      <Loader2 className="animate-spin" size={16} />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
                   </button>
                   <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-slate-600 group-hover:bg-[#e8a020] group-hover:text-[#090a0c] transition-all">
                     <ChevronRight size={18} />
@@ -141,10 +150,14 @@ const HistoryPage: React.FC = () => {
           <div className="w-16 h-16 bg-white/5 rounded-2xl mx-auto flex items-center justify-center text-slate-700 mb-6">
             <Inbox size={32} />
           </div>
-          <h2 className="text-xl font-black text-white mb-2 uppercase tracking-tight">No history yet</h2>
-          <p className="text-slate-500 font-medium mb-8 max-w-sm mx-auto">Perform your first analysis to see your engineering history here.</p>
-          <Link 
-            to="/analyze" 
+          <h2 className="text-xl font-black text-white mb-2 uppercase tracking-tight">
+            No history yet
+          </h2>
+          <p className="text-slate-500 font-medium mb-8 max-w-sm mx-auto">
+            Perform your first analysis to see your engineering history here.
+          </p>
+          <Link
+            to="/analyze"
             className="text-[#e8a020] text-sm font-black uppercase tracking-widest hover:underline flex items-center justify-center gap-2"
           >
             Start Analysis <ExternalLink size={16} />

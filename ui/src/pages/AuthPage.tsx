@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { Calculator, ShieldCheck, Zap, Globe, Loader2 } from "lucide-react";
+import { Calculator, Globe, Loader2, ShieldCheck, Zap } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../contexts/AuthContext";
 
 const AuthPage: React.FC = () => {
-  const { loginWithGoogle, isAuthenticated, isLoading, isAuthActionLoading } = useAuth();
+  const { loginWithGoogle, isAuthenticated, isLoading, isAuthActionLoading } =
+    useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -26,7 +27,9 @@ const AuthPage: React.FC = () => {
         await loginWithGoogle(response.credential);
       } catch (error) {
         console.error("Google Login Error:", error);
-        setLoginError("Sign-in failed. Please verify server configuration and try again.");
+        setLoginError(
+          "Sign-in failed. Please verify server configuration and try again.",
+        );
       }
     }
   };
@@ -61,7 +64,11 @@ const AuthPage: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-center py-4">
               <div className="relative w-full max-w-[360px]">
-                <div className={isAuthActionLoading ? "opacity-50 pointer-events-none" : ""}>
+                <div
+                  className={
+                    isAuthActionLoading ? "opacity-50 pointer-events-none" : ""
+                  }
+                >
                   <GoogleLogin
                     onSuccess={handleSuccess}
                     onError={handleError}
@@ -83,7 +90,9 @@ const AuthPage: React.FC = () => {
             </div>
 
             {loginError && (
-              <p className="text-xs text-red-400 text-center font-semibold">{loginError}</p>
+              <p className="text-xs text-red-400 text-center font-semibold">
+                {loginError}
+              </p>
             )}
 
             <div className="relative">
@@ -91,25 +100,27 @@ const AuthPage: React.FC = () => {
                 <div className="w-full border-t border-slate-800"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#0f172a] px-2 text-slate-500">Secure Access Only</span>
+                <span className="bg-[#0f172a] px-2 text-slate-500">
+                  Secure Access Only
+                </span>
               </div>
             </div>
 
             {/* Features List */}
             <div className="grid grid-cols-1 gap-4 pt-4">
-              <FeatureItem 
-                icon={<ShieldCheck className="text-[#e8a020]" size={18} />} 
-                title="BS 5950 Compliant" 
+              <FeatureItem
+                icon={<ShieldCheck className="text-[#e8a020]" size={18} />}
+                title="BS 5950 Compliant"
                 desc="Verified structural calculations"
               />
-              <FeatureItem 
-                icon={<Zap className="text-[#e8a020]" size={18} />} 
-                title="AI Extraction" 
+              <FeatureItem
+                icon={<Zap className="text-[#e8a020]" size={18} />}
+                title="AI Extraction"
                 desc="Parse parameters using Gemini"
               />
-              <FeatureItem 
-                icon={<Globe className="text-[#e8a020]" size={18} />} 
-                title="Cloud Sync" 
+              <FeatureItem
+                icon={<Globe className="text-[#e8a020]" size={18} />}
+                title="Cloud Sync"
                 desc="Access your history anywhere"
               />
             </div>
@@ -124,7 +135,11 @@ const AuthPage: React.FC = () => {
   );
 };
 
-const FeatureItem: React.FC<{ icon: React.ReactNode, title: string, desc: string }> = ({ icon, title, desc }) => (
+const FeatureItem: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}> = ({ icon, title, desc }) => (
   <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-white/5 transition-colors group">
     <div className="mt-0.5 p-2 bg-slate-800 rounded-lg group-hover:bg-[#e8a020]/10 transition-colors">
       {icon}

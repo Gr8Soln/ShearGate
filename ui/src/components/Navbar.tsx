@@ -1,13 +1,13 @@
+import {
+  BookOpen,
+  Calculator,
+  Loader2,
+  Menu,
+  User as UserIcon,
+  X,
+} from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  Calculator,
-  BookOpen,
-  Menu,
-  X,
-  User as UserIcon,
-  Loader2
-} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar: React.FC = () => {
@@ -16,9 +16,23 @@ const Navbar: React.FC = () => {
   const location = useLocation();
 
   const navItems = [
-    { name: "Home", path: "/", icon: <div className="w-1.5 h-1.5 rounded-full bg-slate-500" /> },
-    { name: "Analyze", path: "/analyze", icon: <Calculator size={16} />, private: true },
-    { name: "BS 5950 Clauses", path: "/clauses", icon: <BookOpen size={16} />, private: false },
+    {
+      name: "Home",
+      path: "/",
+      icon: <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />,
+    },
+    {
+      name: "Analyze",
+      path: "/analyze",
+      icon: <Calculator size={16} />,
+      private: true,
+    },
+    {
+      name: "BS 5950 Clauses",
+      path: "/clauses",
+      icon: <BookOpen size={16} />,
+      private: false,
+    },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -46,21 +60,25 @@ const Navbar: React.FC = () => {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-1">
             <div className="flex items-center space-x-1 bg-white/5 p-1 rounded-xl border border-white/5 mr-6">
-              {navItems.map((item) => (
-                (!item.private || isAuthenticated) && (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${isActive(item.path)
-                        ? "bg-[#161a1f] text-[#e8a020] shadow-sm"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
+              {navItems.map(
+                (item) =>
+                  (!item.private || isAuthenticated) && (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                        isActive(item.path)
+                          ? "bg-[#161a1f] text-[#e8a020] shadow-sm"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
                       }`}
-                  >
-                    {isActive(item.path) && <div className="w-1 h-1 rounded-full bg-[#e8a020]" />}
-                    <span>{item.name}</span>
-                  </Link>
-                )
-              ))}
+                    >
+                      {isActive(item.path) && (
+                        <div className="w-1 h-1 rounded-full bg-[#e8a020]" />
+                      )}
+                      <span>{item.name}</span>
+                    </Link>
+                  ),
+              )}
             </div>
 
             <div className="flex items-center space-x-4">
@@ -68,7 +86,9 @@ const Navbar: React.FC = () => {
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
                     <UserIcon size={14} className="text-[#e8a020]" />
-                    <span className="text-xs font-bold text-slate-300">{user?.name.split(' ')[0]}</span>
+                    <span className="text-xs font-bold text-slate-300">
+                      {user?.name.split(" ")[0]}
+                    </span>
                   </div>
                   <button
                     onClick={() => void logout()}
@@ -87,10 +107,7 @@ const Navbar: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  <Link
-                    to="/auth"
-                    className="btn-primary"
-                  >
+                  <Link to="/auth" className="btn-primary">
                     Login
                   </Link>
                 </>
@@ -113,24 +130,28 @@ const Navbar: React.FC = () => {
       {/* Mobile Nav */}
       {isOpen && (
         <div className="md:hidden bg-[#090a0c] border-b border-white/5 px-4 pt-2 pb-6 space-y-2">
-          {navItems.map((item) => (
-            (!item.private || isAuthenticated) && (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-bold ${isActive(item.path)
-                    ? "bg-[#e8a020]/10 text-[#e8a020]"
-                    : "text-slate-400"
+          {navItems.map(
+            (item) =>
+              (!item.private || isAuthenticated) && (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-bold ${
+                    isActive(item.path)
+                      ? "bg-[#e8a020]/10 text-[#e8a020]"
+                      : "text-slate-400"
                   }`}
-              >
-                <span>{item.name}</span>
-              </Link>
-            )
-          ))}
-            <div className="pt-4 flex flex-col gap-2">
-              <Link to="/auth" className="btn-primary w-full text-center">Login</Link>
-            </div>
+                >
+                  <span>{item.name}</span>
+                </Link>
+              ),
+          )}
+          <div className="pt-4 flex flex-col gap-2">
+            <Link to="/auth" className="btn-primary w-full text-center">
+              Login
+            </Link>
+          </div>
         </div>
       )}
     </nav>

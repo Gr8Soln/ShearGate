@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { User } from "../types";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { authApi } from "../api/client";
 import { queryClient } from "../api/queryClient";
+import { User } from "../types";
 
 interface AuthContextType {
   user: User | null;
@@ -15,7 +21,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthActionLoading, setIsAuthActionLoading] = useState(false);
@@ -47,7 +55,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async (credential: string) => {
     setIsAuthActionLoading(true);
     try {
-      const { access_token, refresh_token, user: userData } = await authApi.loginWithGoogle(credential);
+      const {
+        access_token,
+        refresh_token,
+        user: userData,
+      } = await authApi.loginWithGoogle(credential);
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("refresh_token", refresh_token);
       setUser(userData);
@@ -78,15 +90,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [logout]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      isLoading,
-      isAuthActionLoading,
-      loginWithGoogle,
-      logout,
-      refreshUser
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        isAuthActionLoading,
+        loginWithGoogle,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
