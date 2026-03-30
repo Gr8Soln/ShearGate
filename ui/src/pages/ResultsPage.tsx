@@ -10,6 +10,7 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { BlockMath } from "react-katex";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { explainApi, sessionApi } from "../api/client";
 import { BS5950_CLAUSES, BS5950_TABLES } from "../data/bs5950";
@@ -331,7 +332,11 @@ const ResultsPage: React.FC = () => {
                     <XCircle size={16} />
                   </button>
                 </div>
-                <ReferenceDetail id={selectedRef.id} type={selectedRef.type} />
+                <ReferenceDetail
+                  id={selectedRef.id}
+                  type={selectedRef.type}
+                  onRefClick={onRefClick}
+                />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 opacity-30">
@@ -359,10 +364,11 @@ const ResultsPage: React.FC = () => {
   );
 };
 
-const ReferenceDetail: React.FC<{ id: string; type: "clause" | "table" }> = ({
-  id,
-  type,
-}) => {
+const ReferenceDetail: React.FC<{
+  id: string;
+  type: "clause" | "table";
+  onRefClick: (id: string, type: "clause" | "table") => void;
+}> = ({ id, type, onRefClick }) => {
   const clause = type === "clause" ? BS5950_CLAUSES[id] : null;
   const table = type === "table" ? BS5950_TABLES[id] : null;
 
@@ -372,14 +378,12 @@ const ReferenceDetail: React.FC<{ id: string; type: "clause" | "table" }> = ({
         <h5 className="font-black text-white text-lg tracking-tight leading-tight">
           {clause.title}
         </h5>
-        <p className="text-sm text-slate-400 leading-relaxed font-medium">
-          {clause.content}
-        </p>
+        <div className="text-sm text-slate-400 leading-relaxed font-medium">
+          <ParseDescription text={clause.content} onRefClick={onRefClick} />
+        </div>
         {clause.equation && (
-          <div className="formula-box text-center p-4">
-            <span className="text-lg font-mono text-[#e8a020]">
-              {clause.equation}
-            </span>
+          <div className="formula-box text-center p-4 text-[#e8a020]">
+            <BlockMath math={clause.equation} />
           </div>
         )}
       </div>
