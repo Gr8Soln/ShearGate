@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 from typing import Any, Dict
@@ -113,6 +114,98 @@ async def extract_from_text(question: str) -> Dict[str, Any]:
     except Exception as e:
         logger.exception("Failed to parse Anthropic extraction response: {}", e)
         return {"error": "Failed to parse Anthropic response", "raw": text if "text" in locals() else ""}
+
+
+async def extract_from_file(
+    file_bytes: bytes,
+    filename: str,
+    media_type: str | None,
+    question: str | None = None,
+) -> Dict[str, Any]:
+    """Extract connection parameters directly from image/PDF bytes using Anthropic."""
+    if client is None:
+        return {"error": "ANTHROPIC_API_KEY is not configured"}
+
+    if not media_type:
+        return {"error": "Uploaded file content type is missing"}
+
+    encoded = base64.b64encode(file_bytes).decode("utf-8")
+
+    content: list[dict[str, Any]] = []
+    if media_type.startswith("image/"):
+        content.append(
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": media_type,
+                    "data": encoded,
+                },
+            }
+        )
+    elif media_type == "application/pdf":
+        content.append(
+            {
+                "type": "document",
+                "source": {
+                    "type": "base64",
+                    "media_type": media_type,
+                    "data": encoded,
+                },
+            }
+        )
+    else:
+        return {
+            "error": (
+                f"Unsupported file type '{media_type}'. "
+                "Please upload an image or PDF file."
+            )
+        }
+
+    prompt = (
+        "Extract bolted-connection parameters from this engineering file and return ONLY valid JSON. "
+        "Prefer fields compatible with ShearGate inputs, such as: "
+        "bolt_grade, bolt_diameter, number_of_bolts, pitch, gauge, edge_distance, end_distance, "
+        "steel_grade, plate_thickness, applied_force, connection_type."
+    )
+    if question:
+        prompt += f"\nUser note: {question}"
+    prompt += f"\nFilename: {filename}"
+
+    content.append({"type": "text", "text": prompt})
+
+    try:
+        tried_models = []
+        last_error: Exception | None = None
+        for model_name in list(dict.fromkeys(FALLBACK_MODELS)):
+            tried_models.append(model_name)
+            try:
+                response = await client.messages.create(
+                    model=model_name,
+                    max_tokens=1200,
+                    temperature=0,
+                    system=SYSTEM_PROMPT,
+                    messages=[{"role": "user", "content": content}],
+                )
+                text = _extract_message_text(response)
+                text = _strip_markdown_fence(text)
+                return json.loads(text)
+            except Exception as e:
+                last_error = e
+                error_text = str(e)
+                if "not_found_error" in error_text or "model:" in error_text:
+                    continue
+                raise
+
+        raise RuntimeError(
+            f"No available Anthropic model found. Tried: {', '.join(tried_models)}"
+        ) from last_error
+    except Exception as e:
+        logger.exception("Failed to parse Anthropic file extraction response: {}", e)
+        return {
+            "error": "Failed to parse Anthropic file extraction response",
+            "raw": text if "text" in locals() else "",
+        }
 
 
 async def explain_reference(ref_id: str, ref_type: str) -> str:
