@@ -1,446 +1,464 @@
-# Block Shear Analyzer - Full Stack Evaluation Tool
+# ShearGate (Block Shear Analyzer)
 
-A comprehensive web application designed to evaluate and verify block shear capacities in steel connections precisely according to the stipulations of **BS 5950-1:2000**. The robust system features a React-vite frontend, a FastAPI asynchronous backend with strictly maintained typed interfaces, and Anthropic's Claude AI for interpreting textual or image-based structural engineering question payloads.
+ShearGate is a full-stack engineering web app for parsing structural connection inputs and evaluating block shear checks against BS 5950 context. The project combines a FastAPI backend, PostgreSQL persistence, JWT auth with Google sign-in, and a React + TypeScript frontend.
 
-## 🚀 Tech Stack
+This README is intentionally detailed and designed to be the single source of truth for setup, architecture, API behavior, environment variables, and deployment.
 
-### Frontend
+## 1. What This Project Does
 
-- **React.js & Vite** - Lightning-fast execution with Hot Module Replacement (HMR).
-- **TypeScript** - Enforcing robust type safety across calculation data models.
-- **Tailwind CSS** - Modern, utility-first UI styling.
+Core capabilities:
 
-### Backend
+1. Authenticate users with Google OAuth credential flow.
+2. Parse/normalize connection input from free text (and currently mocked file extraction path).
+3. Run backend block shear analysis.
+4. Persist sessions and messages per user.
+5. Generate AI explanations for both calculation results and code references.
+6. Let users browse BS5950 clauses/tables in the frontend.
 
-- **FastAPI** - High-performance asynchronous Python web framework.
-- **PostgreSQL & SQLAlchemy (asyncio)** - Pure relational, scalable datastore handling user sessions and authentication alongside Alembic for migrations.
-- **Pydantic** - Strict schema definitions for robust structural calculation input-validation.
+## 2. Current Tech Stack
 
-### Intelligence
+Backend:
 
-- **Claude AI (Anthropic)** - Processes natural language queries and diagram images to extract specific engineering parameters like bolt types, forces, and spatial geometries without strictly rigid form inputs.
-- **BS 5950-1:2000 Integration** - A dynamic repository cross-referencing individual step calculations directly to normative clauses like `Clause 6.2.4` and spacing tables (`T.30`, `T.34`).
+1. Python 3.11+
+2. FastAPI
+3. SQLAlchemy async ORM + asyncpg
+4. Alembic migrations
+5. Pydantic v2 + pydantic-settings
+6. JWT via python-jose
+7. Loguru logging
+8. AI SDKs installed: OpenAI, Anthropic, Google Generative AI
 
----
+Frontend:
 
-## 📋 Features
+1. React 18 + TypeScript
+2. Vite
+3. Tailwind CSS
+4. React Router
+5. React Query
+6. Axios
+7. KaTeX via react-katex
 
-### ✅ Theoretical Core & BS 5950 Compliance
+## 3. Repository Layout
 
-The calculation engine strictly respects block shear mechanics as per British Standards:
+Top-level:
 
-- **Mode 1 (Shear Yielding + Tension Rupture):** `P_{bs1} = 0.6 \cdot p_y \cdot A_v + p_y \cdot A_t`
-- **Mode 2 (Shear Rupture + Tension Rupture):** `P_{bs2} = f_u \cdot A_v + 0.5 \cdot f_u \cdot A_{tn}`
-- **Edge Distances:** Lookups for min/max edge definitions against table `T.30` and `T.31`.
-- **Bolt Gradings:** Shear and bearing derivations via `T.34` for normal 4.6 and 8.8 grade setups.
-- **Material Specs:** Integrated property definitions for typical S235, S275, and S355 steels.
+1. `app/` backend source
+2. `ui/` frontend source
+3. `migrations/` Alembic scripts
+4. `requirements.txt` backend dependencies
+5. `alembic.ini` migration config
+6. `start.sh` local orchestration script
+7. `docker-compose.yml` and `Dockerfile` optional container setup
+8. `.env.example` backend env template
+9. `ui/.env.example` frontend env template
 
-### ✅ Authentication & Lifecycle
+Backend noteworthy modules:
 
-- Stateless JWT token-based robust security.
-- Encrypted hashed passwords.
-- Structured session persistence. Users can view historic calculation summaries tracking their utilized ratios and margins of safety.
+1. `app/main.py` FastAPI app construction, CORS, logging middleware, startup hooks
+2. `app/core/config.py` typed settings and env parsing
+3. `app/core/db.py` engine/session/base/table bootstrap helper
+4. `app/models/domain.py` SQLAlchemy entities (`users`, `sessions`, `messages`)
+5. `app/routers/auth.py` Google auth + token lifecycle
+6. `app/routers/extract.py` extraction + calculation + optional persistence
+7. `app/routers/explain.py` AI explanation endpoints
+8. `app/routers/sessions.py` CRUD for user sessions
+9. `app/services/ai_provider.py` AI provider switch dispatcher
+10. `app/services/anthropic_ai.py` Anthropic implementation
+11. `app/services/openai_ai.py` OpenAI implementation
+12. `app/services/gemini.py` Gemini implementation
+13. `app/services/claude.py` legacy Anthropic-compatible module for older routes
 
-### ✅ AI-Powered Parsing
+Frontend noteworthy modules:
 
-- **Text Queries:** Provide paragraph descriptions of connections (e.g., "A double angle with 4 M20 8.8 bolts..."). The AI translates this to a typed `ConnectionInputs` object.
-- **Image Intelligence:** OCR diagram detection to bridge conventional assignment handouts straight to computations.
+1. `ui/src/api/client.ts` API client, auth token attach, refresh interceptor
+2. `ui/src/contexts/AuthContext.tsx` auth state + login/logout flows
+3. `ui/src/pages/AnalyzePage.tsx` input workflow
+4. `ui/src/pages/ResultsPage.tsx` result rendering + AI narrative + references
+5. `ui/src/pages/ClausesPage.tsx` clause/table browser
+6. `ui/src/data/bs5950.ts` in-app clause/table source data
+7. `ui/src/utils/parseDescription.tsx` reference + math parsing and rendering
+8. `ui/src/utils/referenceIds.ts` clause/table reference normalization
 
----
+## 4. Backend Runtime Behavior
 
-## 🛠️ Setup Instructions
+Startup flow in `app/main.py`:
 
-### Prerequisites
+1. Configure Loguru logging.
+2. Build FastAPI app metadata.
+3. Apply CORS from settings.
+4. Register request timing middleware.
+5. Include active routers: `auth`, `extract`, `explain`, `sessions`.
+6. On startup, ensure DB tables exist via `create_tables_if_not_exists()`.
 
-- Python 3.11+
-- Node.js & npm (or Bun/Yarn)
-- PostgreSQL 14+
-- Anthropic API Key
+Important note:
 
-### 1. Database Setup (PostgreSQL)
+1. `parse` and `clauses` routers exist in code but are not currently included in `app/main.py`.
 
-```bash
-psql -U postgres
-CREATE DATABASE blockshear;
-\q
-```
+## 5. Database Model (Actual)
 
-### 2. Environment Configuration
+Tables defined in `app/models/domain.py`:
 
-Copy the example `.env` file to `.env`:
+1. `users`
+2. `sessions`
+3. `messages`
 
-```bash
-cp .env.example .env
-```
+Entity summary:
 
-**Required `.env` variables:**
+1. `users` has Google identity (`google_id`), profile metadata, and timestamps.
+2. `sessions` belongs to a user and stores title + timestamps.
+3. `messages` belongs to both session and user, and stores raw input, parsed payload, result JSON, pass flag, AI explanation.
+
+Relationships:
+
+1. `User` -> many `Session`
+2. `User` -> many `Message`
+3. `Session` -> many `Message`
+
+## 6. Environment Variables (Backend)
+
+Defined by `app/core/config.py`:
+
+1. `DATABASE_URL` (required)
+2. `JWT_SECRET` (required)
+3. `ALGORITHM` (default `HS256`)
+4. `ACCESS_TOKEN_EXPIRE_MINUTES` (default 10080)
+5. `REFRESH_TOKEN_EXPIRE_MINUTES` (default 43200)
+6. `GOOGLE_CLIENT_ID` (required)
+7. `AI_PROVIDER` (default `anthropic`, allowed: `anthropic`, `openai`, `gemini`)
+8. `OPENAI_API_KEY` (optional unless provider is `openai`)
+9. `OPENAI_MODEL` (default `gpt-4o-mini`)
+10. `GEMINI_API_KEY` (optional unless provider is `gemini`)
+11. `GEMINI_MODEL` (default `gemini-2.0-flash`)
+12. `ANTHROPIC_API_KEY` (optional unless provider is `anthropic`)
+13. `ANTHROPIC_MODEL` (default `claude-3-5-haiku-20241022`)
+14. `ENVIRONMENT` (default `development`)
+15. `CORS_ORIGINS` (comma-separated string)
+16. `CORS_ORIGIN_REGEX` (default ngrok pattern)
+
+Template file:
+
+1. Backend template in `.env.example`
+
+Example backend `.env`:
 
 ```env
-# Database Configuration
 DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/blockshear
-
-# Security (Generate via: openssl rand -hex 32)
-SECRET_KEY=your-secret-key-here
+JWT_SECRET=replace-with-long-random-secret
 ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=120
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+REFRESH_TOKEN_EXPIRE_MINUTES=43200
 
-# AI Parsing
-ANTHROPIC_API_KEY=your_anthropic_key_here
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
-# Internal Config
-CORS_ORIGINS=http://localhost:5173
+AI_PROVIDER=anthropic
+
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.0-flash
+
+ANTHROPIC_API_KEY=your-anthropic-key
+ANTHROPIC_MODEL=claude-3-5-haiku-20241022
+
+ENVIRONMENT=development
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
 
-### 3. Application Startup
+## 7. Environment Variables (Frontend)
 
-A unified startup bash script is provided for UNIX/POSIX-like environments (Linux, macOS, Git Bash on Windows):
+From `ui/.env.example`:
+
+1. `VITE_API_URL`
+2. `VITE_GOOGLE_CLIENT_ID`
+
+Example frontend `.env`:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+```
+
+## 8. AI Provider System
+
+Selector:
+
+1. `app/services/ai_provider.py` reads `settings.AI_PROVIDER` and dispatches to one of:
+2. `app/services/anthropic_ai.py`
+3. `app/services/openai_ai.py`
+4. `app/services/gemini.py`
+
+What is currently used by active API routes:
+
+1. `extract` and `explain` routes call `app/services/ai_provider.py`
+
+Provider behavior notes:
+
+1. Anthropic implementation includes model fallback attempts for model-not-found errors.
+2. Explanation prompts enforce cleaner output formatting and inline LaTeX guidance.
+3. File extraction endpoint is currently placeholder/mock in backend (`/extract/file`).
+
+## 9. API Endpoints (Active)
+
+Base URL (local):
+
+1. `http://localhost:8000`
+
+Health:
+
+1. `GET /`
+
+Auth:
+
+1. `POST /auth/google`
+2. `POST /auth/refresh`
+3. `GET /auth/me`
+4. `POST /auth/logout`
+
+Extraction:
+
+1. `POST /extract/text`
+2. `POST /extract/file`
+
+Explain:
+
+1. `POST /explain/result`
+2. `POST /explain/reference`
+
+Sessions:
+
+1. `GET /sessions`
+2. `POST /sessions`
+3. `GET /sessions/{session_id}`
+4. `PATCH /sessions/{session_id}`
+5. `DELETE /sessions/{session_id}`
+
+Legacy/not currently mounted in app:
+
+1. `/parse/*` routes in `app/routers/parse.py`
+2. `/clauses/*` route in `app/routers/clauses.py`
+
+## 10. Frontend API Client Contracts
+
+In `ui/src/api/client.ts`:
+
+1. Access token attached from localStorage.
+2. 401 interceptor attempts refresh with `refresh_token`.
+3. On refresh failure, tokens are cleared and user redirected.
+
+Mapped helper APIs:
+
+1. `authApi`: loginWithGoogle/getMe/logout
+2. `extractApi`: extractText/extractFile
+3. `explainApi`: explainResult/explainReference
+4. `sessionApi`: list/get/create/update/delete
+
+## 11. Local Development Setup (No Docker)
+
+Prerequisites:
+
+1. Python 3.11+
+2. Node 18+
+3. npm
+4. PostgreSQL
+
+Steps:
+
+1. Create Python virtual environment.
+2. Install backend deps.
+3. Configure backend env.
+4. Run migrations.
+5. Install frontend deps.
+6. Start backend and frontend.
+
+Commands (manual):
+
+```bash
+# from repo root
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+cp .env.example .env
+
+alembic upgrade head
+
+# backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+```bash
+# frontend
+cd ui
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Helpful frontend commands:
+
+1. `npm run dev`
+2. `npm run type-check`
+3. `npm run build`
+4. `npm run preview`
+
+## 12. Local Development via start.sh
+
+`start.sh` does the following:
+
+1. Ensures Python and virtualenv.
+2. Installs requirements if needed.
+3. Loads `.env`.
+4. Runs `alembic upgrade head` if Alembic config exists.
+5. Installs UI dependencies if needed.
+6. Runs frontend in background.
+7. Runs backend with uvicorn.
+
+Run:
 
 ```bash
 chmod +x start.sh
 ./start.sh
 ```
 
-This orchestrated script will automatically:
+## 13. Migrations and Schema Management
 
-1. Detect your Python version
-2. Verify existing virtual environments
-3. Validate and sync Backend `requirements.txt` via pip
-4. Invoke Alembic for iterative PostgreSQL datastore schema migrations
-5. Boot up the Vite frontend in a background loop (`http://localhost:5173`)
-6. Execute the Uvicorn FastAPI backend visibly (`http://localhost:8000`)
+Alembic:
 
----
+1. Config file: `alembic.ini`
+2. Environment: `migrations/env.py`
+3. Metadata source: `app.core.db.Base.metadata`
 
-## 📚 Core Routing Mapping
-
-The API encapsulates several distinct boundaries supporting the UI. All endpoints trace off `http://localhost:8000`.
-
-- `POST /auth/login`, `POST /auth/signup` - Maps to frontend `authFetch().` Returns JWT contexts.
-- `POST /calculate` - Directly submits standardized JSON typed forms against the `BS5950/block_shear.py` derivation engine.
-- `POST /parse/text|image` - Interfaces Anthropic prompts. Returns inferred JSON shapes matching `ConnectionInputs`.
-- `GET /clauses/T.{num}` - Dynamically renders BS 5950 engineering table contents straight to interactive React `ResultsPage.tsx` overlay components.
-
----
-
-## 🔧 File Structure Hierarchy
-
-```text
-blockshear/
-├── .env                       # Secrets and Environment Variables
-├── docker-compose.yml         # Container Orchestration
-├── requirements.txt           # Python Dependency Maps
-├── start.sh                   # Main initialization pipeline
-├── app/                       # FastAPI Backend Ecosystem
-│   ├── config.py              # Pydantic Settings Validations
-│   ├── db.py                  # PostgreSQL async engine definition
-│   ├── main.py                # ASGI Route and App Integrator
-│   ├── models/                # SQLAlchemy Entity Relational mappings
-│   ├── routers/               # Isolated domain-specific logic handles (Auth, Parse)
-│   ├── schemas/               # Validations (Connection Inputs, Calculation Steps)
-│   └── services/              # Sub-domains
-│       └── bs5950/            # Distinct mechanical evaluation logic engines (.py)
-└── ui/                        # React + Vite Client
-    ├── index.html             # Entry template
-    ├── package.json           # Node Packages
-    ├── vite.config.ts         # Fast-bundler configurations
-    └── src/
-        ├── api/               # Abstracted async logic fetching and error parsing
-        ├── components/        # Isolated modular fragments (Navbar, Context Modals)
-        ├── contexts/          # React Auth Providers & Access Controls
-        ├── data/              # Default Fallback Models
-        └── pages/             # Routing Component Tree Views
-```
-
----
-
-## 🎯 Core Features Explained
-
-### Block Shear Calculator
-
-Located in `app/services/calculator.py`
-
-**BS 5950 Clause 6.2.4 Implementation:**
-
-```python
-# Mode 1: Shear yielding + Tension rupture
-Pbs1 = 0.6 × py × Av + py × At
-
-# Mode 2: Shear rupture + Tension rupture
-Pbs2 = fu × Av + 0.5 × fu × Atn
-
-# Design capacity
-Pbs = min(Pbs1, Pbs2)
-```
-
-**Material Properties:**
-
-- S235: py=235 N/mm², fu=360 N/mm²
-- S275: py=275 N/mm², fu=430 N/mm²
-- S355: py=355 N/mm², fu=510 N/mm²
-
-**Bolt Grades:**
-
-- 4.6: ps=160 N/mm², pt=195 N/mm²
-- 8.8: ps=375 N/mm², pt=450 N/mm²
-
-### AI Question Parser
-
-Located in `app/services/ai_parser.py`
-
-**Capabilities:**
-
-- Extract bolt specifications (grade, diameter, count)
-- Identify material properties
-- Parse geometric dimensions
-- Handle both text and image inputs
-- Fill missing values with sensible defaults
-
-**Example Input:**
-
-```
-"4 M20 Grade 8.8 bolts, S275 10mm plate,
-pitch 70mm, edge 50mm, gauge 60mm, load 320kN"
-```
-
-**Extracted Output:**
-
-```json
-{
-  "bolt_grade": "8.8",
-  "bolt_diameter": 20,
-  "number_of_bolts": 4,
-  "plate_material": "S275",
-  "plate_thickness": 10,
-  "pitch": 70,
-  "edge_distance": 50,
-  "gauge": 60,
-  "applied_load": 320
-}
-```
-
----
-
-## 🔐 Security
-
-### Authentication Flow
-
-1. User registers with email + password
-2. Password is hashed with bcrypt
-3. User logs in with credentials
-4. Server returns JWT access token
-5. Client sends token in `Authorization: Bearer <token>` header
-6. Server validates token and returns user data
-
-### JWT Token Structure
-
-```json
-{
-  "sub": "user@email.com",
-  "exp": 1234567890
-}
-```
-
-**Token expires after:** 30 minutes (configurable)
-
----
-
-## 🚢 Deployment
-
-### Option 1: Railway
+Create migration:
 
 ```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login
-railway login
-
-# Initialize project
-railway init
-
-# Add environment variables
-railway variables set DATABASE_URL=postgresql://...
-railway variables set ANTHROPIC_API_KEY=sk-...
-railway variables set SECRET_KEY=$(openssl rand -hex 32)
-
-# Deploy
-railway up
+alembic revision --autogenerate -m "describe change"
 ```
 
-### Option 2: Render
-
-1. Connect GitHub repo
-2. Add environment variables in dashboard
-3. Deploy automatically on push
-
-### Option 3: Docker
+Apply migration:
 
 ```bash
-# Build image
-docker build -t blockshear-api .
-
-# Run container
-docker run -d -p 8000:8000 \
-  -e DATABASE_URL=postgresql://... \
-  -e ANTHROPIC_API_KEY=sk-... \
-  blockshear-api
+alembic upgrade head
 ```
 
----
+Important:
 
-## 📊 Database Schemas
+1. App startup also calls `create_tables_if_not_exists()`.
+2. Prefer migrations for controlled schema changes in production.
 
-```javascript
-{
-  _id: ObjectId,
-  user_id: Integer,
-  timestamp: DateTime,
-  question_text: String (optional),
-  inputs: {
-    bolt_grade: String,
-    bolt_diameter: Number,
-    // ... all input fields
-  },
-  result: {
-    block_shear_occurs: Boolean,
-    block_shear_capacity: Number,
-    // ... result fields
-  },
-  steps: [
-    {
-      step: Number,
-      title: String,
-      content: String,
-      clause: String,
-      formulas: [String]
-    }
-  ]
-}
-```
+## 14. Deployment (Render, No Docker)
 
-### PostgreSQL - Users
+Create a Render Web Service:
 
-```sql
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  hashed_password VARCHAR(255) NOT NULL,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-```
+1. Environment: Python
+2. Root: repo root
+3. Build command: `pip install -r requirements.txt`
+4. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+5. Optional pre-deploy command: `alembic upgrade head`
 
-### PostgreSQL - Clauses
+Required env on Render:
 
-```sql
-CREATE TABLE clauses (
-  id SERIAL PRIMARY KEY,
-  number VARCHAR(10) UNIQUE NOT NULL,
-  title TEXT NOT NULL,
-  section VARCHAR(100),
-  content TEXT NOT NULL,
-  equation TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-```
+1. `DATABASE_URL`
+2. `JWT_SECRET`
+3. `GOOGLE_CLIENT_ID`
+4. `AI_PROVIDER`
+5. provider API key/model pair for selected provider
+6. `CORS_ORIGINS`
+7. `ENVIRONMENT=production`
 
----
+## 15. Docker Files (Optional)
 
-## 🐛 Troubleshooting
+Docker artifacts included:
 
-### Database Connection Issues
+1. `Dockerfile` for backend image
+2. `docker-compose.yml` for local multi-service setup
 
-**PostgreSQL:**
+These are optional and not required for local no-Docker or Render no-Docker workflows.
+
+## 16. Known Gaps / Current Implementation Notes
+
+1. `extract/file` currently returns mocked parsed params and uses analysis on that mock payload.
+2. Some legacy routes/modules exist (`parse`, `clauses`, `claude.py`) and may be kept for compatibility or experimentation.
+3. README and code should be kept aligned whenever routes/providers are switched.
+
+## 17. Troubleshooting Guide
+
+Auth fails:
+
+1. Verify `GOOGLE_CLIENT_ID` backend value and frontend `VITE_GOOGLE_CLIENT_ID` match expected OAuth app.
+2. Ensure allowed origins/redirect setup in Google Cloud console.
+
+401 loops on frontend:
+
+1. Check `/auth/refresh` success path.
+2. Verify `JWT_SECRET` consistency and token expiry settings.
+
+CORS blocked:
+
+1. Add frontend origin to `CORS_ORIGINS`.
+2. Keep comma-separated values without spaces or trim them.
+
+Anthropic model not found:
+
+1. Use `ANTHROPIC_MODEL=claude-3-5-haiku-20241022`.
+2. Service includes fallback attempts for compatible models.
+
+Database migration errors:
+
+1. Confirm `DATABASE_URL` has `postgresql+asyncpg://` scheme.
+2. Run `alembic upgrade head` manually and inspect output.
+
+Frontend build/type issues:
+
+1. Run `cd ui && npm run type-check` first.
+2. Then run `npm run build`.
+
+## 18. Security Notes
+
+1. Never commit real `.env` secrets.
+2. Rotate exposed keys immediately if leaked.
+3. Keep JWT secret long/random.
+4. Limit CORS to known frontend domains in production.
+
+## 19. Contribution Workflow
+
+Recommended dev flow:
+
+1. Create feature branch.
+2. Implement changes.
+3. Run backend sanity + frontend type-check.
+4. Update docs if behavior/config changes.
+5. Open PR with screenshots/log snippets where applicable.
+
+## 20. Quick Start Cheatsheet
+
+Backend quick start:
 
 ```bash
-# Check if running
-pg_isready
-
-# Restart service
-sudo service postgresql restart
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+alembic upgrade head
+uvicorn app.main:app --reload --port 8000
 ```
+
+Frontend quick start:
 
 ```bash
-# Check status
-mongosh --eval "db.adminCommand('ping')"
-
-# Restart
-sudo service mongod restart
+cd ui
+npm install
+copy .env.example .env
+npm run dev
 ```
 
-### API Key Issues
+Done. You should now have:
 
-```bash
-# Test Claude API key
-curl https://api.anthropic.com/v1/messages \
-  -H "anthropic-version: 2023-06-01" \
-  -H "x-api-key: YOUR_KEY" \
-  -H "content-type: application/json" \
-  -d '{"model":"claude-sonnet-4-20250514","max_tokens":10,"messages":[{"role":"user","content":"Hi"}]}'
-```
-
-### CORS Issues
-
-Add your frontend URL to `CORS_ORIGINS` in `.env`:
-
-```env
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://yourapp.com
-```
-
----
-
-## 📝 Development Notes
-
-### Adding New Clauses
-
-```python
-# In seed_db.py, add to CLAUSES_DATA list
-{
-    "number": "X.X.X",
-    "title": "Clause title",
-    "section": "Section name",
-    "content": "Full clause text...",
-    "equation": "Optional equation"
-}
-```
-
-Then run:
-
-```bash
-python seed_db.py
-```
-
-### Extending Calculator
-
-Edit `app/services/calculator.py` to add:
-
-- New failure modes
-- Additional checks
-- Different connection types
-
-### Custom AI Prompts
-
-Edit `app/services/ai_parser.py` to customize:
-
-- Extraction prompts
-- Default values
-- Validation logic
-
----
-
-## 🤝 Contributing
-
-This is an academic project for CVE505. Suggestions welcome!
-
----
-
-## 📄 License
-
-Educational project - all rights reserved.
-
----
-
-**Built with ❤️ for structural engineering education**
-
-CVE505: Design of Steel Structures
+1. Backend on `http://localhost:8000`
+2. Frontend on `http://localhost:5173` (or Vite-selected port)
+3. Swagger docs at `http://localhost:8000/docs`
