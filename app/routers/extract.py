@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/extract", tags=["Extraction"])
 @router.post("/text", response_model=Dict[str, Any])
 async def extract_text(
     extract_req: ExtractTextRequest,
-    session_id: Optional[str] = Form(None),
+    session_id: Optional[str] = Query(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
