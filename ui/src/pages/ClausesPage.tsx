@@ -9,6 +9,7 @@ import {
   REFERENCE_GROUPS,
 } from "../data/bs5950";
 import { ParseDescription } from "../utils/parseDescription";
+import { normalizeReferenceId } from "../utils/referenceIds";
 
 const ClausesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,8 +57,10 @@ const ClausesPage: React.FC = () => {
   };
 
   const handleSelect = (id: string, type?: "clause" | "table") => {
-    setSelectedId(id);
     const resolvedType = type || (BS5950_CLAUSES[id] ? "clause" : "table");
+    const normalizedId = normalizeReferenceId(id, resolvedType);
+
+    setSelectedId(normalizedId);
     setSelectedType(resolvedType);
     setAiInsight(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -228,7 +231,12 @@ const ClausesPage: React.FC = () => {
                           <button
                             key={ref}
                             onClick={() =>
-                              handleSelect(ref.replace("Table ", "T."))
+                              handleSelect(
+                                ref,
+                                ref.toLowerCase().includes("table")
+                                  ? "table"
+                                  : "clause",
+                              )
                             }
                             className="px-3 py-1.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-bold text-slate-500 hover:border-[#e8a020]/30 hover:text-white transition-all flex items-center gap-2"
                           >

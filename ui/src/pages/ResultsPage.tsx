@@ -2,20 +2,20 @@ import {
   ArrowLeft,
   BookOpen,
   CheckCircle2,
-  Download,
   Info,
   Loader2,
-  Printer,
   Sparkles,
   XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { BlockMath } from "react-katex";
 import { Link, useLocation, useParams } from "react-router-dom";
+
 import { explainApi, sessionApi } from "../api/client";
 import { BS5950_CLAUSES, BS5950_TABLES } from "../data/bs5950";
 import type { ConnectionInputs } from "../types";
 import { ParseDescription } from "../utils/parseDescription";
+import { normalizeReferenceId } from "../utils/referenceIds";
 
 interface CalculationStep {
   title: string;
@@ -88,7 +88,7 @@ const ResultsPage: React.FC = () => {
   };
 
   const onRefClick = (id: string, type: "clause" | "table") => {
-    setSelectedRef({ id, type });
+    setSelectedRef({ id: normalizeReferenceId(id, type), type });
   };
 
   if (!inputs || !result) {
@@ -122,15 +122,6 @@ const ResultsPage: React.FC = () => {
             Back to Analyze
           </span>
         </Link>
-        <div className="flex items-center space-x-3">
-          <button className="p-2 rounded-lg bg-white/5 border border-white/5 text-slate-500 hover:text-white transition-all">
-            <Printer size={18} />
-          </button>
-          <button className="btn-secondary py-2 px-5 flex items-center gap-2 text-sm">
-            <Download size={18} />
-            <span>Export PDF</span>
-          </button>
-        </div>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">

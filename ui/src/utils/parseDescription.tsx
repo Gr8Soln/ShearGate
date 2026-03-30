@@ -2,11 +2,50 @@ import "katex/dist/katex.min.css";
 import React from "react";
 import { InlineMath } from "react-katex";
 import { BS5950_CLAUSES, BS5950_TABLES } from "../data/bs5950";
+import { normalizeReferenceId } from "./referenceIds";
 
 interface ParseDescriptionProps {
   text: string;
   onRefClick: (refId: string, refType: "clause" | "table") => void;
 }
+
+const parseSubSupText = (text: string, keyPrefix: string) => {
+  const tokenRegex =
+    /\b([A-Za-z][A-Za-z0-9]*)_([A-Za-z0-9]+)\b|\b([A-Za-z0-9]+)\^([A-Za-z0-9+\-]+)\b/g;
+  const chunks: (string | JSX.Element)[] = [];
+  let last = 0;
+  let match;
+
+  while ((match = tokenRegex.exec(text)) !== null) {
+    if (match.index > last) {
+      chunks.push(text.substring(last, match.index));
+    }
+
+    if (match[1] && match[2]) {
+      chunks.push(
+        <span key={`${keyPrefix}-sub-${match.index}`}>
+          {match[1]}
+          <sub className="text-[0.72em] align-sub">{match[2]}</sub>
+        </span>,
+      );
+    } else if (match[3] && match[4]) {
+      chunks.push(
+        <span key={`${keyPrefix}-sup-${match.index}`}>
+          {match[3]}
+          <sup className="text-[0.72em] align-super">{match[4]}</sup>
+        </span>,
+      );
+    }
+
+    last = tokenRegex.lastIndex;
+  }
+
+  if (last < text.length) {
+    chunks.push(text.substring(last));
+  }
+
+  return chunks;
+};
 
 export const parseDescription = (
   text: string,
@@ -28,14 +67,18 @@ export const parseDescription = (
     const [, type, id] = match;
     const isClause = type === "CLAUSE";
     const refType = isClause ? "clause" : "table";
-    const exists = isClause ? !!BS5950_CLAUSES[id] : !!BS5950_TABLES[id];
+    const normalizedId = normalizeReferenceId(id, refType);
+    const exists =
+      refType === "clause"
+        ? !!BS5950_CLAUSES[normalizedId]
+        : !!BS5950_TABLES[normalizedId];
 
     parts.push(
       <button
         key={`ref-${match.index}`}
         onClick={(e) => {
           e.preventDefault();
-          onRefClick(id, refType);
+          onRefClick(normalizedId, refType);
         }}
         className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono text-xs font-bold mx-0.5 transition-all
           ${
@@ -44,7 +87,7 @@ export const parseDescription = (
               : "bg-[#4f9cf9]/10 text-[#4f9cf9] border border-[#4f9cf9]/30 hover:bg-[#4f9cf9]/20"
           }`}
       >
-        {isClause ? `Clause ${id}` : `Table ${id}`}
+        {isClause ? `Clause ${normalizedId}` : `Table ${normalizedId}`}
       </button>,
     );
 
@@ -86,7 +129,12 @@ export const parseDescription = (
       mathParts.push(part.substring(mathLastIndex));
     }
 
-    return mathParts;
+    // Third pass: apply fallback sub/sup formatting in non-LaTeX plain text.
+    return mathParts.flatMap((chunk, j) =>
+      typeof chunk === "string"
+        ? parseSubSupText(chunk, `chunk-${i}-${j}`)
+        : chunk,
+    );
   });
 };
 

@@ -119,7 +119,9 @@ async def explain_reference(ref_id: str, ref_type: str) -> str:
     """Explain a specific BS 5950 clause or table."""
     prompt = (
         f"Explain the purpose and application of {ref_type} {ref_id} "
-        "in the context of bolted connection design under BS 5950-1:2000."
+        "in the context of bolted connection design under BS 5950-1:2000. "
+        "Formatting rules: write symbols with inline LaTeX, e.g. $A_{e}$, $K_{e}$, $A_{tn}$, $P_{bs}$, $N/mm^2$. "
+        "Do not use plain compact tokens like Atn, Pbs, Ke, ae when a symbol form exists."
     )
 
     try:
@@ -167,7 +169,9 @@ async def explain_result(inputs: Dict[str, Any], result: Dict[str, Any]) -> str:
         "3) Under Key Checks, provide 3 to 5 bullet points using '- '.\n"
         "4) Do NOT echo raw dictionaries, arrays, quoted keys, braces, or the literal word 'steps'.\n"
         "5) Keep it concise and readable for engineers.\n"
-        "6) Reference standards with sentinels when relevant, e.g. [CLAUSE:6.2.4] or [TABLE:T.9].\n\n"
+        "6) Reference standards with sentinels when relevant, e.g. [CLAUSE:6.2.4] or [TABLE:T.9].\n"
+        "7) For variables and exponents, use inline LaTeX wrapped in $, e.g. $A_{tn}$, $P_{bs}$, $\\gamma_m$, $N/mm^2$.\n"
+        "8) Do not use plain compact tokens like Atn, Pbs, Ke, ae when a symbol form exists.\n\n"
         f"Inputs: {json.dumps(inputs)}\n"
         f"Result summary: {json.dumps(result_snapshot)}"
     )
