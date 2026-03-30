@@ -65,7 +65,7 @@ app.include_router(sessions.router)
 @app.on_event("startup")
 async def on_startup() -> None:
     # Ensure database tables exist
-    create_tables_if_not_exists()
+    await create_tables_if_not_exists()
     
     logger.info("ShearGate API started in {} mode", settings.ENVIRONMENT)
 

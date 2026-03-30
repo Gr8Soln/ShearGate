@@ -6,14 +6,21 @@ import {
   User as UserIcon,
   X,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout, isAuthActionLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const location = useLocation();
+  const firstName = user?.name?.split(" ")[0] ?? "User";
+  const avatarUrl = user?.avatar_url?.trim() || "";
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [avatarUrl]);
 
   const navItems = [
     {
@@ -85,9 +92,29 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
-                    <UserIcon size={14} className="text-[#e8a020]" />
+                    <div className="w-5 h-5 rounded-full overflow-hidden bg-[#161a1f] border border-white/10 shrink-0">
+                      {avatarUrl && !avatarLoadFailed ? (
+                        <img
+                          src={avatarUrl}
+                          alt={`${firstName} avatar`}
+                          className="w-full h-full object-cover"
+                          onError={() => setAvatarLoadFailed(true)}
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#e8a020]">
+                          {firstName?.[0] ? (
+                            <span className="text-[10px] font-black uppercase">
+                              {firstName[0]}
+                            </span>
+                          ) : (
+                            <UserIcon size={12} />
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <span className="text-xs font-bold text-slate-300">
-                      {user?.name.split(" ")[0]}
+                      {firstName}
                     </span>
                   </div>
                   <button
