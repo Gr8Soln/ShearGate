@@ -1,6 +1,6 @@
+import "katex/dist/katex.min.css";
 import React from "react";
 import { InlineMath } from "react-katex";
-import "katex/dist/katex.min.css";
 import { BS5950_CLAUSES, BS5950_TABLES } from "../data/bs5950";
 
 interface ParseDescriptionProps {
@@ -8,7 +8,10 @@ interface ParseDescriptionProps {
   onRefClick: (refId: string, refType: "clause" | "table") => void;
 }
 
-export const parseDescription = (text: string, onRefClick: (refId: string, refType: "clause" | "table") => void) => {
+export const parseDescription = (
+  text: string,
+  onRefClick: (refId: string, refType: "clause" | "table") => void,
+) => {
   if (!text) return null;
 
   // First, parse references like [CLAUSE:x.x.x]
@@ -22,7 +25,7 @@ export const parseDescription = (text: string, onRefClick: (refId: string, refTy
       parts.push(text.substring(lastIndex, match.index));
     }
 
-    const [fullMatch, type, id] = match;
+    const [, type, id] = match;
     const isClause = type === "CLAUSE";
     const refType = isClause ? "clause" : "table";
     const exists = isClause ? !!BS5950_CLAUSES[id] : !!BS5950_TABLES[id];
@@ -35,12 +38,14 @@ export const parseDescription = (text: string, onRefClick: (refId: string, refTy
           onRefClick(id, refType);
         }}
         className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono text-xs font-bold mx-0.5 transition-all
-          ${exists 
-            ? "bg-[#e8a020]/10 text-[#e8a020] border border-[#e8a020]/30 hover:bg-[#e8a020]/20" 
-            : "bg-[#4f9cf9]/10 text-[#4f9cf9] border border-[#4f9cf9]/30 hover:bg-[#4f9cf9]/20"}`}
+          ${
+            exists
+              ? "bg-[#e8a020]/10 text-[#e8a020] border border-[#e8a020]/30 hover:bg-[#e8a020]/20"
+              : "bg-[#4f9cf9]/10 text-[#4f9cf9] border border-[#4f9cf9]/30 hover:bg-[#4f9cf9]/20"
+          }`}
       >
         {isClause ? `Clause ${id}` : `Table ${id}`}
-      </button>
+      </button>,
     );
 
     lastIndex = refRegex.lastIndex;
@@ -66,9 +71,12 @@ export const parseDescription = (text: string, onRefClick: (refId: string, refTy
 
       const MathFormula = mathMatch[1];
       mathParts.push(
-        <span key={`math-${i}-${mathMatch.index}`} className="inline-block px-1 align-middle">
+        <span
+          key={`math-${i}-${mathMatch.index}`}
+          className="inline-block px-1 align-middle"
+        >
           <InlineMath math={MathFormula} />
-        </span>
+        </span>,
       );
 
       mathLastIndex = mathRegex.lastIndex;
@@ -82,6 +90,13 @@ export const parseDescription = (text: string, onRefClick: (refId: string, refTy
   });
 };
 
-export const ParseDescription: React.FC<ParseDescriptionProps> = ({ text, onRefClick }) => {
-  return <span>{parseDescription(text, onRefClick)}</span>;
+export const ParseDescription: React.FC<ParseDescriptionProps> = ({
+  text,
+  onRefClick,
+}) => {
+  return (
+    <span className="whitespace-pre-wrap break-words">
+      {parseDescription(text, onRefClick)}
+    </span>
+  );
 };

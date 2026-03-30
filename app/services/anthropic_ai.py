@@ -131,10 +131,45 @@ async def explain_reference(ref_id: str, ref_type: str) -> str:
 
 async def explain_result(inputs: Dict[str, Any], result: Dict[str, Any]) -> str:
     """Provide a narrative explanation of a calculation result."""
+    result_snapshot = {
+        "pass": result.get("pass"),
+        "utilization": result.get("utilization"),
+        "design_capacity_kN": result.get("Pbs"),
+        "applied_load_kN": inputs.get("appliedLoad") or inputs.get("applied_force"),
+        "material": inputs.get("plateMaterial") or inputs.get("steel_grade"),
+        "key_values": {
+            "py": result.get("py"),
+            "fu": result.get("fu"),
+            "Av": result.get("Av"),
+            "At": result.get("At"),
+            "Atn": result.get("Atn"),
+            "Pbs1": result.get("Pbs1"),
+            "Pbs2": result.get("Pbs2"),
+            "Pbs": result.get("Pbs"),
+        },
+        "steps": [
+            {
+                "title": step.get("title"),
+                "clause": step.get("clause"),
+                "description": step.get("description"),
+            }
+            for step in result.get("steps", [])[:6]
+            if isinstance(step, dict)
+        ],
+    }
+
     prompt = (
-        "Explain the following calculation result. "
-        f"Inputs: {json.dumps(inputs)}. Result: {json.dumps(result)}. "
-        "Highlight key checks, governing failure mode, and practical engineering interpretation."
+        "Write a clean engineering narrative for this bolted-connection result.\n\n"
+        "Output requirements (strict):\n"
+        "1) Use plain text only (no JSON, no markdown code fences).\n"
+        "2) Use exactly these section headers, each on its own line:\n"
+        "Summary:\nGoverning Check:\nKey Checks:\nPractical Interpretation:\n"
+        "3) Under Key Checks, provide 3 to 5 bullet points using '- '.\n"
+        "4) Do NOT echo raw dictionaries, arrays, quoted keys, braces, or the literal word 'steps'.\n"
+        "5) Keep it concise and readable for engineers.\n"
+        "6) Reference standards with sentinels when relevant, e.g. [CLAUSE:6.2.4] or [TABLE:T.9].\n\n"
+        f"Inputs: {json.dumps(inputs)}\n"
+        f"Result summary: {json.dumps(result_snapshot)}"
     )
 
     try:

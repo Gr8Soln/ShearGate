@@ -213,7 +213,7 @@ const ResultsPage: React.FC = () => {
                     Engineering Narrative
                   </h3>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                    Logic breakdown by Gemini 2.0
+                    Logic breakdown by AI
                   </p>
                 </div>
               </div>
