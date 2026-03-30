@@ -171,9 +171,16 @@ const ResultsPage: React.FC = () => {
                 <button
                   onClick={handleExplain}
                   disabled={isExplaining}
-                  className="btn-primary py-2 px-6 text-sm"
+                  className="btn-primary py-2 px-6 text-sm inline-flex items-center gap-2"
                 >
-                  {isExplaining ? <Loader2 className="animate-spin" size={16} /> : "Generate Narrative"}
+                  {isExplaining ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16} />
+                      Generating...
+                    </>
+                  ) : (
+                    "Generate Narrative"
+                  )}
                 </button>
               )}
             </div>
@@ -185,7 +192,14 @@ const ResultsPage: React.FC = () => {
               ) : (
                 <div className="text-center py-6 space-y-4">
                   <p className="text-slate-500 font-medium italic">Get a professional narrative explanation of this connection check.</p>
-                  <button onClick={handleExplain} className="text-[#e8a020] text-sm font-black uppercase tracking-widest hover:underline">Start AI Analysis</button>
+                  <button
+                    onClick={handleExplain}
+                    disabled={isExplaining}
+                    className="text-[#e8a020] text-sm font-black uppercase tracking-widest hover:underline disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                  >
+                    {isExplaining ? <Loader2 className="animate-spin" size={14} /> : null}
+                    {isExplaining ? "Analyzing..." : "Start AI Analysis"}
+                  </button>
                 </div>
               )}
             </div>

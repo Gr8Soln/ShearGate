@@ -283,9 +283,18 @@ const AnalyzePage: React.FC = () => {
                     disabled={isProcessing}
                     className="btn-primary w-full py-5 text-xl flex items-center justify-center gap-4 transition-all"
                   >
-                    <Calculator size={24} />
-                    <span>Run Analysis</span>
-                    <ArrowRight size={20} />
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} />
+                        <span>{processingStep || "Running analysis..."}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Calculator size={24} />
+                        <span>Run Analysis</span>
+                        <ArrowRight size={20} />
+                      </>
+                    )}
                   </button>
                   <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] text-center mt-6">
                     Source: BS 5950-1:2000 Structural Use of Steelwork

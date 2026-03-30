@@ -1,5 +1,6 @@
 import os
 from typing import List
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -33,10 +34,16 @@ class Settings(BaseSettings):
     # App settings
     ENVIRONMENT: str = "development"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    CORS_ORIGIN_REGEX: str = r"https://.*\.ngrok-free\.app"
     
     @property
     def cors_origins_list(self) -> List[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
+    @property
+    def cors_origin_regex(self) -> str | None:
+        regex = self.CORS_ORIGIN_REGEX.strip()
+        return regex or None
     
     model_config = SettingsConfigDict(
         env_file=".env",

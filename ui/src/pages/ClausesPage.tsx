@@ -219,9 +219,16 @@ const ClausesPage: React.FC = () => {
                     <button 
                       onClick={handleExplain}
                       disabled={isExplaining}
-                      className="btn-primary py-2 px-6 text-sm"
+                      className="btn-primary py-2 px-6 text-sm inline-flex items-center gap-2"
                     >
-                      {isExplaining ? <Loader2 className="animate-spin" size={16} /> : "Generate Insight"}
+                      {isExplaining ? (
+                        <>
+                          <Loader2 className="animate-spin" size={16} />
+                          Generating...
+                        </>
+                      ) : (
+                        "Generate Insight"
+                      )}
                     </button>
                   )}
                 </div>

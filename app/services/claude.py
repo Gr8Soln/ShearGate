@@ -3,6 +3,7 @@ import json
 from typing import Any, Dict, List, Optional
 
 from anthropic import Anthropic
+from loguru import logger
 
 from app.config import settings
 
@@ -60,7 +61,7 @@ async def parse_text_question(question: str) -> Dict[str, Any]:
         
         return json.loads(content)
     except Exception as e:
-        print(f"Error parsing Claude response: {e}")
+        logger.exception("Error parsing Claude response: {}", e)
         # Return fallback or raise
         return {}
 

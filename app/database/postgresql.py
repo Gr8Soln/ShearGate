@@ -1,4 +1,6 @@
 import asyncpg
+from loguru import logger
+
 from app.config import settings
 
 
@@ -15,14 +17,14 @@ class PostgreSQL:
             min_size=2,
             max_size=10
         )
-        print(f"✅ Connected to PostgreSQL")
+        logger.info("Connected to PostgreSQL")
     
     @classmethod
     async def disconnect(cls):
         """Close PostgreSQL connection pool"""
         if cls.pool:
             await cls.pool.close()
-            print("❌ Disconnected from PostgreSQL")
+            logger.info("Disconnected from PostgreSQL")
     
     @classmethod
     async def get_connection(cls):

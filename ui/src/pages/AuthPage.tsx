@@ -1,14 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { Calculator, ShieldCheck, Zap, Globe } from "lucide-react";
+import { Calculator, ShieldCheck, Zap, Globe, Loader2 } from "lucide-react";
 
 import { useAuth } from "../contexts/AuthContext";
 
 const AuthPage: React.FC = () => {
-  const { loginWithGoogle, isAuthenticated, isLoading } = useAuth();
+  const { loginWithGoogle, isAuthenticated, isLoading, isAuthActionLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -21,15 +22,18 @@ const AuthPage: React.FC = () => {
   const handleSuccess = async (response: any) => {
     if (response.credential) {
       try {
+        setLoginError(null);
         await loginWithGoogle(response.credential);
       } catch (error) {
         console.error("Google Login Error:", error);
+        setLoginError("Sign-in failed. Please verify server configuration and try again.");
       }
     }
   };
 
   const handleError = () => {
     console.error("Google Login Failed");
+    setLoginError("Google sign-in was cancelled or blocked.");
   };
 
   return (
@@ -56,17 +60,31 @@ const AuthPage: React.FC = () => {
         <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl relative">
           <div className="space-y-6">
             <div className="flex justify-center py-4">
-              <GoogleLogin
-                onSuccess={handleSuccess}
-                onError={handleError}
-                useOneTap
-                theme="filled_blue"
-                shape="pill"
-                size="large"
-                text="continue_with"
-                width="100%"
-              />
+              <div className="relative w-full max-w-[360px]">
+                <div className={isAuthActionLoading ? "opacity-50 pointer-events-none" : ""}>
+                  <GoogleLogin
+                    onSuccess={handleSuccess}
+                    onError={handleError}
+                    theme="filled_blue"
+                    shape="pill"
+                    size="large"
+                    text="continue_with"
+                    width="360"
+                  />
+                </div>
+
+                {isAuthActionLoading && (
+                  <div className="absolute inset-0 rounded-full bg-[#0b1220]/80 border border-white/10 flex items-center justify-center gap-2 text-sm text-slate-200 font-bold">
+                    <Loader2 className="animate-spin" size={16} />
+                    <span>Signing in...</span>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {loginError && (
+              <p className="text-xs text-red-400 text-center font-semibold">{loginError}</p>
+            )}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

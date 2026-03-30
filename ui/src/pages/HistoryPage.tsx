@@ -29,6 +29,8 @@ const HistoryPage: React.FC = () => {
     },
   });
 
+  const deletingId = deleteMutation.isPending ? deleteMutation.variables : null;
+
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -121,9 +123,10 @@ const HistoryPage: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <button 
                     onClick={(e) => handleDelete(e, session.id)}
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                    disabled={deleteMutation.isPending}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-80 disabled:cursor-not-allowed"
                   >
-                    <Trash2 size={16} />
+                    {deletingId === session.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
                   </button>
                   <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-slate-600 group-hover:bg-[#e8a020] group-hover:text-[#090a0c] transition-all">
                     <ChevronRight size={18} />

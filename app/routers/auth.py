@@ -1,15 +1,19 @@
-from fastapi import APIRouter, Depends, status, Request
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 import uuid
 from typing import Any, Dict
+
+from fastapi import APIRouter, Depends, Request, status
+from loguru import logger
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
 from app.db import get_db
 from app.models.domain import User
 from app.schemas.user import GoogleAuthRequest, TokenResponse, UserResponse
-from app.services.auth import create_access_token, create_refresh_token, get_current_user, decode_token
+from app.services.auth import (create_access_token, create_refresh_token,
+                               decode_token, get_current_user)
 from app.services.oauth import verify_google_token
-from app.utils.response import success_response, failure_response
-
+from app.utils.response import failure_response, success_response
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -23,22 +27,74 @@ async def google_auth(
     Finds or creates the user and returns JWT tokens.
     """
     profile = verify_google_token(auth_req.credential)
-    
-    # Check if user exists
-    result = await db.execute(select(User).where(User.google_id == profile["google_id"]))
-    user = result.scalar_one_or_none()
-    
-    if not user:
-        # Create new user
-        user = User(
-            email=profile["email"],
-            name=profile["name"],
-            google_id=profile["google_id"],
-            avatar_url=profile["picture"]
+    google_id = profile.get("google_id")
+    email = profile.get("email")
+
+    if not google_id or not email:
+        failure_response(
+            "Google account did not return required identity fields.",
+            status.HTTP_401_UNAUTHORIZED,
         )
-        db.add(user)
-        await db.commit()
-        await db.refresh(user)
+
+    try:
+        # Primary lookup by Google subject ID.
+        result = await db.execute(select(User).where(User.google_id == google_id))
+        user = result.scalar_one_or_none()
+        should_commit = False
+
+        # Fallback lookup by email to avoid duplicate-email 500s.
+        if not user:
+            result = await db.execute(select(User).where(User.email == email))
+            user = result.scalar_one_or_none()
+
+            if user:
+                if user.google_id != google_id:
+                    logger.warning(
+                        "Google auth rejected: conflicting google_id for email={} existing={} incoming={}",
+                        email,
+                        user.google_id,
+                        google_id,
+                    )
+                    failure_response(
+                        "An account with this email already exists under a different Google account.",
+                        status.HTTP_409_CONFLICT,
+                    )
+
+                # Keep profile fresh for returning users.
+                updated_name = profile.get("name") or user.name
+                updated_avatar = profile.get("picture") or user.avatar_url
+                if user.name != updated_name or user.avatar_url != updated_avatar:
+                    user.name = updated_name
+                    user.avatar_url = updated_avatar
+                    should_commit = True
+            else:
+                user = User(
+                    email=email,
+                    name=profile.get("name") or email,
+                    google_id=google_id,
+                    avatar_url=profile.get("picture"),
+                )
+                db.add(user)
+                should_commit = True
+
+        if should_commit:
+            await db.commit()
+            await db.refresh(user)
+
+    except IntegrityError:
+        await db.rollback()
+        logger.exception("Google auth persistence conflict for email={}", email)
+        failure_response(
+            "Unable to authenticate due to conflicting account data.",
+            status.HTTP_409_CONFLICT,
+        )
+    except Exception:
+        await db.rollback()
+        logger.exception("Unexpected server error during Google auth for email={}", email)
+        failure_response(
+            "Authentication failed due to a server error.",
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
     
     # Generate tokens
     user_id_str = str(user.id)

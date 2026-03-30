@@ -7,8 +7,9 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isAuthActionLoading: boolean;
   loginWithGoogle: (credential: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -17,13 +18,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthActionLoading, setIsAuthActionLoading] = useState(false);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    setUser(null);
-    queryClient.clear();
-    authApi.logout().catch(() => {});
+  const logout = useCallback(async () => {
+    setIsAuthActionLoading(true);
+    try {
+      await authApi.logout();
+    } catch (error) {
+      // Logout is stateless; clear local session even when server logout fails.
+    } finally {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      setUser(null);
+      queryClient.clear();
+      setIsAuthActionLoading(false);
+    }
   }, []);
 
   const refreshUser = useCallback(async () => {
@@ -31,12 +40,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = await authApi.getMe();
       setUser(userData);
     } catch (error) {
-      logout();
+      void logout();
     }
   }, [logout]);
 
   const loginWithGoogle = async (credential: string) => {
-    setIsLoading(true);
+    setIsAuthActionLoading(true);
     try {
       const { access_token, refresh_token, user: userData } = await authApi.loginWithGoogle(credential);
       localStorage.setItem("access_token", access_token);
@@ -46,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Login failed", error);
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsAuthActionLoading(false);
     }
   };
 
@@ -60,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(userData);
         } catch (error) {
           // Token might be expired, let the interceptor handle it or logout
-          logout();
+          void logout();
         }
       }
       setIsLoading(false);
@@ -73,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user,
       isAuthenticated: !!user,
       isLoading,
+      isAuthActionLoading,
       loginWithGoogle,
       logout,
       refreshUser

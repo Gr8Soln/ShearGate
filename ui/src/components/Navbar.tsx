@@ -5,12 +5,13 @@ import {
   BookOpen,
   Menu,
   X,
-  User as UserIcon
+  User as UserIcon,
+  Loader2
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAuthActionLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
@@ -70,10 +71,18 @@ const Navbar: React.FC = () => {
                     <span className="text-xs font-bold text-slate-300">{user?.name.split(' ')[0]}</span>
                   </div>
                   <button
-                    onClick={() => logout()}
-                    className="text-xs font-bold text-slate-500 hover:text-red-400 transition-colors"
+                    onClick={() => void logout()}
+                    disabled={isAuthActionLoading}
+                    className="text-xs font-bold text-slate-500 hover:text-red-400 transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-2"
                   >
-                    Logout
+                    {isAuthActionLoading ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin" />
+                        Logging out...
+                      </>
+                    ) : (
+                      "Logout"
+                    )}
                   </button>
                 </div>
               ) : (

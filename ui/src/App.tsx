@@ -29,7 +29,7 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
-          <Router>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-[#e8a020]/30 selection:text-[#e8a020]">
               <Navbar />
               <main>
