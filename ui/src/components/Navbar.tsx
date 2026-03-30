@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
               </div>
               <div className="flex flex-col -space-y-1">
                 <span className="text-[1.1rem] font-black tracking-tight text-white uppercase">
-                  Block Shear
+                  ShearGate
                 </span>
                 <span className="text-[0.6rem] font-bold tracking-[0.2em] text-[#e8a020] uppercase border border-[#e8a020]/30 px-1 py-0.5 rounded-sm bg-[#e8a020]/5 w-fit">
                   Analyzer
@@ -80,15 +80,9 @@ const Navbar: React.FC = () => {
                 <>
                   <Link
                     to="/auth"
-                    className="text-sm font-bold text-slate-400 hover:text-white transition-colors"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/auth"
                     className="btn-primary"
                   >
-                    Sign Up
+                    Login
                   </Link>
                 </>
               )}
@@ -125,12 +119,9 @@ const Navbar: React.FC = () => {
               </Link>
             )
           ))}
-          {!isAuthenticated && (
             <div className="pt-4 flex flex-col gap-2">
-              <Link to="/auth" className="btn-secondary w-full text-center">Login</Link>
-              <Link to="/auth" className="btn-primary w-full text-center">Sign Up</Link>
+              <Link to="/auth" className="btn-primary w-full text-center">Login</Link>
             </div>
-          )}
         </div>
       )}
     </nav>

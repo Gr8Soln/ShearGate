@@ -1,4 +1,6 @@
 import React from "react";
+import { InlineMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import { BS5950_CLAUSES, BS5950_TABLES } from "../data/bs5950";
 
 interface ParseDescriptionProps {
@@ -9,14 +11,13 @@ interface ParseDescriptionProps {
 export const parseDescription = (text: string, onRefClick: (refId: string, refType: "clause" | "table") => void) => {
   if (!text) return null;
 
-  // Regex to match [CLAUSE:x.x.x] or [TABLE:T.x]
-  const regex = /\[(CLAUSE|TABLE):([\w\.]+)\]/g;
-  const parts = [];
+  // First, parse references like [CLAUSE:x.x.x]
+  const refRegex = /\[(CLAUSE|TABLE):([\w\.]+)\]/g;
+  const parts: (string | JSX.Element)[] = [];
   let lastIndex = 0;
   let match;
 
-  while ((match = regex.exec(text)) !== null) {
-    // Push the text before the match
+  while ((match = refRegex.exec(text)) !== null) {
     if (match.index > lastIndex) {
       parts.push(text.substring(lastIndex, match.index));
     }
@@ -24,13 +25,11 @@ export const parseDescription = (text: string, onRefClick: (refId: string, refTy
     const [fullMatch, type, id] = match;
     const isClause = type === "CLAUSE";
     const refType = isClause ? "clause" : "table";
-    
-    // Check if we have the data for it
     const exists = isClause ? !!BS5950_CLAUSES[id] : !!BS5950_TABLES[id];
 
     parts.push(
       <button
-        key={match.index}
+        key={`ref-${match.index}`}
         onClick={(e) => {
           e.preventDefault();
           onRefClick(id, refType);
@@ -44,15 +43,43 @@ export const parseDescription = (text: string, onRefClick: (refId: string, refTy
       </button>
     );
 
-    lastIndex = regex.lastIndex;
+    lastIndex = refRegex.lastIndex;
   }
 
-  // Push the remaining text
   if (lastIndex < text.length) {
     parts.push(text.substring(lastIndex));
   }
 
-  return <>{parts}</>;
+  // Second pass: Parse LaTeX math blocks ($...$) within the parts that are strings
+  return parts.flatMap((part, i) => {
+    if (typeof part !== "string") return part;
+
+    const mathRegex = /\$([^$]+)\$/g;
+    const mathParts: (string | JSX.Element)[] = [];
+    let mathLastIndex = 0;
+    let mathMatch;
+
+    while ((mathMatch = mathRegex.exec(part)) !== null) {
+      if (mathMatch.index > mathLastIndex) {
+        mathParts.push(part.substring(mathLastIndex, mathMatch.index));
+      }
+
+      const MathFormula = mathMatch[1];
+      mathParts.push(
+        <span key={`math-${i}-${mathMatch.index}`} className="inline-block px-1 align-middle">
+          <InlineMath math={MathFormula} />
+        </span>
+      );
+
+      mathLastIndex = mathRegex.lastIndex;
+    }
+
+    if (mathLastIndex < part.length) {
+      mathParts.push(part.substring(mathLastIndex));
+    }
+
+    return mathParts;
+  });
 };
 
 export const ParseDescription: React.FC<ParseDescriptionProps> = ({ text, onRefClick }) => {

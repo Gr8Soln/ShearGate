@@ -5,41 +5,46 @@ export const BS5950_CLAUSES: Record<string, BS5950Clause> = {
     number: "3.4.3",
     title: "Effective Net Area",
     section: "Section 3.4",
-    content: "The effective net area ae of each element of a cross-section with bolt holes should be determined from: ae = Ke * an, but ae <= ag, in which the effective net area coefficient Ke is given by Table 3.",
-    equation: "ae = Ke * an",
-    references: ["Table 3", "3.4.4"]
+    content: "The effective net area $a_e$ of each element of a cross-section with bolt holes should be determined from: $a_e = K_e \cdot a_n$, but $a_e \\le a_g$, in which the effective net area coefficient $K_e$ is given by Table 3.",
+    equation: "a_e = K_e \\cdot a_n",
+    references: ["Table 3", "3.4.4"],
+    StartLine: 4
   },
   "4.6.1": {
     number: "4.6.1",
     title: "Tension Capacity",
     section: "Section 4.6",
-    content: "The tension capacity Pt of a member should generally be obtained from: Pt = py * Ae, in which Ae is the sum of the effective net areas ae of all the elements of the cross-section.",
-    equation: "Pt = py * Ae",
-    references: ["3.4.3", "Table 9"]
+    content: "The tension capacity $P_t$ of a member should generally be obtained from: $P_t = p_y \\cdot A_e$, in which $A_e$ is the sum of the effective net areas $a_e$ of all the elements of the cross-section.",
+    equation: "P_t = p_y \\cdot A_e",
+    references: ["3.4.3", "Table 9"],
+    StartLine: 12
   },
   "6.2.4": {
     number: "6.2.4",
-    title: "Block Shear Rupture",
+    title: "ShearGate Rupture",
     section: "Section 6.2",
-    content: "The block shear capacity Pr of a connection should be determined by considering the failure of the connected part. Pr = 0.6 * py * Avn + U * py * Atn / 1.25.",
-    equation: "Pr = 0.6 * py * Avn + U * py * Atn / 1.25",
-    references: ["6.2.3", "Table 9"]
+    content: "The block shear capacity $P_r$ of a connection should be determined by considering the failure of the connected part. $P_r = 0.6 \\cdot p_y \\cdot A_{vn} + \\frac{U \\cdot p_y \\cdot A_{tn}}{1.25}$.",
+    equation: "P_r = 0.6 \\cdot p_y \\cdot A_{vn} + \\frac{U \\cdot p_y \\cdot A_{tn}}{1.25}",
+    references: ["6.2.3", "Table 9"],
+    StartLine: 20
   },
   "6.3.1": {
     number: "6.3.1",
     title: "Bolt Shear Capacity",
     section: "Section 6.3",
-    content: "The shear capacity of a bolt Ps should be determined as: Ps = ps * As, where ps is the design shear strength and As is the relevant area (shear area).",
-    equation: "Ps = ps * As",
-    references: ["Table 30"]
+    content: "The shear capacity of a bolt $P_s$ should be determined as: $P_s = p_s \\cdot A_s$, where $p_s$ is the design shear strength and $A_s$ is the relevant area (shear area).",
+    equation: "P_s = p_s \\cdot A_s",
+    references: ["Table 30"],
+    StartLine: 28
   },
   "6.3.3.3": {
     number: "6.3.3.3",
     title: "Bolt Bearing Capacity",
     section: "Section 6.3",
-    content: "The bearing capacity Pbs of the connected part should be taken as: Pbs = d * t * pbs, where d is the nominal bolt diameter and t is the thickness of the connected part.",
-    equation: "Pbs = d * t * pbs",
-    references: ["Table 32"]
+    content: "The bearing capacity $P_{bs}$ of the connected part should be taken as: $P_{bs} = d \\cdot t \\cdot p_{bs}$, where $d$ is the nominal bolt diameter and $t$ is the thickness of the connected part.",
+    equation: "P_{bs} = d \\cdot t \\cdot p_{bs}",
+    references: ["Table 32"],
+    StartLine: 36
   }
   // ... more clauses can be added here
 };

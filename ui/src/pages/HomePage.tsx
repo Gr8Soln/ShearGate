@@ -25,12 +25,12 @@ const HomePage: React.FC = () => {
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-none animate-slide-up">
-            Block Shear Analysis <br />
+            ShearGate Analysis <br />
             <span className="text-[#e8a020]">Made Simple</span>
           </h1>
 
           <p className="text-lg text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed opacity-80">
-            Professional block shear failure analysis for bolted connections
+            Professional ShearGate failure analysis for bolted connections
             following BS 5950 standards. Built for engineering students and
             professionals.
           </p>
@@ -69,7 +69,7 @@ const HomePage: React.FC = () => {
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl font-black text-white tracking-tight">Everything You Need</h2>
             <p className="text-slate-500 max-w-xl mx-auto font-medium">
-              Powerful features designed to make block shear analysis effortless and educational
+              Powerful features designed to make connection analysis effortless and educational
             </p>
           </div>
 
@@ -134,11 +134,10 @@ const HomePage: React.FC = () => {
             Ready to Analyze Your First <br /> Connection?
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto font-medium leading-relaxed">
-            Join students and professionals using the most advanced block shear analysis tool. No credit card required.
+            Join students and professionals using the most advanced ShearGate analysis tool.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/auth" className="btn-primary px-10">Create Free Account</Link>
-            <Link to="/analyze" className="btn-secondary px-10">Try Without Signup</Link>
+            <Link to="/auth" className="btn-primary px-10">Sign In to Get Started</Link>
           </div>
           <p className="text-xs text-slate-600 font-bold uppercase tracking-widest pt-4">Full access • No installation required • Works on any device</p>
         </div>
@@ -150,13 +149,13 @@ const HomePage: React.FC = () => {
           <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[#e8a020] border border-white/5">
             <Calculator size={16} />
           </div>
-          <span className="text-white font-black uppercase tracking-widest text-sm">Block Shear Analyzer</span>
+          <span className="text-white font-black uppercase tracking-widest text-sm">ShearGate Analyzer</span>
         </div>
         <p className="text-slate-600 text-[0.7rem] max-w-lg mx-auto leading-loose uppercase tracking-[0.1em] font-bold">
           Professional structural analysis tool for CVE505: Design of Steel Structures
         </p>
         <div className="pt-8 text-slate-700 text-[0.65rem] font-bold">
-          © 2026 Block Shear Analyzer. Built with React, Tailwind CSS, and FastAPI. <br /> All calculations follow BS 5950-1:2000 standards.
+          © 2026 ShearGate Analyzer. Built with React, Tailwind CSS, and FastAPI. <br /> All calculations follow BS 5950-1:2000 standards.
         </div>
       </footer>
     </div>

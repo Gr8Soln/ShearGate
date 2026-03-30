@@ -25,21 +25,9 @@
   }
 
   body {
-    @apply bg-[#090a0c] text-slate-200 antialiased selection:bg-[#e8a020]/30 selection:text-[#e8a020];
+    @apply bg-[#090a0c] text-white antialiased selection:bg-[#e8a020]/30 selection:text-[#e8a020];
     min-height: 100vh;
     font-family: 'Inter', sans-serif;
-  }
-
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: 
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
   }
 
   /* Radial glow in the background */

@@ -6,6 +6,8 @@ import {
   Loader2,
   Info
 } from "lucide-react";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import { BS5950_CLAUSES, BS5950_TABLES, REFERENCE_GROUPS } from "../data/bs5950";
 import { explainApi } from "../api/client";
 import { ParseDescription } from "../utils/parseDescription";
@@ -46,10 +48,12 @@ const ClausesPage: React.FC = () => {
     }
   };
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (id: string, type?: "clause" | "table") => {
     setSelectedId(id);
-    setSelectedType(BS5950_CLAUSES[id] ? "clause" : "table");
+    const resolvedType = type || (BS5950_CLAUSES[id] ? "clause" : "table");
+    setSelectedType(resolvedType);
     setAiInsight(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -59,9 +63,9 @@ const ClausesPage: React.FC = () => {
         <div className="inline-flex items-center">
           <span className="badge-glow">Reference</span>
         </div>
-        <h1 className="text-4xl font-black text-white tracking-tight leading-none">BS 5950 Clauses</h1>
+        <h1 className="text-4xl font-black text-white tracking-tight leading-none uppercase">ShearGate References</h1>
         <p className="text-slate-500 font-medium max-w-2xl">
-          Browse and search design clauses related to bolted connections and block shear failure
+          Browse and search design clauses related to bolted connections and ShearGate analysis per BS 5950
         </p>
       </div>
 
@@ -85,7 +89,7 @@ const ClausesPage: React.FC = () => {
                 {filteredGroups.reduce((acc, g) => acc + g.items.length, 0)} results
               </span>
             </div>
-            <div className="max-h-[500px] overflow-y-auto custom-scrollbar p-3 space-y-6">
+            <div className="max-h-[500px] overflow-y-auto p-3 space-y-6">
               {filteredGroups.map((group, idx) => (
                 <div key={idx} className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase text-slate-600 tracking-[0.2em] ml-2">
@@ -97,19 +101,19 @@ const ClausesPage: React.FC = () => {
                       const isActive = selectedId === id;
                       return (
                         <button
-                          key={id}
-                          onClick={() => handleSelect(id)}
-                          className={`w-full flex flex-col p-3 rounded-lg text-left transition-all ${
-                            isActive 
-                              ? "bg-[#e8a020]/10 text-white border border-[#e8a020]/20" 
-                              : "text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent"
-                          }`}
-                        >
-                          <span className={`text-[0.65rem] font-black uppercase tracking-widest ${isActive ? "text-[#e8a020]" : "text-slate-600"}`}>
-                            {BS5950_CLAUSES[id] ? "Clause" : "Table"} {id}
-                          </span>
-                          <span className="text-sm font-bold truncate mt-0.5">{item.title}</span>
-                        </button>
+                           key={id}
+                           onClick={() => handleSelect(id)}
+                           className={`w-full flex flex-col p-3 rounded-lg text-left transition-all ${
+                             isActive 
+                               ? "bg-[#e8a020]/10 text-white border border-[#e8a020]/20" 
+                               : "text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent"
+                           }`}
+                         >
+                           <span className={`text-[0.65rem] font-black uppercase tracking-widest ${isActive ? "text-[#e8a020]" : "text-slate-600"}`}>
+                             {BS5950_CLAUSES[id] ? "Clause" : "Table"} {id}
+                           </span>
+                           <span className="text-sm font-bold truncate mt-0.5">{item.title}</span>
+                         </button>
                       );
                     })}
                   </div>
@@ -131,7 +135,7 @@ const ClausesPage: React.FC = () => {
                   </span>
                   {selectedId.includes(".") && (
                     <span className="badge-glow bg-white/5 text-slate-400 border-white/10 uppercase">
-                      Bolts
+                      Engineering Unit
                     </span>
                   )}
                 </div>
@@ -140,10 +144,14 @@ const ClausesPage: React.FC = () => {
                 
                 {selectedType === "clause" && "content" in selectedItem && (
                   <div className="space-y-8">
-                    <p className="text-lg text-slate-300 leading-relaxed font-medium opacity-90">{selectedItem.content}</p>
+                    <div className="text-lg text-slate-300 leading-relaxed font-medium opacity-90">
+                      <ParseDescription text={selectedItem.content} onRefClick={handleSelect} />
+                    </div>
                     {selectedItem.equation && (
-                      <div className="formula-box text-center">
-                        <span className="text-2xl font-mono text-[#e8a020]">{selectedItem.equation}</span>
+                      <div className="formula-box py-8 px-4 flex items-center justify-center bg-black/40 border-white/5">
+                        <div className="text-2xl text-[#e8a020]">
+                          <BlockMath math={selectedItem.equation} />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -173,19 +181,22 @@ const ClausesPage: React.FC = () => {
                 )}
 
                 {/* Sub-references helper */}
-                <div className="mt-12 pt-8 border-t border-white/5 flex flex-wrap items-center gap-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Related References</span>
-                  <div className="flex gap-2">
-                    {["Table 32", "Table 33", "Table 34", "Table 35"].map(ref => (
-                      <button 
-                        key={ref}
-                        className="px-3 py-1.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-bold text-slate-500 hover:border-[#e8a020]/30 hover:text-white transition-all flex items-center gap-2"
-                      >
-                        {ref} <BookOpen size={10} />
-                      </button>
-                    ))}
+                {selectedItem.references && selectedItem.references.length > 0 && (
+                  <div className="mt-12 pt-8 border-t border-white/5 flex flex-wrap items-center gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Related References</span>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedItem.references.map(ref => (
+                        <button 
+                          key={ref}
+                          onClick={() => handleSelect(ref.replace("Table ", "T."))}
+                          className="px-3 py-1.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-bold text-slate-500 hover:border-[#e8a020]/30 hover:text-white transition-all flex items-center gap-2"
+                        >
+                          {ref} <BookOpen size={10} />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* AI Insight Card */}
@@ -200,8 +211,8 @@ const ClausesPage: React.FC = () => {
                       <Sparkles size={20} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-white">AI Analysis</h3>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Engineering Logic & Context</p>
+                      <h3 className="text-lg font-black text-white">ShearGate Analysis</h3>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Engineering AI Context</p>
                     </div>
                   </div>
                   {!aiInsight && (
@@ -221,7 +232,7 @@ const ClausesPage: React.FC = () => {
                     </div>
                   ) : (
                     <div className="text-center text-slate-600 italic font-medium py-4">
-                      Click the button above to have Gemini explain this provision in plain English for your analysis report.
+                      Tap the button to have our AI assistant generate a professional ShearGate insight for your analysis session.
                     </div>
                   )}
                 </div>
@@ -230,8 +241,8 @@ const ClausesPage: React.FC = () => {
           ) : (
             <div className="h-[500px] card border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 p-12 text-center opacity-50">
               <Info size={48} className="mb-4 opacity-20" />
-              <h3 className="text-xl font-black text-white/50 mb-2 uppercase tracking-tight">No clause selected</h3>
-              <p className="max-w-xs mx-auto text-sm font-medium">Select a clause reference from the list on the left to explore technical details.</p>
+              <h3 className="text-xl font-black text-white/50 mb-2 uppercase tracking-tight">No resource selected</h3>
+              <p className="max-w-xs mx-auto text-sm font-medium">Select an engineering provision or table from the list on the left to explore professional insights.</p>
             </div>
           )}
         </div>
